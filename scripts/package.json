@@ -1,0 +1,9 @@
+{
+  "name": "scripts",
+  "private": true,
+  "type": "module",
+  "devDependencies": {
+    "@readme/openapi-parser": "^5.5.0",
+    "openapi-types": "^12.1.3"
+  }
+}
