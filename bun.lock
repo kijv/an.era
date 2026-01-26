@@ -6,6 +6,7 @@
       "name": "are.na",
       "devDependencies": {
         "@types/bun": "latest",
+        "form-urlencoded": "^6.1.6",
         "oxfmt": "^0.24.0",
         "oxlint": "^1.41.0",
         "oxlint-tsgolint": "^0.11.2",
@@ -169,6 +170,8 @@
     "fast-deep-equal": ["fast-deep-equal@3.1.3", "", {}, "sha512-f3qQ9oQy9j2AhBe/H9VC91wLmKBCCU/gDOnKNAYG5hswO7BLKj09Hc5HYNz9cGI++xlpDCIgDaitVs03ATR84Q=="],
 
     "fast-uri": ["fast-uri@3.1.0", "", {}, "sha512-iPeeDKJSWf4IEOasVVrknXpaBV0IApz/gp7S2bb7Z4Lljbl2MGJRqInZiUrQwV16cpzw/D3S5j5Julj/gT52AA=="],
+
+    "form-urlencoded": ["form-urlencoded@6.1.6", "", {}, "sha512-0a2GKWoNjT55lPrjZWFUiJ8rK9e3rihCyNqZP2k/GSPfkjemZoDrYrNsvRSQHrKJ4qnD/wXj7KSQomz/lbF2Ew=="],
 
     "get-tsconfig": ["get-tsconfig@4.13.0", "", { "dependencies": { "resolve-pkg-maps": "^1.0.0" } }, "sha512-1VKTZJCwBrvbd+Wn3AOgQP/2Av+TfTCOlE4AcRJE72W1ksZXbAx8PPBR9RzgTeSPzlPMHrbANMH3LbltH73wxQ=="],
 

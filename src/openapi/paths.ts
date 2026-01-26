@@ -8,73 +8,58 @@ const Authentication = {
     method: 'post',
     path: '/v3/oauth/token',
     parameters: {},
+    body: {
+      required: true,
+      content: {
+        'application/x-www-form-urlencoded': v.required(
+          v.partial(
+            v.object({
+              grant_type: v.picklist([
+                'authorization_code',
+                'client_credentials',
+              ]),
+              client_id: v.string(),
+              client_secret: v.string(),
+              code: v.string(),
+              redirect_uri: v.string(),
+              code_verifier: v.string(),
+            }),
+          ),
+          ['grant_type'],
+        ),
+      },
+    },
     responses: {
       '200': {
-        'application/json': v.pipe(
-          v.object({
-            access_token: v.pipe(
-              v.string(),
-              v.metadata({
-                description: 'The access token to use for API requests',
-              }),
-            ),
-            token_type: v.pipe(
-              v.picklist(['Bearer']),
-              v.metadata({
-                description: 'Token type (always "Bearer")',
-              }),
-            ),
-            scope: v.pipe(
-              v.string(),
-              v.metadata({
-                description: 'Granted scopes (space-separated)',
-              }),
-              v.examples(['write']),
-            ),
-            created_at: v.pipe(
-              v.pipe(v.number(), v.integer()),
-              v.metadata({
-                description: 'Unix timestamp when the token was created',
-              }),
-            ),
-          }),
-          v.metadata({
-            description: 'Access token granted',
-          }),
+        'application/json': v.required(
+          v.partial(
+            v.object({
+              access_token: v.string(),
+              token_type: v.picklist(['Bearer']),
+              scope: v.string(),
+              created_at: v.pipe(v.number(), v.integer()),
+            }),
+          ),
+          ['access_token', 'token_type', 'scope', 'created_at'],
         ),
       },
       '400': {
-        'application/json': v.pipe(
-          v.object({
-            error: v.picklist([
-              'invalid_request',
-              'invalid_client',
-              'invalid_grant',
-              'unauthorized_client',
-              'unsupported_grant_type',
-            ]),
-            error_description: v.string(),
-          }),
-          v.metadata({
-            description: 'Invalid request',
-          }),
-        ),
+        'application/json': v.object({
+          error: v.picklist([
+            'invalid_request',
+            'invalid_client',
+            'invalid_grant',
+            'unauthorized_client',
+            'unsupported_grant_type',
+          ]),
+          error_description: v.string(),
+        }),
       },
       '401': {
-        'application/json': v.pipe(
-          v.object({
-            error: v.pipe(v.string(), v.examples(['invalid_client'])),
-            error_description: v.pipe(
-              v.string(),
-              v.examples([
-                'Client authentication failed due to unknown client or invalid credentials.',
-              ]),
-            ),
-          }),
-          v.metadata({
-            description: 'Invalid client credentials',
-          }),
-        ),
+        'application/json': v.object({
+          error: v.string(),
+          error_description: v.string(),
+        }),
       },
     },
   },
@@ -86,14 +71,9 @@ const System = {
     parameters: {},
     responses: {
       '200': {
-        'application/yaml': v.pipe(
-          v.string(),
-          v.metadata({
-            description: 'OpenAPI specification in YAML format',
-          }),
-        ),
+        'application/yaml': v.string(),
       },
-      '404': r.NotFoundResponseSchema,
+      '404': r.NotFoundResponse,
     },
   },
   getOpenapiSpecJson: {
@@ -102,14 +82,9 @@ const System = {
     parameters: {},
     responses: {
       '200': {
-        'application/json': v.pipe(
-          v.object({}),
-          v.metadata({
-            description: 'OpenAPI specification in JSON format',
-          }),
-        ),
+        'application/json': v.record(v.string(), v.union([])),
       },
-      '404': r.NotFoundResponseSchema,
+      '404': r.NotFoundResponse,
     },
   },
   getPing: {
@@ -120,7 +95,7 @@ const System = {
       '200': {
         'application/json': s.PingResponseSchema,
       },
-      '429': r.RateLimitResponseSchema,
+      '429': r.RateLimitResponse,
     },
   },
 };
@@ -141,10 +116,10 @@ const Blocks = {
         '200': {
           'application/json': s.BlockSchema,
         },
-        '401': r.UnauthorizedResponseSchema,
-        '403': r.ForbiddenResponseSchema,
-        '404': r.NotFoundResponseSchema,
-        '429': r.RateLimitResponseSchema,
+        '401': r.UnauthorizedResponse,
+        '403': r.ForbiddenResponse,
+        '404': r.NotFoundResponse,
+        '429': r.RateLimitResponse,
       },
     },
     getBlockConnections: {
@@ -158,26 +133,17 @@ const Blocks = {
           page: v.nullish(p.PageParamSchema),
           per: v.nullish(p.PerParamSchema),
           sort: v.nullish(p.ConnectionSortParamSchema),
-          filter: v.nullish(
-            v.pipe(
-              v.picklist(['ALL', 'OWN', 'EXCLUDE_OWN']),
-              v.metadata({
-                description:
-                  'Filter connections by ownership:\n- `ALL`: All accessible connections (default)\n- `OWN`: Only connections created by the current user\n- `EXCLUDE_OWN`: All connections except those created by the current user\n',
-              }),
-              v.examples(['ALL']),
-            ),
-          ),
+          filter: v.nullish(v.picklist(['ALL', 'OWN', 'EXCLUDE_OWN'])),
         },
       },
       responses: {
         '200': {
           'application/json': s.ChannelListResponseSchema,
         },
-        '401': r.UnauthorizedResponseSchema,
-        '403': r.ForbiddenResponseSchema,
-        '404': r.NotFoundResponseSchema,
-        '429': r.RateLimitResponseSchema,
+        '401': r.UnauthorizedResponse,
+        '403': r.ForbiddenResponse,
+        '404': r.NotFoundResponse,
+        '429': r.RateLimitResponse,
       },
     },
     getBlockComments: {
@@ -197,10 +163,10 @@ const Blocks = {
         '200': {
           'application/json': s.CommentListResponseSchema,
         },
-        '401': r.UnauthorizedResponseSchema,
-        '403': r.ForbiddenResponseSchema,
-        '404': r.NotFoundResponseSchema,
-        '429': r.RateLimitResponseSchema,
+        '401': r.UnauthorizedResponse,
+        '403': r.ForbiddenResponse,
+        '404': r.NotFoundResponse,
+        '429': r.RateLimitResponse,
       },
     },
   },
@@ -222,10 +188,10 @@ const Channels = {
         '200': {
           'application/json': s.ChannelSchema,
         },
-        '401': r.UnauthorizedResponseSchema,
-        '403': r.ForbiddenResponseSchema,
-        '404': r.NotFoundResponseSchema,
-        '429': r.RateLimitResponseSchema,
+        '401': r.UnauthorizedResponse,
+        '403': r.ForbiddenResponse,
+        '404': r.NotFoundResponse,
+        '429': r.RateLimitResponse,
       },
     },
     getChannelContents: {
@@ -239,25 +205,17 @@ const Channels = {
           page: v.nullish(p.PageParamSchema),
           per: v.nullish(p.PerParamSchema),
           sort: v.nullish(p.ChannelContentSortParamSchema),
-          user_id: v.nullish(
-            v.pipe(
-              v.pipe(v.number(), v.integer()),
-              v.metadata({
-                description: 'Filter by user who added the content',
-              }),
-              v.examples([12345]),
-            ),
-          ),
+          user_id: v.nullish(v.pipe(v.number(), v.integer())),
         },
       },
       responses: {
         '200': {
           'application/json': s.ConnectableListResponseSchema,
         },
-        '401': r.UnauthorizedResponseSchema,
-        '403': r.ForbiddenResponseSchema,
-        '404': r.NotFoundResponseSchema,
-        '429': r.RateLimitResponseSchema,
+        '401': r.UnauthorizedResponse,
+        '403': r.ForbiddenResponse,
+        '404': r.NotFoundResponse,
+        '429': r.RateLimitResponse,
       },
     },
     getChannelConnections: {
@@ -277,10 +235,10 @@ const Channels = {
         '200': {
           'application/json': s.ChannelListResponseSchema,
         },
-        '401': r.UnauthorizedResponseSchema,
-        '403': r.ForbiddenResponseSchema,
-        '404': r.NotFoundResponseSchema,
-        '429': r.RateLimitResponseSchema,
+        '401': r.UnauthorizedResponse,
+        '403': r.ForbiddenResponse,
+        '404': r.NotFoundResponse,
+        '429': r.RateLimitResponse,
       },
     },
     getChannelFollowers: {
@@ -300,10 +258,10 @@ const Channels = {
         '200': {
           'application/json': s.UserListResponseSchema,
         },
-        '401': r.UnauthorizedResponseSchema,
-        '403': r.ForbiddenResponseSchema,
-        '404': r.NotFoundResponseSchema,
-        '429': r.RateLimitResponseSchema,
+        '401': r.UnauthorizedResponse,
+        '403': r.ForbiddenResponse,
+        '404': r.NotFoundResponse,
+        '429': r.RateLimitResponse,
       },
     },
   },
@@ -317,8 +275,8 @@ const Users = {
       '200': {
         'application/json': s.UserSchema,
       },
-      '401': r.UnauthorizedResponseSchema,
-      '429': r.RateLimitResponseSchema,
+      '401': r.UnauthorizedResponse,
+      '429': r.RateLimitResponse,
     },
   },
   id: {
@@ -337,10 +295,10 @@ const Users = {
         '200': {
           'application/json': s.UserSchema,
         },
-        '401': r.UnauthorizedResponseSchema,
-        '403': r.ForbiddenResponseSchema,
-        '404': r.NotFoundResponseSchema,
-        '429': r.RateLimitResponseSchema,
+        '401': r.UnauthorizedResponse,
+        '403': r.ForbiddenResponse,
+        '404': r.NotFoundResponse,
+        '429': r.RateLimitResponse,
       },
     },
     getUserContents: {
@@ -361,10 +319,10 @@ const Users = {
         '200': {
           'application/json': s.ConnectableListResponseSchema,
         },
-        '401': r.UnauthorizedResponseSchema,
-        '403': r.ForbiddenResponseSchema,
-        '404': r.NotFoundResponseSchema,
-        '429': r.RateLimitResponseSchema,
+        '401': r.UnauthorizedResponse,
+        '403': r.ForbiddenResponse,
+        '404': r.NotFoundResponse,
+        '429': r.RateLimitResponse,
       },
     },
     getUserFollowers: {
@@ -384,10 +342,10 @@ const Users = {
         '200': {
           'application/json': s.UserListResponseSchema,
         },
-        '401': r.UnauthorizedResponseSchema,
-        '403': r.ForbiddenResponseSchema,
-        '404': r.NotFoundResponseSchema,
-        '429': r.RateLimitResponseSchema,
+        '401': r.UnauthorizedResponse,
+        '403': r.ForbiddenResponse,
+        '404': r.NotFoundResponse,
+        '429': r.RateLimitResponse,
       },
     },
     getUserFollowing: {
@@ -401,25 +359,17 @@ const Users = {
           page: v.nullish(p.PageParamSchema),
           per: v.nullish(p.PerParamSchema),
           sort: v.nullish(p.ConnectionSortParamSchema),
-          type: v.nullish(
-            v.pipe(
-              v.picklist(['User', 'Channel', 'Group']),
-              v.metadata({
-                description: 'Filter by followable type',
-              }),
-              v.examples(['Channel']),
-            ),
-          ),
+          type: v.nullish(v.picklist(['User', 'Channel', 'Group'])),
         },
       },
       responses: {
         '200': {
           'application/json': s.FollowableListResponseSchema,
         },
-        '401': r.UnauthorizedResponseSchema,
-        '403': r.ForbiddenResponseSchema,
-        '404': r.NotFoundResponseSchema,
-        '429': r.RateLimitResponseSchema,
+        '401': r.UnauthorizedResponse,
+        '403': r.ForbiddenResponse,
+        '404': r.NotFoundResponse,
+        '429': r.RateLimitResponse,
       },
     },
   },
@@ -441,10 +391,10 @@ const Groups = {
         '200': {
           'application/json': s.GroupSchema,
         },
-        '401': r.UnauthorizedResponseSchema,
-        '403': r.ForbiddenResponseSchema,
-        '404': r.NotFoundResponseSchema,
-        '429': r.RateLimitResponseSchema,
+        '401': r.UnauthorizedResponse,
+        '403': r.ForbiddenResponse,
+        '404': r.NotFoundResponse,
+        '429': r.RateLimitResponse,
       },
     },
     getGroupContents: {
@@ -465,10 +415,10 @@ const Groups = {
         '200': {
           'application/json': s.ConnectableListResponseSchema,
         },
-        '401': r.UnauthorizedResponseSchema,
-        '403': r.ForbiddenResponseSchema,
-        '404': r.NotFoundResponseSchema,
-        '429': r.RateLimitResponseSchema,
+        '401': r.UnauthorizedResponse,
+        '403': r.ForbiddenResponse,
+        '404': r.NotFoundResponse,
+        '429': r.RateLimitResponse,
       },
     },
     getGroupFollowers: {
@@ -488,10 +438,10 @@ const Groups = {
         '200': {
           'application/json': s.UserListResponseSchema,
         },
-        '401': r.UnauthorizedResponseSchema,
-        '403': r.ForbiddenResponseSchema,
-        '404': r.NotFoundResponseSchema,
-        '429': r.RateLimitResponseSchema,
+        '401': r.UnauthorizedResponse,
+        '403': r.ForbiddenResponse,
+        '404': r.NotFoundResponse,
+        '429': r.RateLimitResponse,
       },
     },
   },
@@ -502,97 +452,30 @@ const Search = {
     path: '/v3/search',
     parameters: {
       query: {
-        q: v.nullish(
-          v.pipe(
-            v.string(),
-            v.metadata({
-              description:
-                'Search query. Use `*` to match everything (useful with filters).\n',
-            }),
-            v.examples(['design']),
-          ),
-        ),
-        type: v.nullish(
-          v.pipe(
-            v.array(s.SearchTypeFilterSchema),
-            v.metadata({
-              description:
-                'Content types to search (comma-separated).\nBlock subtypes: Text, Image, Link, Attachment, Embed.\nOther: Channel, User, Group, Block (all block types).\n',
-            }),
-            v.examples([['Image', 'Link']]),
-          ),
-        ),
-        scope: v.nullish(
-          v.pipe(
-            v.string(),
-            v.metadata({
-              description:
-                "Where to search:\n- `all` - Everything (default)\n- `my` - Current user's content\n- `following` - Content from followed users/channels\n- `user:ID` - Specific user's content\n- `group:ID` - Specific group's content\n- `channel:ID` - Specific channel's content\n",
-            }),
-            v.examples(['channel:12345']),
-          ),
-        ),
+        q: v.nullish(v.string()),
+        type: v.nullish(v.array(s.SearchTypeFilterSchema)),
+        scope: v.nullish(v.string()),
         in: v.nullish(
-          v.pipe(
-            v.array(
-              v.picklist(['name', 'description', 'content', 'domain', 'url']),
-            ),
-            v.metadata({
-              description:
-                'Fields to search within (comma-separated).\nOptions: name, description, content, domain, url.\nDefaults to all fields.\n',
-            }),
-            v.examples([['name', 'description']]),
+          v.array(
+            v.picklist(['name', 'description', 'content', 'domain', 'url']),
           ),
         ),
-        ext: v.nullish(
-          v.pipe(
-            v.array(s.FileExtensionSchema),
-            v.metadata({
-              description: 'Filter by file extensions (comma-separated)',
-            }),
-            v.examples([['pdf', 'jpg']]),
-          ),
-        ),
+        ext: v.nullish(v.array(s.FileExtensionSchema)),
         sort: v.nullish(
-          v.pipe(
-            v.picklist([
-              'score_desc',
-              'created_at_desc',
-              'created_at_asc',
-              'updated_at_desc',
-              'updated_at_asc',
-              'name_asc',
-              'name_desc',
-              'connections_count_desc',
-              'random',
-            ]),
-            v.metadata({
-              description:
-                'Sort order. Options:\n- `score_desc` (default) - Relevance\n- `created_at_desc`, `created_at_asc`\n- `updated_at_desc`, `updated_at_asc`\n- `name_asc`, `name_desc`\n- `connections_count_desc`\n- `random` (use with `seed` for reproducibility)\n',
-            }),
-            v.examples(['created_at_desc']),
-          ),
+          v.picklist([
+            'score_desc',
+            'created_at_desc',
+            'created_at_asc',
+            'updated_at_desc',
+            'updated_at_asc',
+            'name_asc',
+            'name_desc',
+            'connections_count_desc',
+            'random',
+          ]),
         ),
-        after: v.nullish(
-          v.pipe(
-            v.string(),
-            v.metadata({
-              description:
-                'Only return results updated after this date (ISO 8601)',
-            }),
-            v.examples(['2024-01-01T00:00:00Z']),
-          ),
-        ),
-        seed: v.nullish(
-          v.pipe(
-            v.pipe(v.number(), v.integer()),
-            v.metadata({
-              description:
-                'Random seed for reproducible results (use with `sort=random`)',
-            }),
-            v.examples([1234567890]),
-          ),
-        ),
+        after: v.nullish(v.string()),
+        seed: v.nullish(v.pipe(v.number(), v.integer())),
         page: v.nullish(p.PageParamSchema),
         per: v.nullish(p.PerParamSchema),
       },
@@ -601,12 +484,12 @@ const Search = {
       '200': {
         'application/json': s.EverythingListResponseSchema,
       },
-      '400': r.ValidationErrorResponseSchema,
-      '401': r.UnauthorizedResponseSchema,
+      '400': r.ValidationErrorResponse,
+      '401': r.UnauthorizedResponse,
       '403': {
         'application/json': s.ErrorSchema,
       },
-      '429': r.RateLimitResponseSchema,
+      '429': r.RateLimitResponse,
     },
   },
 };

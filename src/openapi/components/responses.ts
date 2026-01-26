@@ -1,37 +1,25 @@
 import * as s from './schemas';
 
-const UnauthorizedResponseSchema = {
+const UnauthorizedResponse = {
   'application/json': s.ErrorSchema,
 };
-type UnauthorizedResponse = v.InferOutput<typeof UnauthorizedResponseSchema>;
-const NotFoundResponseSchema = {
+const NotFoundResponse = {
   'application/json': s.ErrorSchema,
 };
-type NotFoundResponse = v.InferOutput<typeof NotFoundResponseSchema>;
-const ValidationErrorResponseSchema = {
+const ValidationErrorResponse = {
   'application/json': s.ErrorSchema,
 };
-type ValidationErrorResponse = v.InferOutput<
-  typeof ValidationErrorResponseSchema
->;
-const ForbiddenResponseSchema = {
+const ForbiddenResponse = {
   'application/json': s.ErrorSchema,
 };
-type ForbiddenResponse = v.InferOutput<typeof ForbiddenResponseSchema>;
-const RateLimitResponseSchema = {
+const RateLimitResponse = {
   'application/json': s.RateLimitErrorSchema,
 };
-type RateLimitResponse = v.InferOutput<typeof RateLimitResponseSchema>;
 
 export {
-  UnauthorizedResponseSchema,
-  type UnauthorizedResponse,
-  NotFoundResponseSchema,
-  type NotFoundResponse,
-  ValidationErrorResponseSchema,
-  type ValidationErrorResponse,
-  ForbiddenResponseSchema,
-  type ForbiddenResponse,
-  RateLimitResponseSchema,
-  type RateLimitResponse,
+  UnauthorizedResponse,
+  NotFoundResponse,
+  ValidationErrorResponse,
+  ForbiddenResponse,
+  RateLimitResponse,
 };

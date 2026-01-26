@@ -1,5 +1,7 @@
 import type { OpenAPIV3_1 } from 'openapi-types';
 
+const PIPE_KEYS = ['examples', 'example', 'description'];
+
 const shouldPipeSchema = (schema: OpenAPIV3_1.SchemaObject): boolean =>
   ('examples' in schema &&
     schema.examples != null &&
@@ -10,7 +12,11 @@ const shouldPipeSchema = (schema: OpenAPIV3_1.SchemaObject): boolean =>
 export const defaultRenderRef = (ref: string) => {
   const parts = ref.replace(/^#/, '').split('/').filter(Boolean);
 
-  return `${parts.at(-1)}Schema`;
+  const suffix = ['components/responses'].includes(parts.slice(0, -1).join('/'))
+    ? ''
+    : 'Schema';
+
+  return `${parts.at(-1)}${suffix}`;
 };
 
 export const openApiSchemaToValibotSchema = <
@@ -21,17 +27,23 @@ export const openApiSchemaToValibotSchema = <
     ref: string,
     kind: string,
   ) => string | null | undefined = defaultRenderRef,
-  pipe = shouldPipeSchema(schema),
+  used: string[] = [],
 ): string[] =>
-  '$ref' in schema && typeof schema.$ref === 'string'
+  ('$ref' in schema && typeof schema.$ref === 'string'
     ? [
         renderRef(schema.$ref, schema.$ref.split('/').slice(1, -1).join('/')) ??
           defaultRenderRef(schema.$ref),
       ]
-    : pipe
+    : !PIPE_KEYS.map((k) => used.includes(k)) && shouldPipeSchema(schema)
       ? [
           `v.pipe(`,
-          ...openApiSchemaToValibotSchema(schema, renderRef, false)
+          ...openApiSchemaToValibotSchema(
+            schema,
+            renderRef,
+            used.concat(
+              Object.keys(schema).filter((k) => PIPE_KEYS.includes(k)),
+            ),
+          )
             .map((s, _, arr) => (s === arr.at(-1) ? `${s},` : `${s}`))
             .concat(
               'description' in schema && typeof schema.description === 'string'
@@ -104,33 +116,70 @@ export const openApiSchemaToValibotSchema = <
                 `])`,
               ]
             : schema.type === 'object'
-              ? [
-                  `v.object({`,
-                  ...Object.entries(schema.properties ?? {})
-                    .filter<[string, OpenAPIV3_1.SchemaObject]>(
-                      ([, data]) => typeof data === 'object' && 'type' in data,
+              ? 'required' in schema &&
+                schema.required != null &&
+                schema.required.length > 0 &&
+                !used.includes('required')
+                ? [
+                    `v.required(`,
+                    ...openApiSchemaToValibotSchema(
+                      schema,
+                      renderRef,
+                      used.concat('required'),
                     )
-                    .flatMap<string>(([key, data]) => {
-                      const lines = openApiSchemaToValibotSchema(
-                        data,
-                        renderRef,
-                      );
-                      return lines.length > 1
-                        ? [`${key}: ${lines[0]!}`].concat(
-                            lines
-                              .slice(1, lines.length - 1)
-                              .map((s) => `\t${s}`),
-                            `${lines.at(-1)},`,
-                          )
-                        : lines.length === 1
-                          ? [`${key}: ${lines[0]!}`].map((s) =>
-                              s != null || s != '' ? `${s},` : s,
-                            )
-                          : [];
-                    })
-                    .map((s) => `\t${s}`),
-                  '})',
-                ].filter(Boolean)
+                      .map(
+                        (s, i, arr) =>
+                          `${i === 0 ? 'v.partial(' : ''}${s}${i === arr.length - 1 ? '),' : ''}`,
+                      )
+                      .concat(JSON.stringify(schema.required))
+                      .map((s) => `\t${s}`),
+                    `)`,
+                  ]
+                : schema.properties != null &&
+                    Object.keys(schema.properties).length > 0
+                  ? [
+                      `v.object({`,
+                      ...Object.entries(schema.properties)
+                        .filter<[string, OpenAPIV3_1.SchemaObject]>(
+                          ([, data]) =>
+                            typeof data === 'object' && 'type' in data,
+                        )
+                        .flatMap<string>(([key, data]) => {
+                          const lines = openApiSchemaToValibotSchema(
+                            data,
+                            renderRef,
+                          );
+                          return lines.length > 1
+                            ? [`${key}: ${lines[0]!}`].concat(
+                                lines
+                                  .slice(1, lines.length - 1)
+                                  .map((s) => `\t${s}`),
+                                `${lines.at(-1)},`,
+                              )
+                            : lines.length === 1
+                              ? [`${key}: ${lines[0]!}`].map((s) =>
+                                  s != null || s != '' ? `${s},` : s,
+                                )
+                              : [];
+                        })
+                        .map((s) => `\t${s}`),
+                      '})',
+                    ].filter(Boolean)
+                  : openApiSchemaToValibotSchema({
+                      oneOf: (schema.examples ?? [schema.example])
+                        .filter(Boolean)
+                        .flatMap((e) => Object.values(e).map((v) => typeof v))
+                        .reduce((acc, v) => {
+                          if (!acc.includes(v)) {
+                            acc.push(v);
+                          }
+                          return acc;
+                        }, [] as string[])
+                        .map((type) => ({ type }) as OpenAPIV3_1.SchemaObject),
+                    }).map(
+                      (l, i, arr) =>
+                        `${i === 0 ? 'v.record(v.string(), ' : ''}${l}${i === arr.length - 1 ? ')' : ''}`,
+                    )
               : schema.type === 'array'
                 ? [
                     `v.array(`,
@@ -150,8 +199,8 @@ export const openApiSchemaToValibotSchema = <
                       ? [`v.pipe(v.number(), v.integer())`]
                       : schema.type === 'null'
                         ? [`v.null()`, `v.undefined()`]
-                        : []
-          : [];
+                        : null
+          : null) ?? ['v.any()'];
 
 /**
  * Extracts schema references from a schema object

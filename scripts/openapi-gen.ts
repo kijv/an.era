@@ -6,14 +6,37 @@ import {
 } from './util';
 import { dereference, parse } from '@readme/openapi-parser';
 import { fileURLToPath } from 'bun';
-import openApiJson from './openapi.json' assert { type: 'json' };
 import path from 'node:path';
+
+const cwd = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
 
 const only = Bun.argv
   .slice(2)
   .find((arg) => arg.startsWith('--only='))
   ?.split('=')[1]
   ?.split(',');
+
+const url = Bun.argv
+  .slice(2)
+  .find((arg) => arg.startsWith('--url='))
+  ?.split('=')[1];
+
+const file = Bun.argv
+  .slice(2)
+  .find((arg) => arg.startsWith('--file='))
+  ?.split('=')[1];
+
+const skipExistingArg = Bun.argv
+  .slice(2)
+  .find((arg) => arg.startsWith('--skip-existing='))
+  ?.split('=')[1];
+
+const skipExisting =
+  skipExistingArg == null ? false : skipExistingArg === 'true';
+
+const openApiJson = await (url
+  ? fetch(url).then((res) => res.json())
+  : Bun.file(path.join(cwd, file!)).json());
 
 const openApi = (await parse(
   structuredClone(openApiJson),
@@ -63,16 +86,16 @@ const getComponentsSchemasCode = () => {
 
   const schemas = sortSchemasByDependencies(openApi.components?.schemas ?? {});
 
-  for (const schemaName in schemas) {
-    const schema = schemas[schemaName];
-    if (schema == null) continue;
-    const variableName = `${schemaName}Schema`;
+  for (const name in schemas) {
+    const obj = schemas[name];
+    if (obj == null) continue;
+    const variableName = `${name}Schema`;
     code.body += [`\nconst ${variableName} = `]
-      .concat(openApiSchemaToValibotSchema(schema).join('\n'))
+      .concat(openApiSchemaToValibotSchema(obj).join('\n'))
       .join('');
     code.exports.push(variableName);
-    code.body += `\ntype ${schemaName} = v.InferOutput<typeof ${variableName}>;`;
-    code.exports.push(`type ${schemaName}`);
+    code.body += `\ntype ${name} = v.InferOutput<typeof ${variableName}>;`;
+    code.exports.push(`type ${name}`);
   }
 
   return code;
@@ -83,16 +106,16 @@ const getComponentsParamsCode = () => {
     imports: [{ require: 'valibot', variable: '* as v' }],
   });
 
-  for (const paramName in openApi.components?.parameters) {
-    const param = openApi.components?.parameters[paramName];
-    if (param == null || '$ref' in param) continue;
-    const variableName = `${paramName}Schema`;
+  for (const name in openApi.components?.parameters) {
+    const obj = openApi.components?.parameters[name];
+    if (obj == null || '$ref' in obj) continue;
+    const variableName = `${name}Schema`;
     code.body += [`\nconst ${variableName} = `]
       .concat(
         openApiSchemaToValibotSchema(
-          Object.assign({}, param.schema as OpenAPIV3_1.SchemaObject, {
-            example: param.example,
-            describetion: param.description,
+          Object.assign({}, obj.schema as OpenAPIV3_1.SchemaObject, {
+            example: obj.example,
+            describetion: obj.description,
           }),
           (ref, kind) => {
             if (kind === 'components/schemas') {
@@ -106,8 +129,8 @@ const getComponentsParamsCode = () => {
       )
       .join('');
     code.exports.push(variableName);
-    code.body += `\ntype ${paramName} = v.InferOutput<typeof ${variableName}>;`;
-    code.exports.push(`type ${paramName}`);
+    code.body += `\ntype ${name} = v.InferOutput<typeof ${variableName}>;`;
+    code.exports.push(`type ${name}`);
   }
 
   return code;
@@ -129,10 +152,10 @@ const getComponentsResCode = () => {
     return `${variableName}.${defaultRenderRef(ref)}`;
   };
 
-  for (const resName in openApi.components?.responses) {
-    const res = openApi.components.responses[resName];
+  for (const name in openApi.components?.responses) {
+    const res = openApi.components.responses[name];
     if (res == null) continue;
-    const variableName = `${resName}Schema`;
+    const variableName = name;
     code.body += [`\nconst ${variableName} = `]
       .concat(
         [
@@ -159,8 +182,6 @@ const getComponentsResCode = () => {
       )
       .join('');
     code.exports.push(variableName);
-    code.body += `\ntype ${resName} = v.InferOutput<typeof ${variableName}>;`;
-    code.exports.push(`type ${resName}`);
   }
 
   return code;
@@ -174,6 +195,7 @@ const getPathsCode = () => {
     parameters?: (OpenAPIV3.ReferenceObject | OpenAPIV3.ParameterObject)[] &
       (OpenAPIV3.ParameterObject | OpenAPIV3_1.ReferenceObject)[];
     responses: OpenAPIV3.ResponsesObject & OpenAPIV3_1.ResponsesObject;
+    requestBody?: OpenAPIV3_1.RequestBodyObject;
   };
 
   const code = createCode();
@@ -209,6 +231,18 @@ const getPathsCode = () => {
             method: methodKey,
             parameters: method.parameters,
             responses: method.responses,
+            requestBody:
+              method.requestBody != null &&
+              typeof method.requestBody === 'object' &&
+              '$ref' in method.requestBody
+                ? (method.$ref as string)
+                    .replace(/^#\//, '')
+                    .split('/')
+                    .reduce(
+                      (acc, part) => (acc = acc[part]),
+                      derefOpenApi as any,
+                    )
+                : method.requestBody,
           });
         }
       }
@@ -290,25 +324,13 @@ const getPathsCode = () => {
                 (acc, param) => {
                   const paramObj =
                     '$ref' in param
-                      ? (() => {
-                          const refPath = param.$ref
-                            .replace(/^#\//, '')
-                            .split('/');
-                          let current: any = derefOpenApi;
-                          for (const part of refPath) {
-                            if (
-                              current != null &&
-                              typeof current === 'object' &&
-                              part in current
-                            ) {
-                              current = current[part];
-                            } else {
-                              current = null;
-                              break;
-                            }
-                          }
-                          return current as OpenAPIV3.ParameterObject | null;
-                        })()
+                      ? param.$ref
+                          .replace(/^#\//, '')
+                          .split('/')
+                          .reduce(
+                            (acc, part) => (acc = acc[part]),
+                            derefOpenApi as any,
+                          )
                       : param;
 
                   if (
@@ -385,6 +407,39 @@ const getPathsCode = () => {
                       .map((s) => `\t${s}`),
                   )
                   .concat('},'),
+              )
+              .concat(
+                op.requestBody != null
+                  ? [`body: {`]
+                      .concat(
+                        [
+                          `required: ${JSON.stringify(op.requestBody.required ?? false)},`,
+                        ]
+                          .concat(
+                            Object.keys(op.requestBody.content).length > 0
+                              ? ['content: {']
+                                  .concat(
+                                    Object.entries(op.requestBody.content ?? {})
+                                      .flatMap(([media, value]) =>
+                                        openApiSchemaToValibotSchema(
+                                          Object.assign({}, value.schema!, {
+                                            example: value.example,
+                                            examples: value.examples,
+                                          }),
+                                        ).map(
+                                          (l, i, arr) =>
+                                            `${i === 0 ? `${JSON.stringify(media)}: ` : ''}${l}${i === arr.length - 1 ? ',' : ''}`,
+                                        ),
+                                      )
+                                      .map((s) => `\t${s}`),
+                                  )
+                                  .concat('},')
+                              : [],
+                          )
+                          .map((s) => `\t${s}`),
+                      )
+                      .concat('},')
+                  : [],
               )
               .concat(
                 ['responses: {']
@@ -472,9 +527,7 @@ const getMainCode = () => {
   return code;
 };
 
-const cwd = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
-
-const contents = {
+const contents: Record<string, () => Code> = {
   'components/schemas': getComponentsSchemasCode,
   'components/parameters': getComponentsParamsCode,
   'components/responses': getComponentsResCode,
@@ -482,20 +535,11 @@ const contents = {
   index: getMainCode,
 };
 
-if (only != null) {
-  for (const key of only) {
-    Bun.file(path.join(cwd, `src/openapi/${key}.ts`)).write(
-      contents[key]!().toString(),
-    );
-  }
-} else {
-  for (const key in contents) {
-    Bun.file(path.join(cwd, `src/openapi/${key}.ts`)).write(
-      contents[key]!().toString(),
-    );
-  }
+const arr = only != null ? only : Object.keys(contents);
+
+for await (const key of arr) {
+  const file = Bun.file(path.join(cwd, `src/openapi/${key}.ts`));
+  if (skipExisting && (await file.exists())) continue;
+  await file.write(contents[key]!().toString());
+  console.log(key);
 }
-// for (const tag in tagged) {
-//   const group = tagged[tag];
-//   code += [`const `].join("\n");
-// }

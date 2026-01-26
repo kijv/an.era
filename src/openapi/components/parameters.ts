@@ -1,15 +1,9 @@
 import * as v from 'valibot';
 import * as s from './schemas';
 
-const PageParamSchema = v.pipe(
-  v.pipe(v.number(), v.integer()),
-  v.examples([1]),
-);
+const PageParamSchema = v.pipe(v.number(), v.integer());
 type PageParam = v.InferOutput<typeof PageParamSchema>;
-const PerParamSchema = v.pipe(
-  v.pipe(v.number(), v.integer()),
-  v.examples([24]),
-);
+const PerParamSchema = v.pipe(v.number(), v.integer());
 type PerParam = v.InferOutput<typeof PerParamSchema>;
 const IdParamSchema = v.pipe(v.number(), v.integer());
 type IdParam = v.InferOutput<typeof IdParamSchema>;

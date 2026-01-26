@@ -3,6 +3,14 @@ import * as o from '../openapi';
 import type { Api, Path } from './declaration';
 import { findKeyWithSingleOccurrence, removeCommonPrefix } from '../util';
 import * as v from 'valibot';
+import formUrlencoded from 'form-urlencoded';
+
+const getMethodArgKind = (method: Path): 'body' | 'query' | null =>
+  'query' in method.parameters
+    ? 'query'
+    : method.body != null && 'content' in method.body
+      ? 'body'
+      : null;
 
 export const createApi = (
   {
@@ -40,41 +48,95 @@ export const createApi = (
     Object.entries(groupedPaths).map(([group, value]) => {
       const singleKey = findKeyWithSingleOccurrence(value, '$parameters');
 
-      const makeMethod =
-        (data: Path) => async (query?: Record<string, any>) => {
-          const nextQuery =
-            query != null
-              ? Object.fromEntries(
-                  Object.entries(query).map(([key, value]) => [
-                    key,
-                    data.parameters['query']?.[key]
-                      ? v.parse(data.parameters['query']?.[key], value)
-                      : value,
-                  ]),
-                )
-              : null;
-          const res = await fetch(
-            data.path,
-            {
-              method: data.method,
-            },
-            nextQuery != null && Object.keys(nextQuery).length > 0
-              ? (u) => {
-                  for (const key in nextQuery) {
-                    const value = nextQuery[key];
-                    if (value == null) continue;
-                    u.searchParams.set(key, value);
+      const makeMethod = (method: Path) => {
+        const argKind = getMethodArgKind(method);
+        const localFetch = (
+          init: RequestInit = {},
+          modifyUrl: (url: URL) => URL = (u) => u,
+        ) =>
+          fetch(
+            method.path,
+            Object.assign(
+              {},
+              {
+                method: method.method,
+              },
+              init ?? {},
+            ),
+            modifyUrl ?? ((u) => u),
+          );
+
+        return async (arg: Record<string, any> | undefined) => {
+          const res = await localFetch(
+            argKind === 'body' && arg != null
+              ? (() => {
+                  const content = method.body?.content;
+
+                  let contentType: string | undefined;
+                  let body: any;
+
+                  for (const media in content) {
+                    const schema = content[media];
+                    if (schema == null) continue;
+                    const maybeBody = v.safeParse(schema, arg);
+                    if (maybeBody.success) {
+                      contentType = media;
+                      body = maybeBody.output;
+                    }
                   }
-                  return u;
-                }
+
+                  if (!contentType) return {};
+
+                  return {
+                    headers: {
+                      'Content-Type': contentType,
+                    },
+                    body: contentType.endsWith('x-www-form-urlencoded')
+                      ? formUrlencoded(body)
+                      : body,
+                  };
+                })()
+              : undefined,
+            argKind === 'query' && arg != null
+              ? (() => {
+                  const nextQuery = Object.fromEntries(
+                    Object.entries(arg).map(([key, value]) => [
+                      key,
+                      method.parameters['query']?.[key]
+                        ? v.parse(method.parameters['query']?.[key], value)
+                        : value,
+                    ]),
+                  );
+
+                  return (u) => {
+                    for (const key in nextQuery) {
+                      const value = nextQuery[key];
+                      if (value == null) continue;
+                      u.searchParams.set(key, value);
+                    }
+                    return u;
+                  };
+                })()
               : undefined,
           );
 
-          const media = Object.keys(data.responses[res.status] ?? {});
+          const statusCodeResponseData = method.responses[res.status] ?? {};
+          const contentTypeResponseData = res.headers.has('content-type')
+            ? statusCodeResponseData?.[
+                res.headers.get('content-type')?.split(';').at(0)!
+              ]
+            : null;
 
-          return media.includes('application/json') ? res.json() : res.text();
+          const media = Object.keys(statusCodeResponseData);
+          const result = await (media.includes('application/json')
+            ? res.json()
+            : res.text());
+
+          return contentTypeResponseData != null
+            ? v.parse(contentTypeResponseData, result)
+            : result;
         };
-
+      };
       const makeMethods = (
         value: object,
         parameters: {
