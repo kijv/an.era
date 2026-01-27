@@ -83,15 +83,15 @@ const createCode = ({
   },
 });
 
-const createFile = <K extends string, V>(options: {
+const createFile = <O extends Record<string, any>>(options: {
   filename: string;
   codeOptions?: Parameters<typeof createCode>[0];
-  objects: Record<K, V> | undefined | null;
+  objects: O | undefined | null;
   variableName?: (name: string) => string;
   types?: boolean;
   getLines: (
     this: { code: Code; renderRef: (ref: string) => string },
-    obj: V,
+    obj: O extends Record<string, infer V> ? V : never,
   ) => string[];
 }) => {
   const {
@@ -154,7 +154,9 @@ const getComponentsSchemasCode = () =>
     objects: sortSchemas(oas.api.components?.schemas ?? {}),
     types: true,
     variableName: (n) => `${n}Schema`,
-    getLines: (obj) => openApiSchemaToValibotSchema(obj),
+    getLines(this, obj) {
+      return openApiSchemaToValibotSchema(obj, this.renderRef);
+    },
   });
 
 const getComponentsParamsCode = () =>
@@ -179,56 +181,34 @@ const getComponentsParamsCode = () =>
     },
   });
 
-const getComponentsResCode = () => {
-  const code = createCode();
-  const renderRef = (ref: string) => {
-    const refPath = ref.replace(/^#\//, '').split('/');
-    const parent = refPath.slice(0, -1).join('/');
-    const variableName = parent.split('/').at(-1)!.charAt(0);
-    const relativeParent = path.relative('components', parent);
-    if (!code.imports.find((c) => c.require === `./${relativeParent}`)) {
-      code.imports.push({
-        require: `./${relativeParent}`,
-        variable: `* as ${variableName}`,
-      });
-    }
-    return `${variableName}.${defaultRenderRef(ref)}`;
-  };
-
-  for (const name in oas.api.components?.responses) {
-    const res = oas.api.components.responses[name];
-    if (res == null) continue;
-    const variableName = name;
-    code.body += [`\nconst ${variableName} = `]
-      .concat(
-        [
-          `{`,
-          ...('$ref' in res
-            ? openApiSchemaToValibotSchema(res)
-            : 'content' in res && res.content != null
-              ? Object.entries(res.content).flatMap(([media, v]) =>
-                  openApiSchemaToValibotSchema(
-                    Object.assign({}, v.schema, {
-                      description: res.description,
-                      examples: v.examples,
-                    }),
-                    renderRef,
-                  ).map(
-                    (l, i, arr) =>
-                      `${i === 0 ? `${JSON.stringify(media)}: ` : ''}${l}${i === arr.length - 1 ? ',' : ''}`,
-                  ),
-                )
-              : []
-          ).map((s) => `\t${s}`),
-          `}`,
-        ].join('\n'),
-      )
-      .join('');
-    code.exports.push(variableName);
-  }
-
-  return code;
-};
+const getComponentsResCode = () =>
+  createFile({
+    filename: 'components/responses',
+    objects: oas.api.components?.responses ?? {},
+    getLines(this, obj) {
+      return [
+        `{`,
+        ...('$ref' in obj
+          ? openApiSchemaToValibotSchema(obj, this.renderRef)
+          : 'content' in obj && obj.content != null
+            ? Object.entries(obj.content).flatMap(([media, v]) =>
+                openApiSchemaToValibotSchema(
+                  Object.assign({}, v.schema, {
+                    description: obj.description,
+                    examples: 'examples' in obj ? obj.examples : undefined,
+                  }),
+                  this.renderRef,
+                ).map(
+                  (l, i, arr) =>
+                    `${i === 0 ? `${JSON.stringify(media)}: ` : ''}${l}${i === arr.length - 1 ? ',' : ''}`,
+                ),
+              )
+            : []
+        ).map((s) => `\t${s}`),
+        `}`,
+      ];
+    },
+  });
 
 const getPathsCode = () => {
   type Operation = {
@@ -239,20 +219,6 @@ const getPathsCode = () => {
       (OpenAPIV3.ParameterObject | OpenAPIV3_1.ReferenceObject)[];
     responses: OpenAPIV3.ResponsesObject & OpenAPIV3_1.ResponsesObject;
     requestBody?: OpenAPIV3_1.RequestBodyObject;
-  };
-
-  const code = createCode();
-  const renderRef = (ref: string) => {
-    const refPath = ref.replace(/^#\//, '').split('/');
-    const parent = refPath.slice(0, -1).join('/');
-    const variableName = parent.split('/').at(-1)!.charAt(0);
-    if (!code.imports.find((c) => c.require === `./${parent}`)) {
-      code.imports.push({
-        require: `./${parent}`,
-        variable: `* as ${variableName}`,
-      });
-    }
-    return `${variableName}.${defaultRenderRef(ref)}`;
   };
 
   const taggedOps: Record<string, Operation[]> = {};
@@ -292,183 +258,217 @@ const getPathsCode = () => {
     }
   }
 
-  for (const tag in taggedOps) {
-    const operations = taggedOps[tag];
-    if (operations == null) continue;
+  return createFile({
+    filename: 'paths',
+    objects: taggedOps,
+    variableName: (n) => n.replace(/\s+/g, ''),
+    getLines(this, obj) {
+      const samePathParam: Record<
+        string,
+        {
+          ops: Operation[];
+          schema: OpenAPIV3_1.ReferenceObject | OpenAPIV3_1.SchemaObject;
+        }
+      > = {};
+      const restOps: Operation[] = [];
 
-    const samePathParam: Record<
-      string,
-      {
-        ops: Operation[];
-        schema: OpenAPIV3_1.ReferenceObject | OpenAPIV3_1.SchemaObject;
-      }
-    > = {};
-    const restOps: Operation[] = [];
+      for (const op of obj) {
+        let hasSimilar = false;
+        for (const param of op.parameters ?? []) {
+          const paramObj =
+            '$ref' in param
+              ? param.$ref
+                  .replace(/^#\//, '')
+                  .split('/')
+                  .reduce((acc, part) => (acc = acc[part]), derefOpenApi as any)
+              : param;
 
-    for (const op of operations) {
-      let hasSimilar = false;
-      for (const param of op.parameters ?? []) {
-        const paramObj =
-          '$ref' in param
-            ? param.$ref
-                .replace(/^#\//, '')
-                .split('/')
-                .reduce((acc, part) => (acc = acc[part]), derefOpenApi as any)
-            : param;
-
-        if ('$ref' in param) {
-          const refPath = param.$ref.replace(/^#\//, '').split('/');
-          const parent = refPath.slice(0, -1).join('/');
-          if (!code.imports.find((c) => c.require === `./${parent}`)) {
-            code.imports.push({
-              require: `./${parent}`,
-              variable: `* as ${parent.split('/').at(-1)!.charAt(0)}`,
-            });
+          if ('$ref' in param) {
+            this.renderRef(param.$ref);
+            if (!this.code.imports.find((c) => c.require === 'valibot')) {
+              this.code.imports.push({
+                require: 'valibot',
+                variable: `* as v`,
+              });
+            }
           }
-          if (!code.imports.find((c) => c.require === 'valibot')) {
-            code.imports.push({
-              require: 'valibot',
-              variable: `* as v`,
-            });
+
+          if (
+            paramObj != null &&
+            typeof paramObj === 'object' &&
+            'in' in paramObj &&
+            'name' in paramObj &&
+            typeof paramObj.name === 'string' &&
+            paramObj.in === 'path'
+          ) {
+            const { name } = paramObj;
+
+            samePathParam[name] ??= {
+              ops: [],
+              schema: '$ref' in param ? param : param.schema!,
+            };
+            samePathParam[name].ops.push(op);
+            hasSimilar = true;
           }
         }
-
-        if (
-          paramObj != null &&
-          typeof paramObj === 'object' &&
-          'in' in paramObj &&
-          'name' in paramObj &&
-          typeof paramObj.name === 'string' &&
-          paramObj.in === 'path'
-        ) {
-          const { name } = paramObj;
-
-          samePathParam[name] ??= {
-            ops: [],
-            schema: '$ref' in param ? param : param.schema!,
-          };
-          samePathParam[name].ops.push(op);
-          hasSimilar = true;
-        }
+        if (!hasSimilar) restOps.push(op);
       }
-      if (!hasSimilar) restOps.push(op);
-    }
 
-    const variableName = tag.replace(/\s+/g, '');
-
-    const renderOps = (ops: Operation[]) =>
-      ops
-        .flatMap((op) => {
-          const groupedParamsByIn: Record<
-            string,
-            (OpenAPIV3.ReferenceObject | OpenAPIV3.ParameterObject)[]
-          > = op.parameters
-            ? op.parameters.reduce(
-                (acc, param) => {
-                  const paramObj =
-                    '$ref' in param
-                      ? param.$ref
-                          .replace(/^#\//, '')
-                          .split('/')
-                          .reduce(
-                            (acc, part) => (acc = acc[part]),
-                            derefOpenApi as any,
-                          )
-                      : param;
-
-                  if (
-                    paramObj != null &&
-                    typeof paramObj === 'object' &&
-                    'in' in paramObj
-                  ) {
-                    const { in: inType } = paramObj;
-                    acc[inType] ??= [];
-                    acc[inType].push(param);
-                  }
-                  return acc;
-                },
-                {} as Record<
-                  string,
-                  (OpenAPIV3.ReferenceObject | OpenAPIV3.ParameterObject)[]
-                >,
-              )
-            : {};
-
-          return [
-            `${op.id}: {`,
-            ...[
-              `method: ${JSON.stringify(op.method)},`,
-              `path: ${JSON.stringify(op.path)},`,
-            ]
-              .concat(
-                [`parameters: {`]
-                  .concat(
-                    Object.entries(groupedParamsByIn)
-                      .flatMap(([key, params]) =>
-                        [`${key}: {`].concat([
-                          ...params
-                            .filter(
-                              (p) =>
-                                '$ref' in p ||
-                                ('schema' in p && p.schema != null),
+      const renderOps = (ops: Operation[]) =>
+        ops
+          .flatMap((op) => {
+            const groupedParamsByIn: Record<
+              string,
+              (OpenAPIV3.ReferenceObject | OpenAPIV3.ParameterObject)[]
+            > = op.parameters
+              ? op.parameters.reduce(
+                  (acc, param) => {
+                    const paramObj =
+                      '$ref' in param
+                        ? param.$ref
+                            .replace(/^#\//, '')
+                            .split('/')
+                            .reduce(
+                              (acc, part) => (acc = acc[part]),
+                              derefOpenApi as any,
                             )
-                            .flatMap((p) =>
-                              openApiSchemaToValibotSchema(
-                                '$ref' in p
-                                  ? p
-                                  : Object.assign(
-                                      {},
-                                      p.schema as OpenAPIV3_1.SchemaObject,
-                                      {
-                                        example: p.example,
-                                        description: p.description,
-                                      },
-                                    ),
-                                renderRef,
-                              ).map((l, i, arr) => {
-                                const pObj =
+                        : param;
+
+                    if (
+                      paramObj != null &&
+                      typeof paramObj === 'object' &&
+                      'in' in paramObj
+                    ) {
+                      const { in: inType } = paramObj;
+                      acc[inType] ??= [];
+                      acc[inType].push(param);
+                    }
+                    return acc;
+                  },
+                  {} as Record<
+                    string,
+                    (OpenAPIV3.ReferenceObject | OpenAPIV3.ParameterObject)[]
+                  >,
+                )
+              : {};
+
+            return [
+              `${op.id}: {`,
+              ...[
+                `method: ${JSON.stringify(op.method)},`,
+                `path: ${JSON.stringify(op.path)},`,
+              ]
+                .concat(
+                  [`parameters: {`]
+                    .concat(
+                      Object.entries(groupedParamsByIn)
+                        .flatMap(([key, params]) =>
+                          [`${key}: {`].concat([
+                            ...params
+                              .filter(
+                                (p) =>
+                                  '$ref' in p ||
+                                  ('schema' in p && p.schema != null),
+                              )
+                              .flatMap((p) =>
+                                openApiSchemaToValibotSchema(
                                   '$ref' in p
-                                    ? p.$ref
-                                        .replace(/^#\//, '')
-                                        .split('/')
-                                        .reduce(
-                                          (acc, part) => (acc = acc[part]),
-                                          derefOpenApi as any,
+                                    ? p
+                                    : Object.assign(
+                                        {},
+                                        p.schema as OpenAPIV3_1.SchemaObject,
+                                        {
+                                          example: p.example,
+                                          description: p.description,
+                                        },
+                                      ),
+                                  this.renderRef,
+                                ).map((l, i, arr) => {
+                                  const pObj =
+                                    '$ref' in p
+                                      ? p.$ref
+                                          .replace(/^#\//, '')
+                                          .split('/')
+                                          .reduce(
+                                            (acc, part) => (acc = acc[part]),
+                                            derefOpenApi as any,
+                                          )
+                                      : p;
+                                  return `${
+                                    i === 0
+                                      ? `${pObj.name}: ${!pObj.required ? 'v.nullish(' : ''}`
+                                      : ''
+                                  }${l}${i === arr.length - 1 ? `${!pObj.required ? ')' : ''},` : ''}`;
+                                }),
+                              )
+                              .map((s) => `\t${s}`),
+                            `},`,
+                          ]),
+                        )
+                        .map((s) => `\t${s}`),
+                    )
+                    .concat('},'),
+                )
+                .concat(
+                  op.requestBody != null
+                    ? [`body: {`]
+                        .concat(
+                          [
+                            `required: ${JSON.stringify(op.requestBody.required ?? false)},`,
+                          ]
+                            .concat(
+                              Object.keys(op.requestBody.content).length > 0
+                                ? ['content: {']
+                                    .concat(
+                                      Object.entries(
+                                        op.requestBody.content ?? {},
+                                      )
+                                        .flatMap(([media, value]) =>
+                                          openApiSchemaToValibotSchema(
+                                            Object.assign({}, value.schema!, {
+                                              example: value.example,
+                                              examples: value.examples,
+                                            }),
+                                            this.renderRef,
+                                          ).map(
+                                            (l, i, arr) =>
+                                              `${i === 0 ? `${JSON.stringify(media)}: ` : ''}${l}${i === arr.length - 1 ? ',' : ''}`,
+                                          ),
                                         )
-                                    : p;
-                                return `${
-                                  i === 0
-                                    ? `${pObj.name}: ${!pObj.required ? 'v.nullish(' : ''}`
-                                    : ''
-                                }${l}${i === arr.length - 1 ? `${!pObj.required ? ')' : ''},` : ''}`;
-                              }),
+                                        .map((s) => `\t${s}`),
+                                    )
+                                    .concat('},')
+                                : [],
                             )
                             .map((s) => `\t${s}`),
-                          `},`,
-                        ]),
-                      )
-                      .map((s) => `\t${s}`),
-                  )
-                  .concat('},'),
-              )
-              .concat(
-                op.requestBody != null
-                  ? [`body: {`]
-                      .concat(
-                        [
-                          `required: ${JSON.stringify(op.requestBody.required ?? false)},`,
-                        ]
-                          .concat(
-                            Object.keys(op.requestBody.content).length > 0
-                              ? ['content: {']
+                        )
+                        .concat('},')
+                    : [],
+                )
+                .concat(
+                  ['responses: {']
+                    .concat(
+                      Object.entries(op.responses)
+                        .flatMap(([statusCode, res]) =>
+                          '$ref' in res
+                            ? openApiSchemaToValibotSchema(
+                                res,
+                                this.renderRef,
+                              ).map(
+                                (l, i, arr) =>
+                                  `${i === 0 ? `${JSON.stringify(statusCode)}: ` : ''}${l}${i === arr.length - 1 ? ',' : ''}`,
+                              )
+                            : 'content' in res && res.content != null
+                              ? [`${JSON.stringify(statusCode)}: {`]
                                   .concat(
-                                    Object.entries(op.requestBody.content ?? {})
-                                      .flatMap(([media, value]) =>
+                                    Object.entries(res.content)
+                                      .flatMap(([media, v]) =>
                                         openApiSchemaToValibotSchema(
-                                          Object.assign({}, value.schema!, {
-                                            example: value.example,
-                                            examples: value.examples,
+                                          Object.assign({}, v.schema, {
+                                            description: res.description,
+                                            examples: v.examples,
                                           }),
+                                          this.renderRef,
                                         ).map(
                                           (l, i, arr) =>
                                             `${i === 0 ? `${JSON.stringify(media)}: ` : ''}${l}${i === arr.length - 1 ? ',' : ''}`,
@@ -478,82 +478,39 @@ const getPathsCode = () => {
                                   )
                                   .concat('},')
                               : [],
-                          )
-                          .map((s) => `\t${s}`),
-                      )
-                      .concat('},')
-                  : [],
-              )
-              .concat(
-                ['responses: {']
-                  .concat(
-                    Object.entries(op.responses)
-                      .flatMap(([statusCode, res]) =>
-                        '$ref' in res
-                          ? openApiSchemaToValibotSchema(res, renderRef).map(
-                              (l, i, arr) =>
-                                `${i === 0 ? `${JSON.stringify(statusCode)}: ` : ''}${l}${i === arr.length - 1 ? ',' : ''}`,
-                            )
-                          : 'content' in res && res.content != null
-                            ? [`${JSON.stringify(statusCode)}: {`]
-                                .concat(
-                                  Object.entries(res.content)
-                                    .flatMap(([media, v]) =>
-                                      openApiSchemaToValibotSchema(
-                                        Object.assign({}, v.schema, {
-                                          description: res.description,
-                                          examples: v.examples,
-                                        }),
-                                        renderRef,
-                                      ).map(
-                                        (l, i, arr) =>
-                                          `${i === 0 ? `${JSON.stringify(media)}: ` : ''}${l}${i === arr.length - 1 ? ',' : ''}`,
-                                      ),
-                                    )
-                                    .map((s) => `\t${s}`),
-                                )
-                                .concat('},')
-                            : [],
-                      )
-                      .map((s) => `\t${s}`),
-                  )
-                  .concat('},'),
-              )
-              .map((s) => `\t${s}`)
-              .concat('},'),
-          ];
-        })
-        .map((s) => `\t${s}`);
-
-    code.body += [`\nconst ${variableName} = `]
-      .concat(
-        [
-          '{',
-          ...renderOps(restOps),
-          ...Object.entries(samePathParam).flatMap(([paramName, data]) =>
-            [`\t${paramName}: {`].concat(
-              [
-                `$parameters: {`,
-                ...openApiSchemaToValibotSchema(data.schema, renderRef)
-                  .map((l, i) => `${i === 0 ? `${paramName}: ` : ''}${l}`)
-                  .map((s) => `\t${s}`),
-                `},`,
-              ]
+                        )
+                        .map((s) => `\t${s}`),
+                    )
+                    .concat('},'),
+                )
                 .map((s) => `\t${s}`)
-                .concat(renderOps(data.ops))
-                .concat('}')
+                .concat('},'),
+            ];
+          })
+          .map((s) => `\t${s}`);
+
+      return [
+        '{',
+        ...renderOps(restOps),
+        ...Object.entries(samePathParam).flatMap(([paramName, data]) =>
+          [`\t${paramName}: {`].concat(
+            [
+              `$parameters: {`,
+              ...openApiSchemaToValibotSchema(data.schema, this.renderRef)
+                .map((l, i) => `${i === 0 ? `${paramName}: ` : ''}${l}`)
                 .map((s) => `\t${s}`),
-            ),
+              `},`,
+            ]
+              .map((s) => `\t${s}`)
+              .concat(renderOps(data.ops))
+              .concat('}')
+              .map((s) => `\t${s}`),
           ),
-          '}',
-        ].join('\n'),
-      )
-      .join('');
-
-    code.exports.push(variableName);
-  }
-
-  return code;
+        ),
+        '}',
+      ];
+    },
+  });
 };
 
 const getMainCode = () => {

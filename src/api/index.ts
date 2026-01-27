@@ -1,9 +1,10 @@
-import * as groupedPaths from '../openapi/paths';
+import * as defaultGroupedPaths from '../openapi/paths';
 import * as o from '../openapi';
 import * as v from 'valibot';
-import type { Api, Path } from './declaration';
+import type { Api, GroupedPaths, Path } from './declaration';
 import { findKeyWithSingleOccurrence, removeCommonPrefix } from '../util';
 import formUrlencoded from 'form-urlencoded';
+import { getPathsFromOpenApi } from '../openapi/runtime';
 
 const getMethodArgKind = (method: Path): 'body' | 'query' | null =>
   'query' in method.parameters
@@ -12,14 +13,24 @@ const getMethodArgKind = (method: Path): 'body' | 'query' | null =>
       ? 'body'
       : null;
 
-export const createApi = ({
-  accessToken,
-  baseUrl = 'https://api.are.na',
-  ...init
-}: {
-  accessToken?: string;
-  baseUrl?: (typeof o.SERVERS)[number]['url'];
-} & RequestInit) => {
+export const createApi = <
+  O extends any,
+  C extends {
+    accessToken?: string;
+    baseUrl?: (typeof o.SERVERS)[number]['url'];
+    openApi?: O;
+  } & RequestInit = {},
+  P extends GroupedPaths = typeof import('../openapi/paths'),
+>(
+  options?: C,
+): C['openApi'] extends {} ? Promise<Api<P>> : Api<P> => {
+  const {
+    accessToken,
+    baseUrl = 'https://api.are.na',
+    openApi,
+    ...init
+  } = options ?? {};
+
   const createFetch =
     (baseUrl: URL, baseInit?: RequestInit) =>
     (
@@ -32,13 +43,16 @@ export const createApi = ({
         Object.assign({}, baseInit, init),
       );
 
-  if (accessToken) {
+  if (accessToken && 'headers' in init) {
     init.headers ??= {};
     init.headers = new Headers(init.headers);
     init.headers.set('Authorization', `Bearer ${accessToken}`);
   }
 
   const fetch = createFetch(new URL(baseUrl!), init);
+
+  const groupedPaths =
+    openApi != null ? getPathsFromOpenApi(openApi) : defaultGroupedPaths;
 
   return Object.fromEntries(
     Object.entries(groupedPaths).map(([group, value]) => {
@@ -200,5 +214,5 @@ export const createApi = ({
             : makeMethods(value),
       ];
     }),
-  ) as unknown as Api;
+  ) as unknown as Api<P>;
 };

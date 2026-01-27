@@ -1,4 +1,12 @@
-import { type Mock, afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import {
+  type Mock,
+  afterEach,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  vi,
+} from 'vitest';
 import { createArena } from '../src';
 
 let arena: ReturnType<typeof createArena>;
@@ -151,7 +159,7 @@ const getCallDetails = (mock: Mock) => {
 };
 
 // Helper to assert result is not an error response
-const expectNotError = (result: unknown)  => {
+const expectNotError = (result: unknown) => {
   expect(result).not.toHaveProperty('error');
   expect(result).not.toHaveProperty('code');
 };
@@ -181,10 +189,12 @@ describe('Arena', () => {
     });
 
     it('.contents() should get contents as an array', async () => {
-      fetchMock.mockResolvedValueOnce(mockResponse({
-        data: [mockImageBlock(), mockChannel()],
-        meta: mockPaginationMeta(),
-      }));
+      fetchMock.mockResolvedValueOnce(
+        mockResponse({
+          data: [mockImageBlock(), mockChannel()],
+          meta: mockPaginationMeta(),
+        }),
+      );
 
       const result = await arena.channels('arena-influences').contents();
 
@@ -200,12 +210,16 @@ describe('Arena', () => {
     });
 
     it('.contents() with pagination should pass query params', async () => {
-      fetchMock.mockResolvedValueOnce(mockResponse({
-        data: [],
-        meta: mockPaginationMeta(),
-      }));
+      fetchMock.mockResolvedValueOnce(
+        mockResponse({
+          data: [],
+          meta: mockPaginationMeta(),
+        }),
+      );
 
-      const result = await arena.channels('arena-influences').contents({ page: 3, per: 10 });
+      const result = await arena
+        .channels('arena-influences')
+        .contents({ page: 3, per: 10 });
 
       expectNotError(result);
       expect(result.data).toBeInstanceOf(Array);
@@ -219,10 +233,12 @@ describe('Arena', () => {
     });
 
     it('.connections() should get the connections in the channel', async () => {
-      fetchMock.mockResolvedValueOnce(mockResponse({
-        data: [mockChannel()],
-        meta: mockPaginationMeta(),
-      }));
+      fetchMock.mockResolvedValueOnce(
+        mockResponse({
+          data: [mockChannel()],
+          meta: mockPaginationMeta(),
+        }),
+      );
 
       const result = await arena.channels('arena-influences').connections();
 
@@ -238,10 +254,12 @@ describe('Arena', () => {
     });
 
     it('.followers() should get followers as an array', async () => {
-      fetchMock.mockResolvedValueOnce(mockResponse({
-        data: [mockUser()],
-        meta: mockPaginationMeta(),
-      }));
+      fetchMock.mockResolvedValueOnce(
+        mockResponse({
+          data: [mockUser()],
+          meta: mockPaginationMeta(),
+        }),
+      );
 
       const result = await arena.channels('arena-influences').followers();
 
@@ -276,10 +294,12 @@ describe('Arena', () => {
     });
 
     it('.connections() should get the channels the block belongs to', async () => {
-      fetchMock.mockResolvedValueOnce(mockResponse({
-        data: [mockChannel()],
-        meta: mockPaginationMeta(),
-      }));
+      fetchMock.mockResolvedValueOnce(
+        mockResponse({
+          data: [mockChannel()],
+          meta: mockPaginationMeta(),
+        }),
+      );
 
       const result = await arena.blocks(8693).connections();
 
@@ -295,10 +315,12 @@ describe('Arena', () => {
     });
 
     it('.comments() should get comments as an array', async () => {
-      fetchMock.mockResolvedValueOnce(mockResponse({
-        data: [mockComment()],
-        meta: mockPaginationMeta(),
-      }));
+      fetchMock.mockResolvedValueOnce(
+        mockResponse({
+          data: [mockComment()],
+          meta: mockPaginationMeta(),
+        }),
+      );
 
       const result = await arena.blocks(8693).comments();
 
@@ -333,10 +355,12 @@ describe('Arena', () => {
     });
 
     it('.contents() should get user contents as an array', async () => {
-      fetchMock.mockResolvedValueOnce(mockResponse({
-        data: [mockImageBlock()],
-        meta: mockPaginationMeta(),
-      }));
+      fetchMock.mockResolvedValueOnce(
+        mockResponse({
+          data: [mockImageBlock()],
+          meta: mockPaginationMeta(),
+        }),
+      );
 
       const result = await arena.users('23484').contents();
 
@@ -352,10 +376,12 @@ describe('Arena', () => {
     });
 
     it('.followers() should get followers as an array', async () => {
-      fetchMock.mockResolvedValueOnce(mockResponse({
-        data: [mockUser()],
-        meta: mockPaginationMeta(),
-      }));
+      fetchMock.mockResolvedValueOnce(
+        mockResponse({
+          data: [mockUser()],
+          meta: mockPaginationMeta(),
+        }),
+      );
 
       const result = await arena.users('23484').followers();
 
@@ -371,10 +397,12 @@ describe('Arena', () => {
     });
 
     it('.following() should get following as an array', async () => {
-      fetchMock.mockResolvedValueOnce(mockResponse({
-        data: [mockUser(), mockChannel()],
-        meta: mockPaginationMeta(),
-      }));
+      fetchMock.mockResolvedValueOnce(
+        mockResponse({
+          data: [mockUser(), mockChannel()],
+          meta: mockPaginationMeta(),
+        }),
+      );
 
       const result = await arena.users('23484').following();
 
@@ -428,10 +456,12 @@ describe('Arena', () => {
     });
 
     it('.contents() should get group contents as an array', async () => {
-      fetchMock.mockResolvedValueOnce(mockResponse({
-        data: [mockImageBlock()],
-        meta: mockPaginationMeta(),
-      }));
+      fetchMock.mockResolvedValueOnce(
+        mockResponse({
+          data: [mockImageBlock()],
+          meta: mockPaginationMeta(),
+        }),
+      );
 
       const result = await arena.groups('are-na-team').contents();
 
@@ -447,10 +477,12 @@ describe('Arena', () => {
     });
 
     it('.followers() should get followers as an array', async () => {
-      fetchMock.mockResolvedValueOnce(mockResponse({
-        data: [mockUser()],
-        meta: mockPaginationMeta(),
-      }));
+      fetchMock.mockResolvedValueOnce(
+        mockResponse({
+          data: [mockUser()],
+          meta: mockPaginationMeta(),
+        }),
+      );
 
       const result = await arena.groups('are-na-team').followers();
 
@@ -468,10 +500,12 @@ describe('Arena', () => {
 
   describe('.search(query)', () => {
     it('should search and return results', async () => {
-      fetchMock.mockResolvedValueOnce(mockResponse({
-        data: [mockImageBlock(), mockChannel(), mockUser()],
-        meta: mockPaginationMeta(),
-      }));
+      fetchMock.mockResolvedValueOnce(
+        mockResponse({
+          data: [mockImageBlock(), mockChannel(), mockUser()],
+          meta: mockPaginationMeta(),
+        }),
+      );
 
       const result = await arena.search({ q: 'art' });
 
@@ -487,10 +521,12 @@ describe('Arena', () => {
     });
 
     it('should search with type filter', async () => {
-      fetchMock.mockResolvedValueOnce(mockResponse({
-        data: [mockImageBlock()],
-        meta: mockPaginationMeta(),
-      }));
+      fetchMock.mockResolvedValueOnce(
+        mockResponse({
+          data: [mockImageBlock()],
+          meta: mockPaginationMeta(),
+        }),
+      );
 
       const result = await arena.search({ q: 'art', type: ['Image', 'Link'] });
 

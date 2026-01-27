@@ -1,4 +1,3 @@
-import type * as paths from '../openapi/paths';
 import type * as v from 'valibot';
 import type {
   IsSingleString,
@@ -10,9 +9,12 @@ type LowercaseKeys<T> = {
   [K in keyof T as Lowercase<K & string>]: T[K];
 };
 
-type LowercasePaths = LowercaseKeys<typeof paths>;
-
 export type Parameters = Record<string, ValibotSchema>;
+
+export type GroupedPaths = Record<
+  string,
+  Record<string, Path | Record<string, Path | Parameters>>
+>;
 
 type ValibotSchema = v.BaseSchema<unknown, unknown, v.BaseIssue<unknown>>;
 
@@ -119,68 +121,65 @@ type Method<T extends Path> =
       : (query?: Query<T['parameters']['query']>) => Promise<R>
     : never;
 
-export type Api = {
-  [K in keyof LowercasePaths]: IsSingleString<
-    SingleKeyWithSingleOccurrence<LowercasePaths[K], '$parameters'>
-  > extends true
-    ? ((
-        param: v.InferOutput<
-          LowercasePaths[K][SingleKeyWithSingleOccurrence<
-            LowercasePaths[K],
-            '$parameters'
-          >]['$parameters'] extends Record<
-            SingleKeyWithSingleOccurrence<LowercasePaths[K], '$parameters'>,
-            any
-          >
-            ? LowercasePaths[K][SingleKeyWithSingleOccurrence<
-                LowercasePaths[K],
-                '$parameters'
-              >]['$parameters'][SingleKeyWithSingleOccurrence<
-                LowercasePaths[K],
-                '$parameters'
-              >]
-            : never
-        >,
-      ) => {
-        [L in keyof RemoveCommonPrefix<
-          Omit<
-            LowercasePaths[K][SingleKeyWithSingleOccurrence<
-              LowercasePaths[K],
-              '$parameters'
-            >],
-            '$parameters'
-          >,
-          'self'
-        >]: RemoveCommonPrefix<
-          Omit<
-            LowercasePaths[K][SingleKeyWithSingleOccurrence<
-              LowercasePaths[K],
-              '$parameters'
-            >],
-            '$parameters'
-          >,
-          'self'
-        >[L] extends infer P
-          ? P extends Path
-            ? Method<P>
-            : never
-          : never;
-      }) & {
-        [L in keyof Omit<
-          LowercasePaths[K],
-          SingleKeyWithSingleOccurrence<LowercasePaths[K], '$parameters'>
-        >]: Method<
-          Omit<
-            LowercasePaths[K],
-            SingleKeyWithSingleOccurrence<LowercasePaths[K], '$parameters'>
-          >[L]
-        >;
+export type Api<T extends GroupedPaths> =
+  LowercaseKeys<T> extends infer P
+    ? {
+        [K in keyof P]: IsSingleString<
+          SingleKeyWithSingleOccurrence<P[K], '$parameters'>
+        > extends true
+          ? ((
+              param: v.InferOutput<
+                P[K][SingleKeyWithSingleOccurrence<
+                  P[K],
+                  '$parameters'
+                >]['$parameters'] extends Record<
+                  SingleKeyWithSingleOccurrence<P[K], '$parameters'>,
+                  any
+                >
+                  ? P[K][SingleKeyWithSingleOccurrence<
+                      P[K],
+                      '$parameters'
+                    >]['$parameters'][SingleKeyWithSingleOccurrence<
+                      P[K],
+                      '$parameters'
+                    >]
+                  : never
+              >,
+            ) => {
+              [L in keyof RemoveCommonPrefix<
+                Omit<
+                  P[K][SingleKeyWithSingleOccurrence<P[K], '$parameters'>],
+                  '$parameters'
+                >,
+                'self'
+              >]: RemoveCommonPrefix<
+                Omit<
+                  P[K][SingleKeyWithSingleOccurrence<P[K], '$parameters'>],
+                  '$parameters'
+                >,
+                'self'
+              >[L] extends infer P
+                ? P extends Path
+                  ? Method<P>
+                  : never
+                : never;
+            }) & {
+              [L in keyof Omit<
+                P[K],
+                SingleKeyWithSingleOccurrence<P[K], '$parameters'>
+              >]: Method<
+                Omit<
+                  P[K],
+                  SingleKeyWithSingleOccurrence<P[K], '$parameters'>
+                >[L]
+              >;
+            }
+          : [keyof P[K]] extends [K]
+            ? Method<P[K][K]>
+            : {
+                [L in keyof RemoveCommonPrefix<P[K]>]: Method<
+                  RemoveCommonPrefix<P[K]>[L]
+                >;
+              };
       }
-    : [keyof LowercasePaths[K]] extends [K]
-      ? Method<LowercasePaths[K][K]>
-      : {
-          [L in keyof RemoveCommonPrefix<LowercasePaths[K]>]: Method<
-            RemoveCommonPrefix<LowercasePaths[K]>[L]
-          >;
-        };
-};
+    : never;
