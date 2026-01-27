@@ -12,18 +12,14 @@ const getMethodArgKind = (method: Path): 'body' | 'query' | null =>
       ? 'body'
       : null;
 
-export const createApi = (
-  {
-    accessToken,
-    baseUrl,
-    ...init
-  }: {
-    accessToken?: string;
-    baseUrl?: (typeof o.SERVERS)[number]['url'];
-  } & RequestInit = {
-    baseUrl: 'https://api.are.na',
-  },
-) => {
+export const createApi = ({
+  accessToken,
+  baseUrl = 'https://api.are.na',
+  ...init
+}: {
+  accessToken?: string;
+  baseUrl?: (typeof o.SERVERS)[number]['url'];
+} & RequestInit) => {
   const createFetch =
     (baseUrl: URL, baseInit?: RequestInit) =>
     (

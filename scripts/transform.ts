@@ -40,7 +40,8 @@ export const openApiSchemaToValibotSchema = <
         renderRef(schema.$ref, schema.$ref.split('/').slice(1, -1).join('/')) ??
           defaultRenderRef(schema.$ref),
       ]
-    : !PIPE_KEYS.some((k) => used.includes(k)) &&
+    : false &&
+        !PIPE_KEYS.some((k) => used.includes(k)) &&
         shouldPipeSchema(
           schema as OpenAPIV3.SchemaObject | OpenAPIV3_1.SchemaObject,
         )
@@ -84,15 +85,25 @@ export const openApiSchemaToValibotSchema = <
       : ('allOf' in schema && schema.allOf != null) ||
           ('oneOf' in schema &&
             schema.oneOf != null) /*&& schema.discriminator == null*/
-        ? [
-            `v.${schema.allOf ? 'intersect' : 'union'}([`,
-            ...(schema.allOf || schema.oneOf)!
-              .flatMap((subSchema) =>
-                openApiSchemaToValibotSchema(subSchema, renderRef).join('\n'),
+        ? (schema.allOf != null &&
+            schema.allOf.filter((a) => 'type' in a || '$ref' in a).length >
+              1) ||
+          schema.oneOf != null
+          ? [
+              `v.${schema.allOf ? 'intersect' : 'union'}([`,
+              ...(schema.allOf || schema.oneOf)!
+                .flatMap((subSchema) =>
+                  openApiSchemaToValibotSchema(subSchema, renderRef).join('\n'),
+                )
+                .map((s) => `\t${s},`),
+              `])`,
+            ]
+          : schema.allOf != null
+            ? openApiSchemaToValibotSchema(
+                schema.allOf.find((a) => 'type' in a || '$ref' in a)!,
+                renderRef,
               )
-              .map((s) => `\t${s},`),
-            `])`,
-          ]
+            : null
         : /*"oneOf" in schema &&
             schema.oneOf != null &&
             "discriminator" in schema &&
@@ -133,7 +144,10 @@ export const openApiSchemaToValibotSchema = <
               ? 'required' in schema &&
                 schema.required != null &&
                 schema.required.length > 0 &&
-                !used.includes('required')
+                !used.includes('required') &&
+                Object.keys(schema.properties ?? {}).every((k) =>
+                  schema.required.includes(k),
+                )
                 ? [
                     `v.required(`,
                     ...openApiSchemaToValibotSchema(

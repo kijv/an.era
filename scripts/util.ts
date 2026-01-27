@@ -18,7 +18,7 @@ export function getAllRefs(
   obj: unknown,
   visited: Set<unknown> = new Set(),
 ): (OpenAPIV3.ReferenceObject | OpenAPIV3_1.ReferenceObject)[] {
-  const refs: RefObject[] = [];
+  const refs: (OpenAPIV3.ReferenceObject | OpenAPIV3_1.ReferenceObject)[] = [];
 
   if (!obj || typeof obj !== 'object') {
     return refs;
