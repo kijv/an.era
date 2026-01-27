@@ -1,4 +1,5 @@
 import * as v from "valibot";
+import * as s from "./schemas";
 
 const ErrorSchema = v.object({
 	error: v.string(),
@@ -115,6 +116,8 @@ const ChannelContentSortSchema = v.picklist(["position_asc","position_desc","cre
 type ChannelContentSort = v.InferInput<typeof ChannelContentSortSchema>;
 const ContentSortSchema = v.picklist(["created_at_asc","created_at_desc","updated_at_asc","updated_at_desc"])
 type ContentSort = v.InferInput<typeof ContentSortSchema>;
+const ChannelVisibilitySchema = v.picklist(["public","private","closed"])
+type ChannelVisibility = v.InferInput<typeof ChannelVisibilitySchema>;
 const BlockProviderSchema = v.required(
 	v.object({
 		name: v.string(),
@@ -204,6 +207,16 @@ const BlockAttachmentSchema = v.object({
 	url: v.string(),
 })
 type BlockAttachment = v.InferInput<typeof BlockAttachmentSchema>;
+const ChannelAbilitiesSchema = v.required(
+	v.object({
+		add_to: v.boolean(),
+		update: v.boolean(),
+		destroy: v.boolean(),
+		manage_collaborators: v.boolean(),
+	}),
+	["add_to","update","destroy","manage_collaborators"]
+)
+type ChannelAbilities = v.InferInput<typeof ChannelAbilitiesSchema>;
 const ChannelCountsSchema = v.required(
 	v.object({
 		blocks: v.pipe(v.number(), v.integer()),
@@ -252,9 +265,12 @@ const PingResponseSchema = v.required(
 )
 type PingResponse = v.InferInput<typeof PingResponseSchema>;
 const LinksSchema = v.required(
-	v.object({
-		self: LinkSchema,
-	}),
+	v.objectWithRest(
+		{
+			self: s.LinkSchema,
+		},
+		LinkSchema
+	),
 	["self"]
 )
 type Links = v.InferInput<typeof LinksSchema>;
@@ -265,7 +281,7 @@ const ConnectionContextSchema = v.required(
 		pinned: v.boolean(),
 		connected_at: v.string(),
 		connected_by: v.union([
-				EmbeddedUserSchema,
+				s.EmbeddedUserSchema,
 				v.null(), v.undefined(),
 		]),
 	}),
@@ -273,8 +289,8 @@ const ConnectionContextSchema = v.required(
 )
 type ConnectionContext = v.InferInput<typeof ConnectionContextSchema>;
 const ChannelOwnerSchema = v.union([
-	EmbeddedUserSchema,
-	EmbeddedGroupSchema,
+	s.EmbeddedUserSchema,
+	s.EmbeddedGroupSchema,
 ])
 type ChannelOwner = v.InferInput<typeof ChannelOwnerSchema>;
 const BlockSourceSchema = v.object({
@@ -284,7 +300,7 @@ const BlockSourceSchema = v.object({
 			v.null(), v.undefined(),
 	]),
 	provider: v.union([
-			BlockProviderSchema,
+			s.BlockProviderSchema,
 			v.null(), v.undefined(),
 	]),
 })
@@ -317,50 +333,50 @@ const BlockImageSchema = v.object({
 			v.null(), v.undefined(),
 	]),
 	updated_at: v.string(),
-	small: ImageVersionSchema,
-	medium: ImageVersionSchema,
-	large: ImageVersionSchema,
-	square: ImageVersionSchema,
+	small: s.ImageVersionSchema,
+	medium: s.ImageVersionSchema,
+	large: s.ImageVersionSchema,
+	square: s.ImageVersionSchema,
 })
 type BlockImage = v.InferInput<typeof BlockImageSchema>;
 const PaginatedResponseWithCountBaseSchema = v.required(
 	v.partial(v.object({
-		meta: PaginationMetaWithCountSchema,
+		meta: s.PaginationMetaWithCountSchema,
 	})),
 	["meta"]
 )
 type PaginatedResponseWithCountBase = v.InferInput<typeof PaginatedResponseWithCountBaseSchema>;
 const PaginationMetaSchema = v.union([
-	PaginationMetaWithCountSchema,
-	PaginationMetaWithoutCountSchema,
+	s.PaginationMetaWithCountSchema,
+	s.PaginationMetaWithoutCountSchema,
 ])
 type PaginationMeta = v.InferInput<typeof PaginationMetaSchema>;
 const UserSchema = v.intersect([
-	EmbeddedUserSchema,
+	s.EmbeddedUserSchema,
 	v.object({
 	created_at: v.string(),
 	updated_at: v.string(),
 	bio: v.union([
-			MarkdownContentSchema,
+			s.MarkdownContentSchema,
 			v.null(), v.undefined(),
 	]),
-	counts: UserCountsSchema,
-	_links: LinksSchema,
+	counts: s.UserCountsSchema,
+	_links: s.LinksSchema,
 }),
 ])
 type User = v.InferInput<typeof UserSchema>;
 const GroupSchema = v.intersect([
-	EmbeddedGroupSchema,
+	s.EmbeddedGroupSchema,
 	v.object({
 	bio: v.union([
-			MarkdownContentSchema,
+			s.MarkdownContentSchema,
 			v.null(), v.undefined(),
 	]),
 	created_at: v.string(),
 	updated_at: v.string(),
-	user: EmbeddedUserSchema,
-	counts: GroupCountsSchema,
-	_links: LinksSchema,
+	user: s.EmbeddedUserSchema,
+	counts: s.GroupCountsSchema,
+	_links: s.LinksSchema,
 }),
 ])
 type Group = v.InferInput<typeof GroupSchema>;
@@ -368,13 +384,13 @@ const CommentSchema = v.object({
 	id: v.pipe(v.number(), v.integer()),
 	type: v.picklist(["Comment"]),
 	body: v.union([
-			MarkdownContentSchema,
+			s.MarkdownContentSchema,
 			v.null(), v.undefined(),
 	]),
 	created_at: v.string(),
 	updated_at: v.string(),
-	user: EmbeddedUserSchema,
-	_links: LinksSchema,
+	user: s.EmbeddedUserSchema,
+	_links: s.LinksSchema,
 })
 type Comment = v.InferInput<typeof CommentSchema>;
 const ChannelSchema = v.object({
@@ -383,20 +399,21 @@ const ChannelSchema = v.object({
 	slug: v.string(),
 	title: v.string(),
 	description: v.union([
-			MarkdownContentSchema,
+			s.MarkdownContentSchema,
 			v.null(), v.undefined(),
 	]),
 	state: v.picklist(["available","deleted"]),
-	visibility: v.picklist(["public","private","closed"]),
+	visibility: s.ChannelVisibilitySchema,
 	created_at: v.string(),
 	updated_at: v.string(),
-	owner: ChannelOwnerSchema,
-	counts: ChannelCountsSchema,
-	_links: LinksSchema,
+	owner: s.ChannelOwnerSchema,
+	counts: s.ChannelCountsSchema,
+	_links: s.LinksSchema,
 	connection: v.union([
-			ConnectionContextSchema,
+			s.ConnectionContextSchema,
 			v.null(), v.undefined(),
 	]),
+	can: s.ChannelAbilitiesSchema,
 })
 type Channel = v.InferInput<typeof ChannelSchema>;
 const BaseBlockPropertiesSchema = v.object({
@@ -407,7 +424,7 @@ const BaseBlockPropertiesSchema = v.object({
 			v.null(), v.undefined(),
 	]),
 	description: v.union([
-			MarkdownContentSchema,
+			s.MarkdownContentSchema,
 			v.null(), v.undefined(),
 	]),
 	state: v.picklist(["available","pending","failed","processing"]),
@@ -415,21 +432,21 @@ const BaseBlockPropertiesSchema = v.object({
 	comment_count: v.pipe(v.number(), v.integer()),
 	created_at: v.string(),
 	updated_at: v.string(),
-	user: EmbeddedUserSchema,
+	user: s.EmbeddedUserSchema,
 	source: v.union([
-			BlockSourceSchema,
+			s.BlockSourceSchema,
 			v.null(), v.undefined(),
 	]),
-	_links: LinksSchema,
+	_links: s.LinksSchema,
 	connection: v.union([
-			ConnectionContextSchema,
+			s.ConnectionContextSchema,
 			v.null(), v.undefined(),
 	]),
 })
 type BaseBlockProperties = v.InferInput<typeof BaseBlockPropertiesSchema>;
 const PaginatedResponseBaseSchema = v.required(
 	v.partial(v.object({
-		meta: PaginationMetaSchema,
+		meta: s.PaginationMetaSchema,
 	})),
 	["meta"]
 )
@@ -437,7 +454,7 @@ type PaginatedResponseBase = v.InferInput<typeof PaginatedResponseBaseSchema>;
 const UserListSchema = v.required(
 	v.object({
 		data: v.array(
-				UserSchema
+				s.UserSchema
 		),
 	}),
 	["data"]
@@ -446,7 +463,7 @@ type UserList = v.InferInput<typeof UserListSchema>;
 const CommentListSchema = v.required(
 	v.object({
 		data: v.array(
-				CommentSchema
+				s.CommentSchema
 		),
 	}),
 	["data"]
@@ -455,7 +472,7 @@ type CommentList = v.InferInput<typeof CommentListSchema>;
 const ChannelListSchema = v.required(
 	v.object({
 		data: v.array(
-				ChannelSchema
+				s.ChannelSchema
 		),
 	}),
 	["data"]
@@ -465,9 +482,9 @@ const FollowableListSchema = v.required(
 	v.object({
 		data: v.array(
 				v.union([
-					UserSchema,
-					ChannelSchema,
-					GroupSchema,
+					s.UserSchema,
+					s.ChannelSchema,
+					s.GroupSchema,
 				])
 		),
 	}),
@@ -475,104 +492,104 @@ const FollowableListSchema = v.required(
 )
 type FollowableList = v.InferInput<typeof FollowableListSchema>;
 const TextBlockSchema = v.intersect([
-	BaseBlockPropertiesSchema,
+	s.BaseBlockPropertiesSchema,
 	v.required(
 	v.object({
 		type: v.picklist(["Text"]),
-		content: MarkdownContentSchema,
+		content: s.MarkdownContentSchema,
 	}),
 	["type","content"]
 ),
 ])
 type TextBlock = v.InferInput<typeof TextBlockSchema>;
 const ImageBlockSchema = v.intersect([
-	BaseBlockPropertiesSchema,
+	s.BaseBlockPropertiesSchema,
 	v.required(
 	v.object({
 		type: v.picklist(["Image"]),
-		image: BlockImageSchema,
+		image: s.BlockImageSchema,
 	}),
 	["type","image"]
 ),
 ])
 type ImageBlock = v.InferInput<typeof ImageBlockSchema>;
 const LinkBlockSchema = v.intersect([
-	BaseBlockPropertiesSchema,
+	s.BaseBlockPropertiesSchema,
 	v.object({
 	type: v.picklist(["Link"]),
 	image: v.union([
-			BlockImageSchema,
+			s.BlockImageSchema,
 			v.null(), v.undefined(),
 	]),
 	content: v.union([
-			MarkdownContentSchema,
+			s.MarkdownContentSchema,
 			v.null(), v.undefined(),
 	]),
 }),
 ])
 type LinkBlock = v.InferInput<typeof LinkBlockSchema>;
 const AttachmentBlockSchema = v.intersect([
-	BaseBlockPropertiesSchema,
+	s.BaseBlockPropertiesSchema,
 	v.object({
 	type: v.picklist(["Attachment"]),
-	attachment: BlockAttachmentSchema,
+	attachment: s.BlockAttachmentSchema,
 	image: v.union([
-			BlockImageSchema,
+			s.BlockImageSchema,
 			v.null(), v.undefined(),
 	]),
 }),
 ])
 type AttachmentBlock = v.InferInput<typeof AttachmentBlockSchema>;
 const EmbedBlockSchema = v.intersect([
-	BaseBlockPropertiesSchema,
+	s.BaseBlockPropertiesSchema,
 	v.object({
 	type: v.picklist(["Embed"]),
-	embed: BlockEmbedSchema,
+	embed: s.BlockEmbedSchema,
 	image: v.union([
-			BlockImageSchema,
+			s.BlockImageSchema,
 			v.null(), v.undefined(),
 	]),
 }),
 ])
 type EmbedBlock = v.InferInput<typeof EmbedBlockSchema>;
 const UserListResponseSchema = v.intersect([
-	UserListSchema,
-	PaginatedResponseWithCountBaseSchema,
+	s.UserListSchema,
+	s.PaginatedResponseWithCountBaseSchema,
 ])
 type UserListResponse = v.InferInput<typeof UserListResponseSchema>;
 const CommentListResponseSchema = v.intersect([
-	CommentListSchema,
-	PaginatedResponseWithCountBaseSchema,
+	s.CommentListSchema,
+	s.PaginatedResponseWithCountBaseSchema,
 ])
 type CommentListResponse = v.InferInput<typeof CommentListResponseSchema>;
 const ChannelListResponseSchema = v.intersect([
-	ChannelListSchema,
-	PaginatedResponseWithCountBaseSchema,
+	s.ChannelListSchema,
+	s.PaginatedResponseWithCountBaseSchema,
 ])
 type ChannelListResponse = v.InferInput<typeof ChannelListResponseSchema>;
 const FollowableListResponseSchema = v.intersect([
-	FollowableListSchema,
-	PaginatedResponseWithCountBaseSchema,
+	s.FollowableListSchema,
+	s.PaginatedResponseWithCountBaseSchema,
 ])
 type FollowableListResponse = v.InferInput<typeof FollowableListResponseSchema>;
 const BlockSchema = v.union([
-	TextBlockSchema,
-	ImageBlockSchema,
-	LinkBlockSchema,
-	AttachmentBlockSchema,
-	EmbedBlockSchema,
+	s.TextBlockSchema,
+	s.ImageBlockSchema,
+	s.LinkBlockSchema,
+	s.AttachmentBlockSchema,
+	s.EmbedBlockSchema,
 ])
 type Block = v.InferInput<typeof BlockSchema>;
 const ConnectableListSchema = v.required(
 	v.object({
 		data: v.array(
 				v.union([
-					TextBlockSchema,
-					ImageBlockSchema,
-					LinkBlockSchema,
-					AttachmentBlockSchema,
-					EmbedBlockSchema,
-					ChannelSchema,
+					s.TextBlockSchema,
+					s.ImageBlockSchema,
+					s.LinkBlockSchema,
+					s.AttachmentBlockSchema,
+					s.EmbedBlockSchema,
+					s.ChannelSchema,
 				])
 		),
 	}),
@@ -583,14 +600,14 @@ const EverythingListSchema = v.required(
 	v.object({
 		data: v.array(
 				v.union([
-					TextBlockSchema,
-					ImageBlockSchema,
-					LinkBlockSchema,
-					AttachmentBlockSchema,
-					EmbedBlockSchema,
-					ChannelSchema,
-					UserSchema,
-					GroupSchema,
+					s.TextBlockSchema,
+					s.ImageBlockSchema,
+					s.LinkBlockSchema,
+					s.AttachmentBlockSchema,
+					s.EmbedBlockSchema,
+					s.ChannelSchema,
+					s.UserSchema,
+					s.GroupSchema,
 				])
 		),
 	}),
@@ -598,13 +615,13 @@ const EverythingListSchema = v.required(
 )
 type EverythingList = v.InferInput<typeof EverythingListSchema>;
 const ConnectableListResponseSchema = v.intersect([
-	ConnectableListSchema,
-	PaginatedResponseBaseSchema,
+	s.ConnectableListSchema,
+	s.PaginatedResponseBaseSchema,
 ])
 type ConnectableListResponse = v.InferInput<typeof ConnectableListResponseSchema>;
 const EverythingListResponseSchema = v.intersect([
-	EverythingListSchema,
-	PaginatedResponseWithCountBaseSchema,
+	s.EverythingListSchema,
+	s.PaginatedResponseWithCountBaseSchema,
 ])
 type EverythingListResponse = v.InferInput<typeof EverythingListResponseSchema>;
 
@@ -637,6 +654,8 @@ export {
  	type ChannelContentSort,
  	ContentSortSchema,
  	type ContentSort,
+ 	ChannelVisibilitySchema,
+ 	type ChannelVisibility,
  	BlockProviderSchema,
  	type BlockProvider,
  	ImageVersionSchema,
@@ -645,6 +664,8 @@ export {
  	type BlockEmbed,
  	BlockAttachmentSchema,
  	type BlockAttachment,
+ 	ChannelAbilitiesSchema,
+ 	type ChannelAbilities,
  	ChannelCountsSchema,
  	type ChannelCounts,
  	PaginationMetaWithCountSchema,

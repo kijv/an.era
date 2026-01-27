@@ -12,6 +12,9 @@ const ValidationErrorResponse = {
 const ForbiddenResponse = {
 	"application/json": s.ErrorSchema,
 }
+const UnprocessableEntityResponse = {
+	"application/json": s.ErrorSchema,
+}
 const RateLimitResponse = {
 	"application/json": s.RateLimitErrorSchema,
 }
@@ -21,5 +24,6 @@ export {
  	NotFoundResponse,
  	ValidationErrorResponse,
  	ForbiddenResponse,
+ 	UnprocessableEntityResponse,
  	RateLimitResponse
 };

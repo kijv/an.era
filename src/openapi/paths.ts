@@ -158,9 +158,69 @@ const Blocks = {
 				"429": r.RateLimitResponse,
 			},
 		},
+		createChannelBlock: {
+			method: "post",
+			path: "/v3/channels/{id}/blocks",
+			parameters: {
+				path: {
+					id: p.SlugOrIdParamSchema,
+				},
+			},
+			body: {
+				required: true,
+				content: {
+					"application/json": v.object({
+						source: v.string(),
+						content: v.string(),
+						title: v.string(),
+						description: v.string(),
+					}),
+				},
+			},
+			responses: {
+				"201": {
+					"application/json": s.BlockSchema,
+				},
+				"400": r.ValidationErrorResponse,
+				"401": r.UnauthorizedResponse,
+				"403": {
+					"application/json": s.ErrorSchema,
+				},
+				"404": r.NotFoundResponse,
+				"422": r.UnprocessableEntityResponse,
+				"429": r.RateLimitResponse,
+			},
+		},
 	}
 }
 const Channels = {
+	createChannel: {
+		method: "post",
+		path: "/v3/channels",
+		parameters: {
+		},
+		body: {
+			required: true,
+			content: {
+				"application/json": v.object({
+					title: v.string(),
+					visibility: s.ChannelVisibilitySchema,
+					description: v.string(),
+					group_id: v.pipe(v.number(), v.integer()),
+				}),
+			},
+		},
+		responses: {
+			"201": {
+				"application/json": s.ChannelSchema,
+			},
+			"400": r.ValidationErrorResponse,
+			"401": r.UnauthorizedResponse,
+			"403": r.ForbiddenResponse,
+			"422": r.UnprocessableEntityResponse,
+			"429": r.RateLimitResponse,
+		},
+	},
 	id: {
 		$parameters: {
 			id: p.SlugOrIdParamSchema
@@ -177,6 +237,51 @@ const Channels = {
 				"200": {
 					"application/json": s.ChannelSchema,
 				},
+				"401": r.UnauthorizedResponse,
+				"403": r.ForbiddenResponse,
+				"404": r.NotFoundResponse,
+				"429": r.RateLimitResponse,
+			},
+		},
+		updateChannel: {
+			method: "put",
+			path: "/v3/channels/{id}",
+			parameters: {
+				path: {
+					id: p.SlugOrIdParamSchema,
+				},
+			},
+			body: {
+				required: true,
+				content: {
+					"application/json": v.object({
+						title: v.string(),
+						visibility: s.ChannelVisibilitySchema,
+						description: v.string(),
+					}),
+				},
+			},
+			responses: {
+				"200": {
+					"application/json": s.ChannelSchema,
+				},
+				"400": r.ValidationErrorResponse,
+				"401": r.UnauthorizedResponse,
+				"403": r.ForbiddenResponse,
+				"404": r.NotFoundResponse,
+				"422": r.UnprocessableEntityResponse,
+				"429": r.RateLimitResponse,
+			},
+		},
+		deleteChannel: {
+			method: "delete",
+			path: "/v3/channels/{id}",
+			parameters: {
+				path: {
+					id: p.SlugOrIdParamSchema,
+				},
+			},
+			responses: {
 				"401": r.UnauthorizedResponse,
 				"403": r.ForbiddenResponse,
 				"404": r.NotFoundResponse,
