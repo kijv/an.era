@@ -1,26 +1,30 @@
 import * as v from 'valibot';
 import * as s from './schemas';
 
-const PageParamSchema = v.pipe(v.number(), v.integer());
-type PageParam = v.InferOutput<typeof PageParamSchema>;
-const PerParamSchema = v.pipe(v.number(), v.integer());
-type PerParam = v.InferOutput<typeof PerParamSchema>;
+const PageParamSchema = v.pipe(
+  v.pipe(v.number(), v.integer()),
+  v.examples([1]),
+);
+type PageParam = v.InferInput<typeof PageParamSchema>;
+const PerParamSchema = v.pipe(
+  v.pipe(v.number(), v.integer()),
+  v.examples([24]),
+);
+type PerParam = v.InferInput<typeof PerParamSchema>;
 const IdParamSchema = v.pipe(v.number(), v.integer());
-type IdParam = v.InferOutput<typeof IdParamSchema>;
+type IdParam = v.InferInput<typeof IdParamSchema>;
 const SlugOrIdParamSchema = v.string();
-type SlugOrIdParam = v.InferOutput<typeof SlugOrIdParamSchema>;
+type SlugOrIdParam = v.InferInput<typeof SlugOrIdParamSchema>;
 const ConnectionSortParamSchema = s.ConnectionSortSchema;
-type ConnectionSortParam = v.InferOutput<typeof ConnectionSortParamSchema>;
+type ConnectionSortParam = v.InferInput<typeof ConnectionSortParamSchema>;
 const ContentSortParamSchema = s.ContentSortSchema;
-type ContentSortParam = v.InferOutput<typeof ContentSortParamSchema>;
+type ContentSortParam = v.InferInput<typeof ContentSortParamSchema>;
 const ChannelContentSortParamSchema = s.ChannelContentSortSchema;
-type ChannelContentSortParam = v.InferOutput<
+type ChannelContentSortParam = v.InferInput<
   typeof ChannelContentSortParamSchema
 >;
 const ContentTypeFilterParamSchema = s.ContentTypeFilterSchema;
-type ContentTypeFilterParam = v.InferOutput<
-  typeof ContentTypeFilterParamSchema
->;
+type ContentTypeFilterParam = v.InferInput<typeof ContentTypeFilterParamSchema>;
 
 export {
   PageParamSchema,

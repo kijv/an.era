@@ -44,7 +44,7 @@ type CollectResponseSchemas<
 
 type Query<T extends Record<string, ValibotSchema>> = {
   [K in keyof T]: T[K] extends ValibotSchema
-    ? v.InferOutput<T[K]> extends infer U
+    ? v.InferInput<T[K]> extends infer U
       ? null extends U
         ? K
         : undefined extends U
@@ -54,18 +54,16 @@ type Query<T extends Record<string, ValibotSchema>> = {
     : never;
 }[keyof T] extends infer OptionalKeys
   ? {
-      [K in keyof T as K extends OptionalKeys ? never : K]: v.InferOutput<T[K]>;
+      [K in keyof T as K extends OptionalKeys ? never : K]: v.InferInput<T[K]>;
     } & {
-      [K in keyof T as K extends OptionalKeys ? K : never]?: v.InferOutput<
-        T[K]
-      >;
+      [K in keyof T as K extends OptionalKeys ? K : never]?: v.InferInput<T[K]>;
     }
   : never;
 
 type Body<T extends Path['body']> = T extends RequiredBody
   ? T['content'] extends Record<string, ValibotSchema>
     ? T['content'][keyof T['content']] extends ValibotSchema
-      ? v.InferOutput<T['content'][keyof T['content']]> extends infer U
+      ? v.InferInput<T['content'][keyof T['content']]> extends infer U
         ? {
             [K in keyof U]: U[K] extends infer V
               ? null extends V
@@ -87,7 +85,7 @@ type Body<T extends Path['body']> = T extends RequiredBody
   : T extends OptionalBody
     ? T['content'] extends Record<string, ValibotSchema>
       ? T['content'][keyof T['content']] extends ValibotSchema
-        ? v.InferOutput<T['content'][keyof T['content']]> extends infer U
+        ? v.InferInput<T['content'][keyof T['content']]> extends infer U
           ? {
               [K in keyof U]: U[K] extends infer V
                 ? null extends V

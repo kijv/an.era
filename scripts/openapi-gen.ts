@@ -1,12 +1,10 @@
 import { OpenAPIV3, type OpenAPIV3_1 } from 'openapi-types';
-import {
-  defaultRenderRef,
-  openApiSchemaToValibotSchema,
-  sortSchemasByDependencies,
-} from './util';
-import { dereference, parse } from '@readme/openapi-parser';
+import { defaultRenderRef, openApiSchemaToValibotSchema } from './transform';
+import OASNormalize from 'oas-normalize';
+import Oas from 'oas';
 import { fileURLToPath } from 'bun';
 import path from 'node:path';
+import { sortSchemas } from './util';
 
 const cwd = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
 
@@ -16,14 +14,9 @@ const only = Bun.argv
   ?.split('=')[1]
   ?.split(',');
 
-const url = Bun.argv
+const input = Bun.argv
   .slice(2)
-  .find((arg) => arg.startsWith('--url='))
-  ?.split('=')[1];
-
-const file = Bun.argv
-  .slice(2)
-  .find((arg) => arg.startsWith('--file='))
+  .find((arg) => arg.startsWith('--input='))
   ?.split('=')[1];
 
 const skipExistingArg = Bun.argv
@@ -34,16 +27,27 @@ const skipExistingArg = Bun.argv
 const skipExisting =
   skipExistingArg == null ? false : skipExistingArg === 'true';
 
-const openApiJson = await (url
-  ? fetch(url).then((res) => res.json())
-  : Bun.file(path.join(cwd, file!)).json());
+const normalizedOas = new OASNormalize(input!, {
+  enablePaths: true,
+  parser: {
+    resolve: {
+      external: false,
+    },
+    dereference: {
+      circular: false,
+      onDereference: (path, value, parent, p) => {
+        parent![p!] = {
+          $ref: path,
+        };
+      },
+    },
+  },
+});
 
-const openApi = (await parse(
-  structuredClone(openApiJson),
-)) as OpenAPIV3_1.Document<typeof openApiJson>;
-const derefOpenApi = (await dereference(
-  structuredClone(openApiJson),
-)) as OpenAPIV3_1.Document<typeof openApiJson>;
+const openApi = await normalizedOas.load();
+const derefOpenApi = await normalizedOas.dereference();
+
+const oas = new Oas(openApi);
 
 type Code = {
   imports: {
@@ -79,62 +83,101 @@ const createCode = ({
   },
 });
 
-const getComponentsSchemasCode = () => {
-  const code = createCode({
-    imports: [{ require: 'valibot', variable: '* as v' }],
-  });
+const createFile = <K extends string, V>(options: {
+  filename: string;
+  codeOptions?: Parameters<typeof createCode>[0];
+  objects: Record<K, V> | undefined | null;
+  variableName?: (name: string) => string;
+  types?: boolean;
+  getLines: (
+    this: { code: Code; renderRef: (ref: string) => string },
+    obj: V,
+  ) => string[];
+}) => {
+  const {
+    codeOptions,
+    objects,
+    types = false,
+    getLines,
+    filename,
+    ...otherOptions
+  } = options;
 
-  const schemas = sortSchemasByDependencies(openApi.components?.schemas ?? {});
+  const code = createCode(codeOptions);
 
-  for (const name in schemas) {
-    const obj = schemas[name];
+  if (!objects) return code;
+
+  const renderRef = (ref: string) => {
+    const refPath = ref.replace(/^#\//, '').split('/');
+    const parent = refPath.slice(0, -1).join('/');
+    const variableName = parent.split('/').at(-1)!.charAt(0);
+    const relativeParent = path.relative(path.dirname(filename), parent);
+    if (!code.imports.find((c) => c.require === `./${relativeParent}`)) {
+      code.imports.push({
+        require: `./${relativeParent}`,
+        variable: `* as ${variableName}`,
+      });
+    }
+    return `${variableName}.${defaultRenderRef(ref)}`;
+  };
+
+  for (const name in objects) {
+    const obj = objects[name];
     if (obj == null) continue;
-    const variableName = `${name}Schema`;
-    code.body += [`\nconst ${variableName} = `]
-      .concat(openApiSchemaToValibotSchema(obj).join('\n'))
-      .join('');
-    code.exports.push(variableName);
-    code.body += `\ntype ${name} = v.InferOutput<typeof ${variableName}>;`;
-    code.exports.push(`type ${name}`);
-  }
-
-  return code;
-};
-
-const getComponentsParamsCode = () => {
-  const code = createCode({
-    imports: [{ require: 'valibot', variable: '* as v' }],
-  });
-
-  for (const name in openApi.components?.parameters) {
-    const obj = openApi.components?.parameters[name];
-    if (obj == null || '$ref' in obj) continue;
-    const variableName = `${name}Schema`;
+    const variableName = otherOptions.variableName?.(name) ?? name;
     code.body += [`\nconst ${variableName} = `]
       .concat(
-        openApiSchemaToValibotSchema(
-          Object.assign({}, obj.schema as OpenAPIV3_1.SchemaObject, {
-            example: obj.example,
-            describetion: obj.description,
-          }),
-          (ref, kind) => {
-            if (kind === 'components/schemas') {
-              if (!code.imports.find((c) => c.require === './schemas')) {
-                code.imports.push({ require: './schemas', variable: '* as s' });
-              }
-              return `s.${defaultRenderRef(ref)}`;
-            }
-          },
-        ).join('\n'),
+        getLines
+          .bind({
+            code,
+            renderRef,
+          })(obj)
+          .join('\n'),
       )
       .join('');
     code.exports.push(variableName);
-    code.body += `\ntype ${name} = v.InferOutput<typeof ${variableName}>;`;
-    code.exports.push(`type ${name}`);
+    if (types) {
+      code.body += `\ntype ${name} = v.InferInput<typeof ${variableName}>;`;
+      code.exports.push(`type ${name}`);
+    }
   }
 
   return code;
 };
+
+const getComponentsSchemasCode = () =>
+  createFile({
+    filename: 'components/schemas',
+    codeOptions: {
+      imports: [{ require: 'valibot', variable: '* as v' }],
+    },
+    objects: sortSchemas(oas.api.components?.schemas ?? {}),
+    types: true,
+    variableName: (n) => `${n}Schema`,
+    getLines: (obj) => openApiSchemaToValibotSchema(obj),
+  });
+
+const getComponentsParamsCode = () =>
+  createFile({
+    filename: 'components/parameters',
+    codeOptions: {
+      imports: [{ require: 'valibot', variable: '* as v' }],
+    },
+    objects: oas.api.components?.parameters,
+    types: true,
+    variableName: (n) => `${n}Schema`,
+    getLines(this, obj) {
+      return openApiSchemaToValibotSchema(
+        '$ref' in obj
+          ? obj
+          : Object.assign({}, obj.schema, {
+              example: obj.example,
+              describetion: obj.description,
+            }),
+        this.renderRef,
+      );
+    },
+  });
 
 const getComponentsResCode = () => {
   const code = createCode();
@@ -152,8 +195,8 @@ const getComponentsResCode = () => {
     return `${variableName}.${defaultRenderRef(ref)}`;
   };
 
-  for (const name in openApi.components?.responses) {
-    const res = openApi.components.responses[name];
+  for (const name in oas.api.components?.responses) {
+    const res = oas.api.components.responses[name];
     if (res == null) continue;
     const variableName = name;
     code.body += [`\nconst ${variableName} = `]
@@ -516,10 +559,10 @@ const getPathsCode = () => {
 const getMainCode = () => {
   const code = createCode();
 
-  if (openApi.servers != null && openApi.servers.length > 0) {
+  if (oas.api.servers != null && oas.api.servers.length > 0) {
     code.body += [
       `export const SERVERS = [`,
-      ...openApi.servers.map((s) => JSON.stringify(s)).map((s) => `\t${s},`),
+      ...oas.api.servers.map((s) => JSON.stringify(s)).map((s) => `\t${s},`),
       `] as const;`,
     ].join('\n');
   }

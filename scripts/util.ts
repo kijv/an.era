@@ -1,306 +1,223 @@
-import type { OpenAPIV3_1 } from 'openapi-types';
+import type { OpenAPIV3, OpenAPIV3_1 } from 'openapi-types';
 
-const PIPE_KEYS = ['examples', 'example', 'description'];
-
-const shouldPipeSchema = (schema: OpenAPIV3_1.SchemaObject): boolean =>
-  ('examples' in schema &&
-    schema.examples != null &&
-    schema.examples?.length > 0) ||
-  ('example' in schema && schema.example != null) ||
-  ('description' in schema && typeof schema.description === 'string');
-
-export const defaultRenderRef = (ref: string) => {
-  const parts = ref.replace(/^#/, '').split('/').filter(Boolean);
-
-  const suffix = ['components/responses'].includes(parts.slice(0, -1).join('/'))
-    ? ''
-    : 'Schema';
-
-  return `${parts.at(-1)}${suffix}`;
-};
-
-export const openApiSchemaToValibotSchema = <
-  T extends OpenAPIV3_1.SchemaObject | OpenAPIV3_1.ReferenceObject,
->(
-  schema: T,
-  renderRef: (
-    ref: string,
-    kind: string,
-  ) => string | null | undefined = defaultRenderRef,
-  used: string[] = [],
-): string[] =>
-  ('$ref' in schema && typeof schema.$ref === 'string'
-    ? [
-        renderRef(schema.$ref, schema.$ref.split('/').slice(1, -1).join('/')) ??
-          defaultRenderRef(schema.$ref),
-      ]
-    : !PIPE_KEYS.map((k) => used.includes(k)) && shouldPipeSchema(schema)
-      ? [
-          `v.pipe(`,
-          ...openApiSchemaToValibotSchema(
-            schema,
-            renderRef,
-            used.concat(
-              Object.keys(schema).filter((k) => PIPE_KEYS.includes(k)),
-            ),
-          )
-            .map((s, _, arr) => (s === arr.at(-1) ? `${s},` : `${s}`))
-            .concat(
-              'description' in schema && typeof schema.description === 'string'
-                ? [
-                    `v.metadata({`,
-                    `\tdescription: ${JSON.stringify(schema.description)}`,
-                    '}),',
-                  ]
-                : [],
-            )
-            .concat(
-              ('examples' in schema &&
-                schema.examples != null &&
-                schema.examples?.length > 0) ||
-                ('example' in schema && schema.example != null)
-                ? [
-                    `v.examples(${JSON.stringify(schema.examples ?? [schema.example])})`,
-                  ]
-                : [],
-            )
-            .map((s) => `\t${s}`),
-          `)`,
-        ]
-      : ('allOf' in schema && schema.allOf != null) ||
-          ('oneOf' in schema &&
-            schema.oneOf != null) /*&& schema.discriminator == null*/
-        ? [
-            `v.${schema.allOf ? 'intersect' : 'union'}([`,
-            ...(schema.allOf || schema.oneOf)!
-              .flatMap((subSchema) =>
-                openApiSchemaToValibotSchema(subSchema, renderRef).join('\n'),
-              )
-              .map((s) => `\t${s},`),
-            `])`,
-          ]
-        : /*"oneOf" in schema &&
-            schema.oneOf != null &&
-            "discriminator" in schema &&
-            schema.discriminator != null
-          ? [
-              `v.variant(${JSON.stringify(schema.discriminator.propertyName)}, [`,
-              ...schema.oneOf
-                .flatMap((subSchema) =>
-                  [
-                    // `v.omit(`,
-                    // ...[
-                    //   ...[
-                    //     `${openApiSchemaToValibotSchema(subSchema, n + 1).join("\n")},`,
-                    //     `${JSON.stringify(schema.discriminator!.propertyName)}`,
-                    //   ].map((s) => `\t${s}`),
-                    //   `)`,
-                    // ].map((s) => `\t${s}`),
-                    openApiSchemaToValibotSchema(subSchema, renderRef).join("\n"),
-                  ].join("\n"),
-                )
-                .map((s) => `\t${s},`),
-              `])`,
-            ]
-          :*/ 'type' in schema
-          ? Array.isArray(schema.type)
-            ? [
-                `v.union([`,
-                ...schema.type
-                  .flatMap((type) =>
-                    openApiSchemaToValibotSchema({
-                      type,
-                    }),
-                  )
-                  .map((s) => `\t${s},`),
-                `])`,
-              ]
-            : schema.type === 'object'
-              ? 'required' in schema &&
-                schema.required != null &&
-                schema.required.length > 0 &&
-                !used.includes('required')
-                ? [
-                    `v.required(`,
-                    ...openApiSchemaToValibotSchema(
-                      schema,
-                      renderRef,
-                      used.concat('required'),
-                    )
-                      .map(
-                        (s, i, arr) =>
-                          `${i === 0 ? 'v.partial(' : ''}${s}${i === arr.length - 1 ? '),' : ''}`,
-                      )
-                      .concat(JSON.stringify(schema.required))
-                      .map((s) => `\t${s}`),
-                    `)`,
-                  ]
-                : schema.properties != null &&
-                    Object.keys(schema.properties).length > 0
-                  ? [
-                      `v.object({`,
-                      ...Object.entries(schema.properties)
-                        .filter<[string, OpenAPIV3_1.SchemaObject]>(
-                          ([, data]) =>
-                            typeof data === 'object' && 'type' in data,
-                        )
-                        .flatMap<string>(([key, data]) => {
-                          const lines = openApiSchemaToValibotSchema(
-                            data,
-                            renderRef,
-                          );
-                          return lines.length > 1
-                            ? [`${key}: ${lines[0]!}`].concat(
-                                lines
-                                  .slice(1, lines.length - 1)
-                                  .map((s) => `\t${s}`),
-                                `${lines.at(-1)},`,
-                              )
-                            : lines.length === 1
-                              ? [`${key}: ${lines[0]!}`].map((s) =>
-                                  s != null || s != '' ? `${s},` : s,
-                                )
-                              : [];
-                        })
-                        .map((s) => `\t${s}`),
-                      '})',
-                    ].filter(Boolean)
-                  : openApiSchemaToValibotSchema({
-                      oneOf: (schema.examples ?? [schema.example])
-                        .filter(Boolean)
-                        .flatMap((e) => Object.values(e).map((v) => typeof v))
-                        .reduce((acc, v) => {
-                          if (!acc.includes(v)) {
-                            acc.push(v);
-                          }
-                          return acc;
-                        }, [] as string[])
-                        .map((type) => ({ type }) as OpenAPIV3_1.SchemaObject),
-                    }).map(
-                      (l, i, arr) =>
-                        `${i === 0 ? 'v.record(v.string(), ' : ''}${l}${i === arr.length - 1 ? ')' : ''}`,
-                    )
-              : schema.type === 'array'
-                ? [
-                    `v.array(`,
-                    ...openApiSchemaToValibotSchema(
-                      schema.items as OpenAPIV3_1.SchemaObject,
-                      renderRef,
-                    ).map((s) => `\t${s}`),
-                    `)`,
-                  ]
-                : schema.type === 'string'
-                  ? schema.enum != null && schema.enum?.length > 0
-                    ? [`v.picklist(${JSON.stringify(schema.enum)})`]
-                    : [`v.string()`]
-                  : schema.type === 'number' || schema.type === 'boolean'
-                    ? [`v.${schema.type}()`]
-                    : schema.type === 'integer'
-                      ? [`v.pipe(v.number(), v.integer())`]
-                      : schema.type === 'null'
-                        ? [`v.null()`, `v.undefined()`]
-                        : null
-          : null) ?? ['v.any()'];
+export type OpenAPISchemasCollection = Record<
+  string,
+  | OpenAPIV3.SchemaObject
+  | OpenAPIV3.ReferenceObject
+  | OpenAPIV3_1.SchemaObject
+  | OpenAPIV3_1.ReferenceObject
+>;
 
 /**
- * Extracts schema references from a schema object
+ * Recursively extracts all $ref objects from an OpenAPI schema object
+ * @param obj - The object to search for $ref properties
+ * @param visited - Set to track visited objects and prevent infinite loops
+ * @returns Array of objects containing $ref properties
  */
-function extractSchemaRefs(schema: OpenAPIV3_1.SchemaObject): Set<string> {
-  const refs = new Set<string>();
+export function getAllRefs(
+  obj: unknown,
+  visited: Set<unknown> = new Set(),
+): (OpenAPIV3.ReferenceObject | OpenAPIV3_1.ReferenceObject)[] {
+  const refs: RefObject[] = [];
 
-  const extractRef = (obj: any) => {
-    if (obj?.$ref && typeof obj.$ref === 'string') {
-      // Extract schema name from #/components/schemas/SchemaName
-      const match = obj.$ref.match(/#\/components\/schemas\/(.+)/);
-      if (match) {
-        refs.add(match[1]);
+  if (!obj || typeof obj !== 'object') {
+    return refs;
+  }
+
+  if (visited.has(obj)) {
+    return refs;
+  }
+  visited.add(obj);
+
+  const objAsRecord = obj as Record<string, unknown>;
+
+  if ('$ref' in objAsRecord && typeof objAsRecord.$ref === 'string') {
+    refs.push({ $ref: objAsRecord.$ref });
+  }
+
+  if (Array.isArray(obj)) {
+    for (const item of obj) {
+      refs.push(...getAllRefs(item, visited));
+    }
+  } else {
+    for (const key in objAsRecord) {
+      if (Object.prototype.hasOwnProperty.call(objAsRecord, key)) {
+        refs.push(...getAllRefs(objAsRecord[key], visited));
       }
     }
-  };
-
-  // Check oneOf
-  if (schema.oneOf) {
-    schema.oneOf.forEach(extractRef);
-  }
-
-  // Check allOf
-  if (schema.allOf) {
-    schema.allOf.forEach(extractRef);
-  }
-
-  // Check properties
-  if (schema.properties) {
-    Object.values(schema.properties).forEach(extractRef);
-  }
-
-  // Check items (for arrays)
-  if (schema.type === 'array' && schema.items) {
-    extractRef(schema.items);
   }
 
   return refs;
 }
 
 /**
- * Performs topological sort on schemas based on their dependencies
- * Ensures schemas are ordered so dependencies come before dependents
- *
- * @param schemas - Object containing OpenAPI schemas
- * @returns Sorted schemas object
- * @throws Error if circular dependencies are detected
+ * Extracts the name from a $ref string
+ * @param ref - The $ref string (e.g., "#/components/schemas/User")
+ * @returns The extracted name (e.g., "User")
  */
-export function sortSchemasByDependencies(
-  schemas: Record<string, OpenAPIV3_1.SchemaObject>,
-): Record<string, OpenAPIV3_1.SchemaObject> {
-  const schemaNames = Object.keys(schemas);
-  const visited = new Set<string>();
-  const visiting = new Set<string>();
-  const sorted: string[] = [];
+export function extractRefName(ref: string): string {
+  const parts = ref.split('/');
+  return parts[parts.length - 1];
+}
+
+/**
+ * Options for sorting schemas
+ */
+export interface SortOptions {
+  /**
+   * Whether to throw an error if circular dependencies are detected
+   * @default false
+   */
+  throwOnCircular?: boolean;
+
+  /**
+   * Whether to log warnings
+   * @default true
+   */
+  warnings?: boolean;
+}
+
+/**
+ * Result of sorting operation
+ */
+export interface SortResult<T> {
+  /**
+   * Sorted schemas object
+   */
+  schemas: Record<string, T>;
+
+  /**
+   * List of schema names in sorted order
+   */
+  order: string[];
+
+  /**
+   * Whether circular dependencies were detected
+   */
+  hasCircularDependencies: boolean;
+
+  /**
+   * Dependency graph (schema name -> dependencies)
+   */
+  dependencyGraph: Map<string, Set<string>>;
+}
+
+/**
+ * Topologically sorts an object based on $ref dependencies in its values
+ * Returns a new object with keys ordered so dependencies are defined before being referenced
+ * @param schemasObject - Object where keys are schema names and values are schema definitions
+ * @param options - Sorting options
+ * @returns Sort result containing the sorted object and metadata
+ */
+export function sortObjectByRefDependencies<T>(
+  schemasObject: Record<string, T>,
+  options: SortOptions = {},
+): SortResult<T> {
+  const { throwOnCircular = false, warnings = true } = options;
 
   // Build dependency graph
-  const dependencies = new Map<string, Set<string>>();
-  for (const name of schemaNames) {
-    if (schemas[name] == null) continue;
-    dependencies.set(name, extractSchemaRefs(schemas[name]));
-  }
+  const graph = new Map<string, Set<string>>();
+  const names = Object.keys(schemasObject);
 
-  // Topological sort using DFS
-  function visit(name: string, path: string[] = []): void {
-    if (visited.has(name)) {
-      return;
-    }
+  // Build dependency graph
+  for (const name of names) {
+    const schema = schemasObject[name];
+    const refs = getAllRefs(schema);
+    const dependencies = new Set<string>();
 
-    if (visiting.has(name)) {
-      const cycle = [...path, name].join(' -> ');
-      throw new Error(`Circular dependency detected: ${cycle}`);
-    }
-
-    visiting.add(name);
-    const deps = dependencies.get(name) || new Set();
-
-    for (const dep of deps) {
-      // Only process dependencies that exist in our schemas
-      if (dependencies.has(dep)) {
-        visit(dep, [...path, name]);
+    for (const ref of refs) {
+      const depName = extractRefName(ref.$ref);
+      // Only add as dependency if it's another schema in our object
+      if (
+        depName !== name &&
+        Object.prototype.hasOwnProperty.call(schemasObject, depName)
+      ) {
+        dependencies.add(depName);
       }
     }
 
-    visiting.delete(name);
-    visited.add(name);
+    graph.set(name, dependencies);
+  }
+
+  // Topological sort using Kahn's algorithm
+  const sorted: string[] = [];
+  const inDegree = new Map<string, number>();
+
+  // Calculate in-degree for each node (how many dependencies it has)
+  for (const [name, dependencies] of graph.entries()) {
+    inDegree.set(name, dependencies.size);
+  }
+
+  // Queue nodes with no dependencies (in-degree = 0)
+  const queue: string[] = [];
+  for (const [name, degree] of inDegree.entries()) {
+    if (degree === 0) {
+      queue.push(name);
+    }
+  }
+
+  // Process queue
+  while (queue.length > 0) {
+    const name = queue.shift()!;
     sorted.push(name);
+
+    // For each node that depends on the current node, reduce its in-degree
+    for (const [depName, dependencies] of graph.entries()) {
+      if (dependencies.has(name)) {
+        const newDegree = inDegree.get(depName)! - 1;
+        inDegree.set(depName, newDegree);
+
+        if (newDegree === 0) {
+          queue.push(depName);
+        }
+      }
+    }
   }
 
-  // Visit all schemas
-  for (const name of schemaNames) {
-    visit(name);
+  // Check for circular dependencies
+  const hasCircularDependencies = sorted.length !== names.length;
+
+  if (hasCircularDependencies) {
+    const message =
+      'Circular dependencies detected. Some schemas may be in arbitrary order.';
+
+    if (throwOnCircular) {
+      throw new Error(message);
+    }
+
+    if (warnings) {
+      console.warn(`Warning: ${message}`);
+    }
+
+    // Add remaining schemas to the end
+    for (const name of names) {
+      if (!sorted.includes(name)) {
+        sorted.push(name);
+      }
+    }
   }
 
-  // Rebuild schemas object in sorted order
-  const sortedSchemas: Record<string, OpenAPIV3_1.SchemaObject> = {};
+  // Build new object with sorted keys
+  const sortedObject = {} as Record<string, T>;
   for (const name of sorted) {
-    if (schemas[name] == null) continue;
-    sortedSchemas[name] = schemas[name];
+    sortedObject[name] = schemasObject[name] as T;
   }
 
-  return sortedSchemas;
+  return {
+    schemas: sortedObject,
+    order: sorted,
+    hasCircularDependencies,
+    dependencyGraph: graph,
+  };
+}
+
+/**
+ * Simple version that just returns the sorted object
+ * @param schemasObject - Object where keys are schema names and values are schema definitions
+ * @returns New object with keys in dependency order
+ */
+export function sortSchemas<T>(
+  schemasObject: Record<string, T>,
+): Record<string, T> {
+  return sortObjectByRefDependencies(schemasObject).schemas;
 }

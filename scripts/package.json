@@ -3,7 +3,8 @@
   "private": true,
   "type": "module",
   "devDependencies": {
-    "@readme/openapi-parser": "^5.5.0",
+    "oas": "^28.9.0",
+    "oas-normalize": "^15.7.0",
     "openapi-types": "^12.1.3"
   }
 }

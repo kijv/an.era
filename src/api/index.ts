@@ -1,8 +1,8 @@
 import * as groupedPaths from '../openapi/paths';
 import * as o from '../openapi';
+import * as v from 'valibot';
 import type { Api, Path } from './declaration';
 import { findKeyWithSingleOccurrence, removeCommonPrefix } from '../util';
-import * as v from 'valibot';
 import formUrlencoded from 'form-urlencoded';
 
 const getMethodArgKind = (method: Path): 'body' | 'query' | null =>
