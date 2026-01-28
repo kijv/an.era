@@ -96,6 +96,25 @@ type TagsShareCommon<
   T2 extends readonly string[],
 > = T1[number] & T2[number] extends never ? false : true;
 
+// Extract path segments up to and including the first path parameter (e.g., {id})
+// "/v3/channels/{id}/contents" -> "/v3/channels/{id}"
+// "/v3/channels" -> "/v3/channels"
+type ExtractResourcePath<
+  Path extends string,
+  Acc extends string = '',
+> = Path extends `${infer Segment}/${infer Rest}`
+  ? Segment extends `{${string}}`
+    ? `${Acc}${Segment}` // Found a path param, stop here
+    : ExtractResourcePath<Rest, `${Acc}${Segment}/`>
+  : Path extends `{${string}}`
+    ? `${Acc}${Path}` // Last segment is a path param
+    : `${Acc}${Path}`; // No path param found, return full path
+
+// Check if two paths share the same resource path prefix
+// Operations on the same resource (e.g., /v3/channels/{id}) should be grouped
+type PathsShareResourcePrefix<Path1 extends string, Path2 extends string> =
+  ExtractResourcePath<Path1> extends ExtractResourcePath<Path2> ? true : false;
+
 // Get all unique terms across all operations (lowercased)
 type AllTerms<O extends Record<string, Operation>> = {
   [K in keyof O]: AllTermsOfOperation<O, K>;
@@ -125,7 +144,7 @@ type ParamKeyCount<Op extends Operation> =
       : 0
     : 0;
 
-// Get all operations that have the term, non-empty params, and share a tag with K
+// Get all operations that have the term, non-empty params, share a tag with K, and share a path prefix
 type OpsWithTermAndSharedTag<
   O extends Record<string, Operation>,
   K extends keyof O,
@@ -134,13 +153,15 @@ type OpsWithTermAndSharedTag<
   [L in keyof O as OperationHasTerm<O, L, Term> extends true
     ? HasNonEmptyParameters<O[L]> extends true
       ? TagsShareCommon<O[K]['tags'], O[L]['tags']> extends true
-        ? L
+        ? PathsShareResourcePrefix<O[K]['path'], O[L]['path']> extends true
+          ? L
+          : never
         : never
       : never
     : never]: O[L];
 };
 
-// Get all OTHER operations (excluding K) that have the term, non-empty params, and share a tag with K
+// Get all OTHER operations (excluding K) that have the term, non-empty params, share a tag with K, and share a path prefix
 type OtherOpsWithTermAndSharedTag<
   O extends Record<string, Operation>,
   K extends keyof O,
@@ -151,7 +172,9 @@ type OtherOpsWithTermAndSharedTag<
     : OperationHasTerm<O, L, Term> extends true
       ? HasNonEmptyParameters<O[L]> extends true
         ? TagsShareCommon<O[K]['tags'], O[L]['tags']> extends true
-          ? L
+          ? PathsShareResourcePrefix<O[K]['path'], O[L]['path']> extends true
+            ? L
+            : never
           : never
         : never
       : never]: O[L];
@@ -436,6 +459,28 @@ type MapSchemaTupleToInput<T extends ValiSchema[]> = T extends [
     : [v.InferInput<First>, ...MapSchemaTupleToInput<Rest>]
   : [];
 
+// Check if all properties of an object type are optional
+// An object has all optional properties if {} can be assigned to it
+type HasAllOptionalProps<T> = [T] extends [never]
+  ? false
+  : T extends object
+    ? keyof T extends never
+      ? true // empty object
+      : {} extends T
+        ? true
+        : false
+    : false;
+
+// Recursively make trailing elements optional if they have all-optional properties
+// Works backwards from the end of the tuple until hitting a required element
+type MakeTrailingOptional<T extends unknown[]> = T extends []
+  ? []
+  : T extends [...infer Init, infer Last]
+    ? HasAllOptionalProps<Last> extends true
+      ? [...MakeTrailingOptional<Init>, Last?]
+      : T
+    : T;
+
 // Operation['response']] (Record<string, Record<string, ValiSchema>>) to Union of v.InferOutput<ValiSchema>
 type MapResponseToUnion<T> = {
   [K in keyof T]: {
@@ -447,8 +492,8 @@ type MapResponseToUnion<T> = {
 
 // Single endpoint function type
 export type Endpoint<O extends Operation> = (
-  ...args: PrettifyTuple<
-    MapSchemaTupleToInput<ObjectValuesToTuple<O['parameters']>>
+  ...args: MakeTrailingOptional<
+    PrettifyTuple<MapSchemaTupleToInput<ObjectValuesToTuple<O['parameters']>>>
   >
 ) => Promise<Prettify<MapResponseToUnion<O['response']>>>;
 
@@ -457,7 +502,9 @@ export type GroupedEndpoint<
   TParams extends Record<string, ValiSchema>,
   TOps extends Record<string, Operation>,
 > = (
-  ...args: PrettifyTuple<MapSchemaTupleToInput<ObjectValuesToTuple<TParams>>>
+  ...args: MakeTrailingOptional<
+    PrettifyTuple<MapSchemaTupleToInput<ObjectValuesToTuple<TParams>>>
+  >
 ) => Prettify<{
   [K in keyof TOps]: Endpoint<TOps[K]>;
 }>;

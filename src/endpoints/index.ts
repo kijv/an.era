@@ -7,6 +7,7 @@ import type {
   Operation,
   ValiSchema,
 } from './declaration';
+import contentTypeParser from 'fast-content-type-parse';
 
 // Split camelCase string into terms
 // e.g., "userProfile" -> ["user", "Profile"]
@@ -66,7 +67,75 @@ function tagsShareCommon(
   return tags1.some((t) => tags2.includes(t));
 }
 
-// Check if an operation shares a tag with any other operation that contains the same term
+// Extract path up to and including the first path parameter (e.g., {id})
+// "/v3/channels/{id}/contents" -> "/v3/channels/{id}"
+// "/v3/channels" -> "/v3/channels"
+function extractResourcePath(path: string): string {
+  const segments = path.split('/');
+  let result = '';
+
+  for (const segment of segments) {
+    if (segment.startsWith('{') && segment.endsWith('}')) {
+      // Found a path param, include it and stop
+      result += (result ? '/' : '') + segment;
+      return result;
+    }
+    result += (result ? '/' : '') + segment;
+  }
+
+  // No path param found, return full path
+  return result;
+}
+
+// Check if two paths share the same resource path prefix
+function pathsShareResourcePrefix(path1: string, path2: string): boolean {
+  return extractResourcePath(path1) === extractResourcePath(path2);
+}
+
+// Check if two operations share at least one parameter key
+function sharesParameterKey(op1: Operation, op2: Operation): boolean {
+  const keys1 = Object.keys(op1.parameters);
+  const keys2 = Object.keys(op2.parameters);
+  return keys1.some((k) => keys2.includes(k));
+}
+
+// Get the number of parameter keys in an operation
+function getParamKeyCount(op: Operation): number {
+  return Object.keys(op.parameters).length;
+}
+
+// Get all operations with the term, non-empty params, shared tag, and shared path prefix with currentOp
+function getOpsWithTermAndSharedTag(
+  operations: Record<string, Operation>,
+  currentKey: string,
+  term: string,
+): Operation[] {
+  const currentOp = operations[currentKey];
+  if (!currentOp) return [];
+
+  const result: Operation[] = [];
+
+  for (const [key, op] of Object.entries(operations)) {
+    if (!hasNonEmptyParameters(op)) continue;
+
+    const processedKey = getProcessedKey(key, op.method);
+    const terms = getAllTerms(processedKey);
+
+    if (
+      terms.includes(term) &&
+      tagsShareCommon(currentOp.tags, op.tags) &&
+      pathsShareResourcePrefix(currentOp.path, op.path)
+    ) {
+      result.push(op);
+    }
+  }
+
+  return result;
+}
+
+// Check if an operation can be grouped: it must share a parameter key with ALL
+// operations that have more parameters than it (among ops with same term and tag)
+// This matches the type-level logic in declaration.ts
 function hasSharedTagWithSameTermOp(
   operations: Record<string, Operation>,
   currentKey: string,
@@ -75,19 +144,35 @@ function hasSharedTagWithSameTermOp(
   const currentOp = operations[currentKey];
   if (!currentOp) return false;
 
-  for (const [key, op] of Object.entries(operations)) {
-    if (key === currentKey) continue;
-    if (!hasNonEmptyParameters(op)) continue;
+  // Get all operations with the term and shared tag (including current)
+  const allOps = getOpsWithTermAndSharedTag(operations, currentKey, term);
 
-    const processedKey = getProcessedKey(key, op.method);
-    const terms = getAllTerms(processedKey);
+  // Get operations OTHER than current
+  const otherOps = allOps.filter((op) => op !== currentOp);
 
-    if (terms.includes(term) && tagsShareCommon(currentOp.tags, op.tags)) {
-      return true;
+  // Must have at least one other operation
+  if (otherOps.length === 0) return false;
+
+  const currentParamCount = getParamKeyCount(currentOp);
+
+  // Get operations with MORE params than current
+  const opsWithMoreParams = otherOps.filter(
+    (op) => getParamKeyCount(op) > currentParamCount,
+  );
+
+  // If no operations have more params, current has the most - just needs other ops to exist
+  if (opsWithMoreParams.length === 0) {
+    return true;
+  }
+
+  // Current must share at least one param key with ALL operations that have more params
+  for (const op of opsWithMoreParams) {
+    if (!sharesParameterKey(currentOp, op)) {
+      return false;
     }
   }
 
-  return false;
+  return true;
 }
 
 // Get the stripped key for a grouped operation
@@ -302,7 +387,7 @@ export type CreateEndpointsOptions = {
  * Validate arguments against parameter schemas using valibot.
  * Throws a ValiError if validation fails.
  * Returns empty object if no parameters are defined.
- * If disableParsing is true, returns args as params without validation.
+ * If disableParsing is true, returns args mapped to param keys without validation.
  */
 function validateParams(
   params: Record<string, ValiSchema>,
@@ -313,6 +398,11 @@ function validateParams(
 
   // Skip validation if no parameters are defined
   if (paramKeys.length === 0) {
+    // If disableParsing is true and we have args, pass the first arg through directly
+    // This handles cases where the operation expects content but has no schema
+    if (options.disableParsing && args.length > 0) {
+      return args[0] as Record<string, unknown>;
+    }
     return {};
   }
 
@@ -321,16 +411,26 @@ function validateParams(
   for (let i = 0; i < paramKeys.length; i++) {
     const key = paramKeys[i];
     if (key) {
-      const value = args[i] ?? {};
+      const value = args[i];
 
       if (options.disableParsing) {
-        // Pass through without validation
-        result[key] = value;
+        // Pass through without validation, preserving undefined
+        if (value !== undefined) {
+          result[key] = value;
+        }
       } else {
         const schema = params[key];
         if (schema) {
           // Parse and validate the argument against the schema
-          result[key] = v.parse(schema, value);
+          // Default to empty object for optional params
+          const next = v.safeParse(schema, value ?? {}, {
+            abortEarly: true,
+          });
+          if (next.success) {
+            result[key] = next.output;
+          } else {
+            throw new Error(v.summarize(next.issues));
+          }
         }
       }
     }
@@ -344,25 +444,31 @@ function validateParams(
  */
 async function parseResponseBody(
   response: Response,
-  contentType: string,
+  mimeType: string,
 ): Promise<unknown> {
-  if (contentType.includes('application/json')) {
+  if (mimeType === 'application/json' || mimeType.endsWith('+json')) {
     return response.json();
   } else if (
-    contentType.includes('text/') ||
-    contentType.includes('application/xml')
+    mimeType.startsWith('text/') ||
+    mimeType === 'application/xml' ||
+    mimeType === 'application/xhtml+xml' ||
+    mimeType.endsWith('+xml') ||
+    mimeType === 'application/javascript' ||
+    mimeType === 'application/ecmascript' ||
+    mimeType === 'application/x-www-form-urlencoded' ||
+    mimeType === 'application/yaml'
   ) {
     return response.text();
   } else if (
-    contentType.includes('application/octet-stream') ||
-    contentType.includes('image/') ||
-    contentType.includes('audio/') ||
-    contentType.includes('video/')
+    mimeType.startsWith('image/') ||
+    mimeType.startsWith('audio/') ||
+    mimeType.startsWith('video/') ||
+    mimeType === 'application/pdf' ||
+    mimeType === 'application/octet-stream'
   ) {
     return response.blob();
   } else {
-    // Default to JSON parsing
-    return response.json();
+    return response.text();
   }
 }
 
@@ -376,14 +482,18 @@ async function parseResponse(
   options: CreateEndpointsOptions = {},
 ): Promise<unknown> {
   const statusCode = response.status.toString();
-  const contentType = response.headers.get('content-type') ?? '';
+  const rawContentType = response.headers.get('content-type');
+  const mimeType =
+    typeof rawContentType === 'string'
+      ? contentTypeParser.safeParse(rawContentType).type
+      : '';
 
   // Find the response schema for this status code
   const statusSchemas = op.response[statusCode] ?? op.response['default'];
 
   if (!statusSchemas) {
     if (options.ignoreMissingSchema) {
-      return parseResponseBody(response, contentType);
+      return parseResponseBody(response, mimeType);
     }
     throw new Error(
       `No response schema defined for status ${statusCode} in operation ${op.method.toUpperCase()} ${op.path}`,
@@ -392,18 +502,18 @@ async function parseResponse(
 
   // Find the schema for this content type
   let schema: ValiSchema | undefined;
-  let matchedContentType: string | undefined;
+  let matchedMimeType: string | undefined;
 
   for (const [schemaContentType, schemaValue] of Object.entries(
     statusSchemas,
   )) {
     // Check for exact match or prefix match (e.g., "application/json" matches "application/json; charset=utf-8")
     if (
-      contentType === schemaContentType ||
-      contentType.startsWith(schemaContentType.split(';')[0] ?? '')
+      mimeType === schemaContentType ||
+      mimeType.startsWith(schemaContentType.split(';')[0] ?? '')
     ) {
       schema = schemaValue;
-      matchedContentType = schemaContentType;
+      matchedMimeType = schemaContentType;
       break;
     }
   }
@@ -412,27 +522,28 @@ async function parseResponse(
   if (!schema) {
     const firstEntry = Object.entries(statusSchemas)[0];
     if (firstEntry) {
-      [matchedContentType, schema] = firstEntry;
+      [matchedMimeType, schema] = firstEntry;
     }
   }
 
   if (!schema) {
     if (options.ignoreMissingSchema) {
-      return parseResponseBody(response, contentType);
+      return parseResponseBody(response, mimeType);
     }
     throw new Error(
-      `No response schema found for content type "${contentType}" in operation ${op.method.toUpperCase()} ${op.path}`,
+      `No response schema found for media "${mimeType}" in operation ${op.method.toUpperCase()} ${op.path}`,
     );
   }
 
   // Parse the response body based on content type
-  const body = await parseResponseBody(
-    response,
-    matchedContentType ?? contentType,
-  );
+  const body = await parseResponseBody(response, matchedMimeType ?? mimeType);
 
   // Validate the response body against the schema
-  return v.parse(schema, body);
+  return v
+    .parseAsync(schema, body, {
+      abortEarly: true,
+    })
+    .catch((e) => (v.isValiError(e) ? v.summarize(e.issues) : e));
 }
 
 /**
@@ -479,14 +590,35 @@ function createGroupedEndpointFn<
   fetcher: Fetcher,
   options: CreateEndpointsOptions = {},
 ): GroupedEndpoint<TParams, TOps> {
+  // Capture everything we need at creation time to avoid closure issues
+  // Make defensive copies of the group's parameters and operations
+  const groupParameters: Record<string, ValiSchema> = { ...group.parameters };
+  const groupParamKeys = Object.keys(groupParameters);
+
+  // Pre-process operations: remove group param keys and store with their keys
+  const processedOperations: Array<{ key: string; op: Operation }> = [];
+  for (const [key, op] of Object.entries(group.operations)) {
+    // Remove group parameter keys from operation parameters
+    // so validateParams doesn't look for params already supplied by the group
+    const opWithoutGroupParams: Operation = {
+      ...op,
+      parameters: Object.fromEntries(
+        Object.entries(op.parameters).filter(
+          ([paramKey]) => !groupParamKeys.includes(paramKey),
+        ),
+      ),
+    };
+    processedOperations.push({ key, op: opWithoutGroupParams });
+  }
+
   const fn = (...groupArgs: unknown[]) => {
     // Validate and convert group args to params object
-    const groupParams = validateParams(group.parameters, groupArgs, options);
+    const groupParams = validateParams(groupParameters, groupArgs, options);
 
     // Create endpoint functions for each operation in the group
     const endpoints: Record<string, Endpoint<Operation>> = {};
 
-    for (const [key, op] of Object.entries(group.operations)) {
+    for (const { key, op } of processedOperations) {
       // Create a wrapped fetcher that merges group params with operation params
       const wrappedFetcher: Fetcher = (operation, opParams) => {
         const allParams = { ...groupParams, ...opParams };

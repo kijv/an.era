@@ -1,14 +1,13 @@
-import type { HttpMethods, SchemaObject } from 'oas/types';
+import type { ComponentsObject, HttpMethods, SchemaObject } from 'oas/types';
+import { defaultRenderRef, sortSchemas } from './util';
 import OASNormalize from 'oas-normalize';
 import Oas from 'oas';
 import { Operation } from 'oas/operation';
 import { dataToEsm } from '@rollup/pluginutils';
-import { defaultRenderRef } from './transform';
 import { fileURLToPath } from 'bun';
 import { getParametersAsJSONSchema } from 'oas/operation/get-parameters-as-json-schema';
 import { jsonSchemaToValibot } from 'json-schema-to-valibot';
 import path from 'node:path';
-import { sortSchemas } from './util';
 
 const cwd = path.join(path.dirname(fileURLToPath(import.meta.url)), '..', '..');
 
@@ -122,7 +121,9 @@ const createRenderRef = (code: Code, filename: string) => (ref: string) => {
 };
 
 const jsonToVali = (
-  schema: SchemaObject,
+  schema: SchemaObject & {
+    components?: ComponentsObject | undefined;
+  },
   renderRef?: ReturnType<typeof createRenderRef>,
   constraints?: (c: string[]) => string[],
 ) => {
@@ -144,10 +145,12 @@ const jsonToVali = (
 
   const typesIndex = isolated.indexOf(tsDefinition);
 
-  return {
+  const result = {
     js: isolated.slice(0, typesIndex).trim(),
     ts: isolated.slice(typesIndex + tsDefinition.length).trim(),
   };
+
+  return result;
 };
 
 const getComponentsSchemasCode = () => {
@@ -228,8 +231,12 @@ const getPathsCode = () => {
       path: string;
       method: string;
       tags: string[];
-      response: Record<string, Record<string, string>>;
       parameters: Record<string, string>;
+      body: {
+        contentType: string;
+        schema: string | {};
+      }[];
+      response: Record<string, Record<string, string>>;
     }
   > = {};
   const codeReferences: Record<string, string> = {};

@@ -223,29 +223,27 @@ export type ConnectionContext = {
     slug: string;
     avatar: any;
     initials: string;
-  } | null;
+  };
 };
-export type ChannelOwner =
-  | {
-      id: number;
-      type: 'User';
-      name: string;
-      slug: string;
-      avatar: any;
-      initials: string;
-    }
-  | {
-      id: number;
-      type: 'Group';
-      name: string;
-      slug: string;
-      avatar: any;
-      initials: string;
-    };
+export type ChannelOwner = {
+  id: number;
+  type: 'User';
+  name: string;
+  slug: string;
+  avatar: any;
+  initials: string;
+} & {
+  id: number;
+  type: 'Group';
+  name: string;
+  slug: string;
+  avatar: any;
+  initials: string;
+};
 export type BlockSource = {
   url: string;
   title?: any;
-  provider?: { name: string; url: string } | null;
+  provider?: { name: string; url: string };
 };
 export type BlockImage = {
   alt_text?: any;
@@ -297,23 +295,21 @@ export type PaginatedResponseWithCountBase = {
     has_more_pages: boolean;
   };
 };
-export type PaginationMeta =
-  | {
-      current_page: number;
-      next_page?: any;
-      prev_page?: any;
-      per_page: number;
-      total_pages: number;
-      total_count: number;
-      has_more_pages: boolean;
-    }
-  | {
-      current_page: number;
-      next_page?: any;
-      prev_page?: any;
-      per_page: number;
-      has_more_pages: boolean;
-    };
+export type PaginationMeta = {
+  current_page: number;
+  next_page?: any;
+  prev_page?: any;
+  per_page: number;
+  total_pages: number;
+  total_count: number;
+  has_more_pages: boolean;
+} & {
+  current_page: number;
+  next_page?: any;
+  prev_page?: any;
+  per_page: number;
+  has_more_pages: boolean;
+};
 export type User = {
   id: number;
   type: 'User';
@@ -321,12 +317,6 @@ export type User = {
   slug: string;
   avatar: any;
   initials: string;
-} & {
-  created_at: string;
-  updated_at: string;
-  bio?: { markdown: string; html: string; plain: string } | null;
-  counts: { channels: number; followers: number; following: number };
-  _links: { self: { href: string } };
 };
 export type Group = {
   id: number;
@@ -335,25 +325,11 @@ export type Group = {
   slug: string;
   avatar: any;
   initials: string;
-} & {
-  bio?: { markdown: string; html: string; plain: string } | null;
-  created_at: string;
-  updated_at: string;
-  user: {
-    id: number;
-    type: 'User';
-    name: string;
-    slug: string;
-    avatar: any;
-    initials: string;
-  };
-  counts: { channels: number; users: number };
-  _links: { self: { href: string } };
 };
 export type Comment = {
   id: number;
   type: 'Comment';
-  body?: { markdown: string; html: string; plain: string } | null;
+  body?: { markdown: string; html: string; plain: string };
   created_at: string;
   updated_at: string;
   user: {
@@ -371,28 +347,26 @@ export type Channel = {
   type: 'Channel';
   slug: string;
   title: string;
-  description?: { markdown: string; html: string; plain: string } | null;
+  description?: { markdown: string; html: string; plain: string };
   state: 'available' | 'deleted';
   visibility: 'public' | 'private' | 'closed';
   created_at: string;
   updated_at: string;
-  owner:
-    | {
-        id: number;
-        type: 'User';
-        name: string;
-        slug: string;
-        avatar: any;
-        initials: string;
-      }
-    | {
-        id: number;
-        type: 'Group';
-        name: string;
-        slug: string;
-        avatar: any;
-        initials: string;
-      };
+  owner: {
+    id: number;
+    type: 'User';
+    name: string;
+    slug: string;
+    avatar: any;
+    initials: string;
+  } & {
+    id: number;
+    type: 'Group';
+    name: string;
+    slug: string;
+    avatar: any;
+    initials: string;
+  };
   counts: {
     blocks: number;
     channels: number;
@@ -412,8 +386,8 @@ export type Channel = {
       slug: string;
       avatar: any;
       initials: string;
-    } | null;
-  } | null;
+    };
+  };
   can: {
     add_to: boolean;
     update: boolean;
@@ -425,7 +399,7 @@ export type BaseBlockProperties = {
   id: number;
   base_type: 'Block';
   title?: any;
-  description?: { markdown: string; html: string; plain: string } | null;
+  description?: { markdown: string; html: string; plain: string };
   state: 'available' | 'pending' | 'failed' | 'processing';
   visibility: 'public' | 'private' | 'orphan';
   comment_count: number;
@@ -442,8 +416,8 @@ export type BaseBlockProperties = {
   source?: {
     url: string;
     title?: any;
-    provider?: { name: string; url: string } | null;
-  } | null;
+    provider?: { name: string; url: string };
+  };
   _links: { self: { href: string } };
   connection?: {
     id: number;
@@ -457,27 +431,25 @@ export type BaseBlockProperties = {
       slug: string;
       avatar: any;
       initials: string;
-    } | null;
-  } | null;
+    };
+  };
 };
 export type PaginatedResponseBase = {
-  meta:
-    | {
-        current_page: number;
-        next_page?: any;
-        prev_page?: any;
-        per_page: number;
-        total_pages: number;
-        total_count: number;
-        has_more_pages: boolean;
-      }
-    | {
-        current_page: number;
-        next_page?: any;
-        prev_page?: any;
-        per_page: number;
-        has_more_pages: boolean;
-      };
+  meta: {
+    current_page: number;
+    next_page?: any;
+    prev_page?: any;
+    per_page: number;
+    total_pages: number;
+    total_count: number;
+    has_more_pages: boolean;
+  } & {
+    current_page: number;
+    next_page?: any;
+    prev_page?: any;
+    per_page: number;
+    has_more_pages: boolean;
+  };
 };
 export type UserList = {
   data: {
@@ -487,19 +459,13 @@ export type UserList = {
     slug: string;
     avatar: any;
     initials: string;
-  } & {
-    created_at: string;
-    updated_at: string;
-    bio?: { markdown: string; html: string; plain: string } | null;
-    counts: { channels: number; followers: number; following: number };
-    _links: { self: { href: string } };
   }[];
 };
 export type CommentList = {
   data: {
     id: number;
     type: 'Comment';
-    body?: { markdown: string; html: string; plain: string } | null;
+    body?: { markdown: string; html: string; plain: string };
     created_at: string;
     updated_at: string;
     user: {
@@ -519,28 +485,26 @@ export type ChannelList = {
     type: 'Channel';
     slug: string;
     title: string;
-    description?: { markdown: string; html: string; plain: string } | null;
+    description?: { markdown: string; html: string; plain: string };
     state: 'available' | 'deleted';
     visibility: 'public' | 'private' | 'closed';
     created_at: string;
     updated_at: string;
-    owner:
-      | {
-          id: number;
-          type: 'User';
-          name: string;
-          slug: string;
-          avatar: any;
-          initials: string;
-        }
-      | {
-          id: number;
-          type: 'Group';
-          name: string;
-          slug: string;
-          avatar: any;
-          initials: string;
-        };
+    owner: {
+      id: number;
+      type: 'User';
+      name: string;
+      slug: string;
+      avatar: any;
+      initials: string;
+    } & {
+      id: number;
+      type: 'Group';
+      name: string;
+      slug: string;
+      avatar: any;
+      initials: string;
+    };
     counts: {
       blocks: number;
       channels: number;
@@ -560,8 +524,8 @@ export type ChannelList = {
         slug: string;
         avatar: any;
         initials: string;
-      } | null;
-    } | null;
+      };
+    };
     can: {
       add_to: boolean;
       update: boolean;
@@ -571,104 +535,79 @@ export type ChannelList = {
   }[];
 };
 export type FollowableList = {
-  data:
-    | ({
+  data: {
+    id: number;
+    type: 'User';
+    name: string;
+    slug: string;
+    avatar: any;
+    initials: string;
+  } & {
+    id: number;
+    type: 'Channel';
+    slug: string;
+    title: string;
+    description?: { markdown: string; html: string; plain: string };
+    state: 'available' | 'deleted';
+    visibility: 'public' | 'private' | 'closed';
+    created_at: string;
+    updated_at: string;
+    owner: {
+      id: number;
+      type: 'User';
+      name: string;
+      slug: string;
+      avatar: any;
+      initials: string;
+    } & {
+      id: number;
+      type: 'Group';
+      name: string;
+      slug: string;
+      avatar: any;
+      initials: string;
+    };
+    counts: {
+      blocks: number;
+      channels: number;
+      contents: number;
+      collaborators: number;
+    };
+    _links: { self: { href: string } };
+    connection?: {
+      id: number;
+      position: number;
+      pinned: boolean;
+      connected_at: string;
+      connected_by: {
         id: number;
         type: 'User';
         name: string;
         slug: string;
         avatar: any;
         initials: string;
-      } & {
-        created_at: string;
-        updated_at: string;
-        bio?: { markdown: string; html: string; plain: string } | null;
-        counts: { channels: number; followers: number; following: number };
-        _links: { self: { href: string } };
-      })
-    | {
-        id: number;
-        type: 'Channel';
-        slug: string;
-        title: string;
-        description?: { markdown: string; html: string; plain: string } | null;
-        state: 'available' | 'deleted';
-        visibility: 'public' | 'private' | 'closed';
-        created_at: string;
-        updated_at: string;
-        owner:
-          | {
-              id: number;
-              type: 'User';
-              name: string;
-              slug: string;
-              avatar: any;
-              initials: string;
-            }
-          | {
-              id: number;
-              type: 'Group';
-              name: string;
-              slug: string;
-              avatar: any;
-              initials: string;
-            };
-        counts: {
-          blocks: number;
-          channels: number;
-          contents: number;
-          collaborators: number;
-        };
-        _links: { self: { href: string } };
-        connection?: {
-          id: number;
-          position: number;
-          pinned: boolean;
-          connected_at: string;
-          connected_by: {
-            id: number;
-            type: 'User';
-            name: string;
-            slug: string;
-            avatar: any;
-            initials: string;
-          } | null;
-        } | null;
-        can: {
-          add_to: boolean;
-          update: boolean;
-          destroy: boolean;
-          manage_collaborators: boolean;
-        };
-      }
-    | ({
-        id: number;
-        type: 'Group';
-        name: string;
-        slug: string;
-        avatar: any;
-        initials: string;
-      } & {
-        bio?: { markdown: string; html: string; plain: string } | null;
-        created_at: string;
-        updated_at: string;
-        user: {
-          id: number;
-          type: 'User';
-          name: string;
-          slug: string;
-          avatar: any;
-          initials: string;
-        };
-        counts: { channels: number; users: number };
-        _links: { self: { href: string } };
-      }[]);
+      };
+    };
+    can: {
+      add_to: boolean;
+      update: boolean;
+      destroy: boolean;
+      manage_collaborators: boolean;
+    };
+  } & {
+      id: number;
+      type: 'Group';
+      name: string;
+      slug: string;
+      avatar: any;
+      initials: string;
+    }[];
 };
 export type TextBlock = {
   id: number;
   base_type: 'Block';
   title?: any;
-  description?: { markdown: string; html: string; plain: string } | null;
+  description?: { markdown: string; html: string; plain: string };
   state: 'available' | 'pending' | 'failed' | 'processing';
   visibility: 'public' | 'private' | 'orphan';
   comment_count: number;
@@ -685,8 +624,8 @@ export type TextBlock = {
   source?: {
     url: string;
     title?: any;
-    provider?: { name: string; url: string } | null;
-  } | null;
+    provider?: { name: string; url: string };
+  };
   _links: { self: { href: string } };
   connection?: {
     id: number;
@@ -700,17 +639,14 @@ export type TextBlock = {
       slug: string;
       avatar: any;
       initials: string;
-    } | null;
-  } | null;
-} & {
-  type: 'Text';
-  content: { markdown: string; html: string; plain: string };
+    };
+  };
 };
 export type ImageBlock = {
   id: number;
   base_type: 'Block';
   title?: any;
-  description?: { markdown: string; html: string; plain: string } | null;
+  description?: { markdown: string; html: string; plain: string };
   state: 'available' | 'pending' | 'failed' | 'processing';
   visibility: 'public' | 'private' | 'orphan';
   comment_count: number;
@@ -727,8 +663,8 @@ export type ImageBlock = {
   source?: {
     url: string;
     title?: any;
-    provider?: { name: string; url: string } | null;
-  } | null;
+    provider?: { name: string; url: string };
+  };
   _links: { self: { href: string } };
   connection?: {
     id: number;
@@ -742,47 +678,6 @@ export type ImageBlock = {
       slug: string;
       avatar: any;
       initials: string;
-    } | null;
-  } | null;
-} & {
-  type: 'Image';
-  image: {
-    alt_text?: any;
-    blurhash?: any;
-    width?: any;
-    height?: any;
-    aspect_ratio?: any;
-    content_type?: string;
-    filename?: string;
-    file_size?: any;
-    updated_at?: string;
-    small: {
-      src: string;
-      src_1x: string;
-      src_2x: string;
-      width?: any;
-      height?: any;
-    };
-    medium: {
-      src: string;
-      src_1x: string;
-      src_2x: string;
-      width?: any;
-      height?: any;
-    };
-    large: {
-      src: string;
-      src_1x: string;
-      src_2x: string;
-      width?: any;
-      height?: any;
-    };
-    square: {
-      src: string;
-      src_1x: string;
-      src_2x: string;
-      width?: any;
-      height?: any;
     };
   };
 };
@@ -790,7 +685,7 @@ export type LinkBlock = {
   id: number;
   base_type: 'Block';
   title?: any;
-  description?: { markdown: string; html: string; plain: string } | null;
+  description?: { markdown: string; html: string; plain: string };
   state: 'available' | 'pending' | 'failed' | 'processing';
   visibility: 'public' | 'private' | 'orphan';
   comment_count: number;
@@ -807,8 +702,8 @@ export type LinkBlock = {
   source?: {
     url: string;
     title?: any;
-    provider?: { name: string; url: string } | null;
-  } | null;
+    provider?: { name: string; url: string };
+  };
   _links: { self: { href: string } };
   connection?: {
     id: number;
@@ -822,56 +717,14 @@ export type LinkBlock = {
       slug: string;
       avatar: any;
       initials: string;
-    } | null;
-  } | null;
-} & {
-  type: 'Link';
-  image?: {
-    alt_text?: any;
-    blurhash?: any;
-    width?: any;
-    height?: any;
-    aspect_ratio?: any;
-    content_type?: string;
-    filename?: string;
-    file_size?: any;
-    updated_at?: string;
-    small: {
-      src: string;
-      src_1x: string;
-      src_2x: string;
-      width?: any;
-      height?: any;
     };
-    medium: {
-      src: string;
-      src_1x: string;
-      src_2x: string;
-      width?: any;
-      height?: any;
-    };
-    large: {
-      src: string;
-      src_1x: string;
-      src_2x: string;
-      width?: any;
-      height?: any;
-    };
-    square: {
-      src: string;
-      src_1x: string;
-      src_2x: string;
-      width?: any;
-      height?: any;
-    };
-  } | null;
-  content?: { markdown: string; html: string; plain: string } | null;
+  };
 };
 export type AttachmentBlock = {
   id: number;
   base_type: 'Block';
   title?: any;
-  description?: { markdown: string; html: string; plain: string } | null;
+  description?: { markdown: string; html: string; plain: string };
   state: 'available' | 'pending' | 'failed' | 'processing';
   visibility: 'public' | 'private' | 'orphan';
   comment_count: number;
@@ -888,8 +741,8 @@ export type AttachmentBlock = {
   source?: {
     url: string;
     title?: any;
-    provider?: { name: string; url: string } | null;
-  } | null;
+    provider?: { name: string; url: string };
+  };
   _links: { self: { href: string } };
   connection?: {
     id: number;
@@ -903,63 +756,14 @@ export type AttachmentBlock = {
       slug: string;
       avatar: any;
       initials: string;
-    } | null;
-  } | null;
-} & {
-  type: 'Attachment';
-  attachment: {
-    filename?: any;
-    content_type?: any;
-    file_size?: any;
-    file_extension?: any;
-    updated_at?: any;
-    url: string;
+    };
   };
-  image?: {
-    alt_text?: any;
-    blurhash?: any;
-    width?: any;
-    height?: any;
-    aspect_ratio?: any;
-    content_type?: string;
-    filename?: string;
-    file_size?: any;
-    updated_at?: string;
-    small: {
-      src: string;
-      src_1x: string;
-      src_2x: string;
-      width?: any;
-      height?: any;
-    };
-    medium: {
-      src: string;
-      src_1x: string;
-      src_2x: string;
-      width?: any;
-      height?: any;
-    };
-    large: {
-      src: string;
-      src_1x: string;
-      src_2x: string;
-      width?: any;
-      height?: any;
-    };
-    square: {
-      src: string;
-      src_1x: string;
-      src_2x: string;
-      width?: any;
-      height?: any;
-    };
-  } | null;
 };
 export type EmbedBlock = {
   id: number;
   base_type: 'Block';
   title?: any;
-  description?: { markdown: string; html: string; plain: string } | null;
+  description?: { markdown: string; html: string; plain: string };
   state: 'available' | 'pending' | 'failed' | 'processing';
   visibility: 'public' | 'private' | 'orphan';
   comment_count: number;
@@ -976,8 +780,8 @@ export type EmbedBlock = {
   source?: {
     url: string;
     title?: any;
-    provider?: { name: string; url: string } | null;
-  } | null;
+    provider?: { name: string; url: string };
+  };
   _links: { self: { href: string } };
   connection?: {
     id: number;
@@ -991,61 +795,8 @@ export type EmbedBlock = {
       slug: string;
       avatar: any;
       initials: string;
-    } | null;
-  } | null;
-} & {
-  type: 'Embed';
-  embed: {
-    url?: any;
-    type?: any;
-    title?: any;
-    author_name?: any;
-    author_url?: any;
-    source_url?: any;
-    width?: any;
-    height?: any;
-    html?: any;
-    thumbnail_url?: any;
+    };
   };
-  image?: {
-    alt_text?: any;
-    blurhash?: any;
-    width?: any;
-    height?: any;
-    aspect_ratio?: any;
-    content_type?: string;
-    filename?: string;
-    file_size?: any;
-    updated_at?: string;
-    small: {
-      src: string;
-      src_1x: string;
-      src_2x: string;
-      width?: any;
-      height?: any;
-    };
-    medium: {
-      src: string;
-      src_1x: string;
-      src_2x: string;
-      width?: any;
-      height?: any;
-    };
-    large: {
-      src: string;
-      src_1x: string;
-      src_2x: string;
-      width?: any;
-      height?: any;
-    };
-    square: {
-      src: string;
-      src_1x: string;
-      src_2x: string;
-      width?: any;
-      height?: any;
-    };
-  } | null;
 };
 export type UserListResponse = {
   data: {
@@ -1055,12 +806,6 @@ export type UserListResponse = {
     slug: string;
     avatar: any;
     initials: string;
-  } & {
-    created_at: string;
-    updated_at: string;
-    bio?: { markdown: string; html: string; plain: string } | null;
-    counts: { channels: number; followers: number; following: number };
-    _links: { self: { href: string } };
   }[];
 } & {
   meta: {
@@ -1077,7 +822,7 @@ export type CommentListResponse = {
   data: {
     id: number;
     type: 'Comment';
-    body?: { markdown: string; html: string; plain: string } | null;
+    body?: { markdown: string; html: string; plain: string };
     created_at: string;
     updated_at: string;
     user: {
@@ -1107,28 +852,26 @@ export type ChannelListResponse = {
     type: 'Channel';
     slug: string;
     title: string;
-    description?: { markdown: string; html: string; plain: string } | null;
+    description?: { markdown: string; html: string; plain: string };
     state: 'available' | 'deleted';
     visibility: 'public' | 'private' | 'closed';
     created_at: string;
     updated_at: string;
-    owner:
-      | {
-          id: number;
-          type: 'User';
-          name: string;
-          slug: string;
-          avatar: any;
-          initials: string;
-        }
-      | {
-          id: number;
-          type: 'Group';
-          name: string;
-          slug: string;
-          avatar: any;
-          initials: string;
-        };
+    owner: {
+      id: number;
+      type: 'User';
+      name: string;
+      slug: string;
+      avatar: any;
+      initials: string;
+    } & {
+      id: number;
+      type: 'Group';
+      name: string;
+      slug: string;
+      avatar: any;
+      initials: string;
+    };
     counts: {
       blocks: number;
       channels: number;
@@ -1148,8 +891,8 @@ export type ChannelListResponse = {
         slug: string;
         avatar: any;
         initials: string;
-      } | null;
-    } | null;
+      };
+    };
     can: {
       add_to: boolean;
       update: boolean;
@@ -1169,98 +912,73 @@ export type ChannelListResponse = {
   };
 };
 export type FollowableListResponse = {
-  data:
-    | ({
+  data: {
+    id: number;
+    type: 'User';
+    name: string;
+    slug: string;
+    avatar: any;
+    initials: string;
+  } & {
+    id: number;
+    type: 'Channel';
+    slug: string;
+    title: string;
+    description?: { markdown: string; html: string; plain: string };
+    state: 'available' | 'deleted';
+    visibility: 'public' | 'private' | 'closed';
+    created_at: string;
+    updated_at: string;
+    owner: {
+      id: number;
+      type: 'User';
+      name: string;
+      slug: string;
+      avatar: any;
+      initials: string;
+    } & {
+      id: number;
+      type: 'Group';
+      name: string;
+      slug: string;
+      avatar: any;
+      initials: string;
+    };
+    counts: {
+      blocks: number;
+      channels: number;
+      contents: number;
+      collaborators: number;
+    };
+    _links: { self: { href: string } };
+    connection?: {
+      id: number;
+      position: number;
+      pinned: boolean;
+      connected_at: string;
+      connected_by: {
         id: number;
         type: 'User';
         name: string;
         slug: string;
         avatar: any;
         initials: string;
-      } & {
-        created_at: string;
-        updated_at: string;
-        bio?: { markdown: string; html: string; plain: string } | null;
-        counts: { channels: number; followers: number; following: number };
-        _links: { self: { href: string } };
-      })
-    | {
-        id: number;
-        type: 'Channel';
-        slug: string;
-        title: string;
-        description?: { markdown: string; html: string; plain: string } | null;
-        state: 'available' | 'deleted';
-        visibility: 'public' | 'private' | 'closed';
-        created_at: string;
-        updated_at: string;
-        owner:
-          | {
-              id: number;
-              type: 'User';
-              name: string;
-              slug: string;
-              avatar: any;
-              initials: string;
-            }
-          | {
-              id: number;
-              type: 'Group';
-              name: string;
-              slug: string;
-              avatar: any;
-              initials: string;
-            };
-        counts: {
-          blocks: number;
-          channels: number;
-          contents: number;
-          collaborators: number;
-        };
-        _links: { self: { href: string } };
-        connection?: {
-          id: number;
-          position: number;
-          pinned: boolean;
-          connected_at: string;
-          connected_by: {
-            id: number;
-            type: 'User';
-            name: string;
-            slug: string;
-            avatar: any;
-            initials: string;
-          } | null;
-        } | null;
-        can: {
-          add_to: boolean;
-          update: boolean;
-          destroy: boolean;
-          manage_collaborators: boolean;
-        };
-      }
-    | ({
-        id: number;
-        type: 'Group';
-        name: string;
-        slug: string;
-        avatar: any;
-        initials: string;
-      } & {
-        bio?: { markdown: string; html: string; plain: string } | null;
-        created_at: string;
-        updated_at: string;
-        user: {
-          id: number;
-          type: 'User';
-          name: string;
-          slug: string;
-          avatar: any;
-          initials: string;
-        };
-        counts: { channels: number; users: number };
-        _links: { self: { href: string } };
-      }[]);
+      };
+    };
+    can: {
+      add_to: boolean;
+      update: boolean;
+      destroy: boolean;
+      manage_collaborators: boolean;
+    };
+  } & {
+      id: number;
+      type: 'Group';
+      name: string;
+      slug: string;
+      avatar: any;
+      initials: string;
+    }[];
 } & {
   meta: {
     current_page: number;
@@ -1272,2208 +990,903 @@ export type FollowableListResponse = {
     has_more_pages: boolean;
   };
 };
-export type Block =
-  | ({
+export type Block = {
+  id: number;
+  base_type: 'Block';
+  title?: any;
+  description?: { markdown: string; html: string; plain: string };
+  state: 'available' | 'pending' | 'failed' | 'processing';
+  visibility: 'public' | 'private' | 'orphan';
+  comment_count: number;
+  created_at: string;
+  updated_at: string;
+  user: {
+    id: number;
+    type: 'User';
+    name: string;
+    slug: string;
+    avatar: any;
+    initials: string;
+  };
+  source?: {
+    url: string;
+    title?: any;
+    provider?: { name: string; url: string };
+  };
+  _links: { self: { href: string } };
+  connection?: {
+    id: number;
+    position: number;
+    pinned: boolean;
+    connected_at: string;
+    connected_by: {
       id: number;
-      base_type: 'Block';
-      title?: any;
-      description?: { markdown: string; html: string; plain: string } | null;
-      state: 'available' | 'pending' | 'failed' | 'processing';
-      visibility: 'public' | 'private' | 'orphan';
-      comment_count: number;
-      created_at: string;
-      updated_at: string;
-      user: {
-        id: number;
-        type: 'User';
-        name: string;
-        slug: string;
-        avatar: any;
-        initials: string;
-      };
-      source?: {
-        url: string;
-        title?: any;
-        provider?: { name: string; url: string } | null;
-      } | null;
-      _links: { self: { href: string } };
-      connection?: {
-        id: number;
-        position: number;
-        pinned: boolean;
-        connected_at: string;
-        connected_by: {
-          id: number;
-          type: 'User';
-          name: string;
-          slug: string;
-          avatar: any;
-          initials: string;
-        } | null;
-      } | null;
-    } & {
-      type: 'Text';
-      content: { markdown: string; html: string; plain: string };
-    })
-  | ({
+      type: 'User';
+      name: string;
+      slug: string;
+      avatar: any;
+      initials: string;
+    };
+  };
+} & {
+  id: number;
+  base_type: 'Block';
+  title?: any;
+  description?: { markdown: string; html: string; plain: string };
+  state: 'available' | 'pending' | 'failed' | 'processing';
+  visibility: 'public' | 'private' | 'orphan';
+  comment_count: number;
+  created_at: string;
+  updated_at: string;
+  user: {
+    id: number;
+    type: 'User';
+    name: string;
+    slug: string;
+    avatar: any;
+    initials: string;
+  };
+  source?: {
+    url: string;
+    title?: any;
+    provider?: { name: string; url: string };
+  };
+  _links: { self: { href: string } };
+  connection?: {
+    id: number;
+    position: number;
+    pinned: boolean;
+    connected_at: string;
+    connected_by: {
       id: number;
-      base_type: 'Block';
-      title?: any;
-      description?: { markdown: string; html: string; plain: string } | null;
-      state: 'available' | 'pending' | 'failed' | 'processing';
-      visibility: 'public' | 'private' | 'orphan';
-      comment_count: number;
-      created_at: string;
-      updated_at: string;
-      user: {
-        id: number;
-        type: 'User';
-        name: string;
-        slug: string;
-        avatar: any;
-        initials: string;
-      };
-      source?: {
-        url: string;
-        title?: any;
-        provider?: { name: string; url: string } | null;
-      } | null;
-      _links: { self: { href: string } };
-      connection?: {
-        id: number;
-        position: number;
-        pinned: boolean;
-        connected_at: string;
-        connected_by: {
-          id: number;
-          type: 'User';
-          name: string;
-          slug: string;
-          avatar: any;
-          initials: string;
-        } | null;
-      } | null;
-    } & {
-      type: 'Image';
-      image: {
-        alt_text?: any;
-        blurhash?: any;
-        width?: any;
-        height?: any;
-        aspect_ratio?: any;
-        content_type?: string;
-        filename?: string;
-        file_size?: any;
-        updated_at?: string;
-        small: {
-          src: string;
-          src_1x: string;
-          src_2x: string;
-          width?: any;
-          height?: any;
-        };
-        medium: {
-          src: string;
-          src_1x: string;
-          src_2x: string;
-          width?: any;
-          height?: any;
-        };
-        large: {
-          src: string;
-          src_1x: string;
-          src_2x: string;
-          width?: any;
-          height?: any;
-        };
-        square: {
-          src: string;
-          src_1x: string;
-          src_2x: string;
-          width?: any;
-          height?: any;
-        };
-      };
-    })
-  | ({
+      type: 'User';
+      name: string;
+      slug: string;
+      avatar: any;
+      initials: string;
+    };
+  };
+} & {
+  id: number;
+  base_type: 'Block';
+  title?: any;
+  description?: { markdown: string; html: string; plain: string };
+  state: 'available' | 'pending' | 'failed' | 'processing';
+  visibility: 'public' | 'private' | 'orphan';
+  comment_count: number;
+  created_at: string;
+  updated_at: string;
+  user: {
+    id: number;
+    type: 'User';
+    name: string;
+    slug: string;
+    avatar: any;
+    initials: string;
+  };
+  source?: {
+    url: string;
+    title?: any;
+    provider?: { name: string; url: string };
+  };
+  _links: { self: { href: string } };
+  connection?: {
+    id: number;
+    position: number;
+    pinned: boolean;
+    connected_at: string;
+    connected_by: {
       id: number;
-      base_type: 'Block';
-      title?: any;
-      description?: { markdown: string; html: string; plain: string } | null;
-      state: 'available' | 'pending' | 'failed' | 'processing';
-      visibility: 'public' | 'private' | 'orphan';
-      comment_count: number;
-      created_at: string;
-      updated_at: string;
-      user: {
-        id: number;
-        type: 'User';
-        name: string;
-        slug: string;
-        avatar: any;
-        initials: string;
-      };
-      source?: {
-        url: string;
-        title?: any;
-        provider?: { name: string; url: string } | null;
-      } | null;
-      _links: { self: { href: string } };
-      connection?: {
-        id: number;
-        position: number;
-        pinned: boolean;
-        connected_at: string;
-        connected_by: {
-          id: number;
-          type: 'User';
-          name: string;
-          slug: string;
-          avatar: any;
-          initials: string;
-        } | null;
-      } | null;
-    } & {
-      type: 'Link';
-      image?: {
-        alt_text?: any;
-        blurhash?: any;
-        width?: any;
-        height?: any;
-        aspect_ratio?: any;
-        content_type?: string;
-        filename?: string;
-        file_size?: any;
-        updated_at?: string;
-        small: {
-          src: string;
-          src_1x: string;
-          src_2x: string;
-          width?: any;
-          height?: any;
-        };
-        medium: {
-          src: string;
-          src_1x: string;
-          src_2x: string;
-          width?: any;
-          height?: any;
-        };
-        large: {
-          src: string;
-          src_1x: string;
-          src_2x: string;
-          width?: any;
-          height?: any;
-        };
-        square: {
-          src: string;
-          src_1x: string;
-          src_2x: string;
-          width?: any;
-          height?: any;
-        };
-      } | null;
-      content?: { markdown: string; html: string; plain: string } | null;
-    })
-  | ({
+      type: 'User';
+      name: string;
+      slug: string;
+      avatar: any;
+      initials: string;
+    };
+  };
+} & {
+  id: number;
+  base_type: 'Block';
+  title?: any;
+  description?: { markdown: string; html: string; plain: string };
+  state: 'available' | 'pending' | 'failed' | 'processing';
+  visibility: 'public' | 'private' | 'orphan';
+  comment_count: number;
+  created_at: string;
+  updated_at: string;
+  user: {
+    id: number;
+    type: 'User';
+    name: string;
+    slug: string;
+    avatar: any;
+    initials: string;
+  };
+  source?: {
+    url: string;
+    title?: any;
+    provider?: { name: string; url: string };
+  };
+  _links: { self: { href: string } };
+  connection?: {
+    id: number;
+    position: number;
+    pinned: boolean;
+    connected_at: string;
+    connected_by: {
       id: number;
-      base_type: 'Block';
-      title?: any;
-      description?: { markdown: string; html: string; plain: string } | null;
-      state: 'available' | 'pending' | 'failed' | 'processing';
-      visibility: 'public' | 'private' | 'orphan';
-      comment_count: number;
-      created_at: string;
-      updated_at: string;
-      user: {
-        id: number;
-        type: 'User';
-        name: string;
-        slug: string;
-        avatar: any;
-        initials: string;
-      };
-      source?: {
-        url: string;
-        title?: any;
-        provider?: { name: string; url: string } | null;
-      } | null;
-      _links: { self: { href: string } };
-      connection?: {
-        id: number;
-        position: number;
-        pinned: boolean;
-        connected_at: string;
-        connected_by: {
-          id: number;
-          type: 'User';
-          name: string;
-          slug: string;
-          avatar: any;
-          initials: string;
-        } | null;
-      } | null;
-    } & {
-      type: 'Attachment';
-      attachment: {
-        filename?: any;
-        content_type?: any;
-        file_size?: any;
-        file_extension?: any;
-        updated_at?: any;
-        url: string;
-      };
-      image?: {
-        alt_text?: any;
-        blurhash?: any;
-        width?: any;
-        height?: any;
-        aspect_ratio?: any;
-        content_type?: string;
-        filename?: string;
-        file_size?: any;
-        updated_at?: string;
-        small: {
-          src: string;
-          src_1x: string;
-          src_2x: string;
-          width?: any;
-          height?: any;
-        };
-        medium: {
-          src: string;
-          src_1x: string;
-          src_2x: string;
-          width?: any;
-          height?: any;
-        };
-        large: {
-          src: string;
-          src_1x: string;
-          src_2x: string;
-          width?: any;
-          height?: any;
-        };
-        square: {
-          src: string;
-          src_1x: string;
-          src_2x: string;
-          width?: any;
-          height?: any;
-        };
-      } | null;
-    })
-  | ({
+      type: 'User';
+      name: string;
+      slug: string;
+      avatar: any;
+      initials: string;
+    };
+  };
+} & {
+  id: number;
+  base_type: 'Block';
+  title?: any;
+  description?: { markdown: string; html: string; plain: string };
+  state: 'available' | 'pending' | 'failed' | 'processing';
+  visibility: 'public' | 'private' | 'orphan';
+  comment_count: number;
+  created_at: string;
+  updated_at: string;
+  user: {
+    id: number;
+    type: 'User';
+    name: string;
+    slug: string;
+    avatar: any;
+    initials: string;
+  };
+  source?: {
+    url: string;
+    title?: any;
+    provider?: { name: string; url: string };
+  };
+  _links: { self: { href: string } };
+  connection?: {
+    id: number;
+    position: number;
+    pinned: boolean;
+    connected_at: string;
+    connected_by: {
       id: number;
-      base_type: 'Block';
-      title?: any;
-      description?: { markdown: string; html: string; plain: string } | null;
-      state: 'available' | 'pending' | 'failed' | 'processing';
-      visibility: 'public' | 'private' | 'orphan';
-      comment_count: number;
-      created_at: string;
-      updated_at: string;
-      user: {
-        id: number;
-        type: 'User';
-        name: string;
-        slug: string;
-        avatar: any;
-        initials: string;
-      };
-      source?: {
-        url: string;
-        title?: any;
-        provider?: { name: string; url: string } | null;
-      } | null;
-      _links: { self: { href: string } };
-      connection?: {
-        id: number;
-        position: number;
-        pinned: boolean;
-        connected_at: string;
-        connected_by: {
-          id: number;
-          type: 'User';
-          name: string;
-          slug: string;
-          avatar: any;
-          initials: string;
-        } | null;
-      } | null;
-    } & {
-      type: 'Embed';
-      embed: {
-        url?: any;
-        type?: any;
-        title?: any;
-        author_name?: any;
-        author_url?: any;
-        source_url?: any;
-        width?: any;
-        height?: any;
-        html?: any;
-        thumbnail_url?: any;
-      };
-      image?: {
-        alt_text?: any;
-        blurhash?: any;
-        width?: any;
-        height?: any;
-        aspect_ratio?: any;
-        content_type?: string;
-        filename?: string;
-        file_size?: any;
-        updated_at?: string;
-        small: {
-          src: string;
-          src_1x: string;
-          src_2x: string;
-          width?: any;
-          height?: any;
-        };
-        medium: {
-          src: string;
-          src_1x: string;
-          src_2x: string;
-          width?: any;
-          height?: any;
-        };
-        large: {
-          src: string;
-          src_1x: string;
-          src_2x: string;
-          width?: any;
-          height?: any;
-        };
-        square: {
-          src: string;
-          src_1x: string;
-          src_2x: string;
-          width?: any;
-          height?: any;
-        };
-      } | null;
-    });
+      type: 'User';
+      name: string;
+      slug: string;
+      avatar: any;
+      initials: string;
+    };
+  };
+};
 export type ConnectableList = {
-  data:
-    | ({
+  data: {
+    id: number;
+    base_type: 'Block';
+    title?: any;
+    description?: { markdown: string; html: string; plain: string };
+    state: 'available' | 'pending' | 'failed' | 'processing';
+    visibility: 'public' | 'private' | 'orphan';
+    comment_count: number;
+    created_at: string;
+    updated_at: string;
+    user: {
+      id: number;
+      type: 'User';
+      name: string;
+      slug: string;
+      avatar: any;
+      initials: string;
+    };
+    source?: {
+      url: string;
+      title?: any;
+      provider?: { name: string; url: string };
+    };
+    _links: { self: { href: string } };
+    connection?: {
+      id: number;
+      position: number;
+      pinned: boolean;
+      connected_at: string;
+      connected_by: {
         id: number;
-        base_type: 'Block';
-        title?: any;
-        description?: { markdown: string; html: string; plain: string } | null;
-        state: 'available' | 'pending' | 'failed' | 'processing';
-        visibility: 'public' | 'private' | 'orphan';
-        comment_count: number;
-        created_at: string;
-        updated_at: string;
-        user: {
-          id: number;
-          type: 'User';
-          name: string;
-          slug: string;
-          avatar: any;
-          initials: string;
-        };
-        source?: {
-          url: string;
-          title?: any;
-          provider?: { name: string; url: string } | null;
-        } | null;
-        _links: { self: { href: string } };
-        connection?: {
-          id: number;
-          position: number;
-          pinned: boolean;
-          connected_at: string;
-          connected_by: {
-            id: number;
-            type: 'User';
-            name: string;
-            slug: string;
-            avatar: any;
-            initials: string;
-          } | null;
-        } | null;
-      } & {
-        type: 'Text';
-        content: { markdown: string; html: string; plain: string };
-      })
-    | ({
-        id: number;
-        base_type: 'Block';
-        title?: any;
-        description?: { markdown: string; html: string; plain: string } | null;
-        state: 'available' | 'pending' | 'failed' | 'processing';
-        visibility: 'public' | 'private' | 'orphan';
-        comment_count: number;
-        created_at: string;
-        updated_at: string;
-        user: {
-          id: number;
-          type: 'User';
-          name: string;
-          slug: string;
-          avatar: any;
-          initials: string;
-        };
-        source?: {
-          url: string;
-          title?: any;
-          provider?: { name: string; url: string } | null;
-        } | null;
-        _links: { self: { href: string } };
-        connection?: {
-          id: number;
-          position: number;
-          pinned: boolean;
-          connected_at: string;
-          connected_by: {
-            id: number;
-            type: 'User';
-            name: string;
-            slug: string;
-            avatar: any;
-            initials: string;
-          } | null;
-        } | null;
-      } & {
-        type: 'Image';
-        image: {
-          alt_text?: any;
-          blurhash?: any;
-          width?: any;
-          height?: any;
-          aspect_ratio?: any;
-          content_type?: string;
-          filename?: string;
-          file_size?: any;
-          updated_at?: string;
-          small: {
-            src: string;
-            src_1x: string;
-            src_2x: string;
-            width?: any;
-            height?: any;
-          };
-          medium: {
-            src: string;
-            src_1x: string;
-            src_2x: string;
-            width?: any;
-            height?: any;
-          };
-          large: {
-            src: string;
-            src_1x: string;
-            src_2x: string;
-            width?: any;
-            height?: any;
-          };
-          square: {
-            src: string;
-            src_1x: string;
-            src_2x: string;
-            width?: any;
-            height?: any;
-          };
-        };
-      })
-    | ({
-        id: number;
-        base_type: 'Block';
-        title?: any;
-        description?: { markdown: string; html: string; plain: string } | null;
-        state: 'available' | 'pending' | 'failed' | 'processing';
-        visibility: 'public' | 'private' | 'orphan';
-        comment_count: number;
-        created_at: string;
-        updated_at: string;
-        user: {
-          id: number;
-          type: 'User';
-          name: string;
-          slug: string;
-          avatar: any;
-          initials: string;
-        };
-        source?: {
-          url: string;
-          title?: any;
-          provider?: { name: string; url: string } | null;
-        } | null;
-        _links: { self: { href: string } };
-        connection?: {
-          id: number;
-          position: number;
-          pinned: boolean;
-          connected_at: string;
-          connected_by: {
-            id: number;
-            type: 'User';
-            name: string;
-            slug: string;
-            avatar: any;
-            initials: string;
-          } | null;
-        } | null;
-      } & {
-        type: 'Link';
-        image?: {
-          alt_text?: any;
-          blurhash?: any;
-          width?: any;
-          height?: any;
-          aspect_ratio?: any;
-          content_type?: string;
-          filename?: string;
-          file_size?: any;
-          updated_at?: string;
-          small: {
-            src: string;
-            src_1x: string;
-            src_2x: string;
-            width?: any;
-            height?: any;
-          };
-          medium: {
-            src: string;
-            src_1x: string;
-            src_2x: string;
-            width?: any;
-            height?: any;
-          };
-          large: {
-            src: string;
-            src_1x: string;
-            src_2x: string;
-            width?: any;
-            height?: any;
-          };
-          square: {
-            src: string;
-            src_1x: string;
-            src_2x: string;
-            width?: any;
-            height?: any;
-          };
-        } | null;
-        content?: { markdown: string; html: string; plain: string } | null;
-      })
-    | ({
-        id: number;
-        base_type: 'Block';
-        title?: any;
-        description?: { markdown: string; html: string; plain: string } | null;
-        state: 'available' | 'pending' | 'failed' | 'processing';
-        visibility: 'public' | 'private' | 'orphan';
-        comment_count: number;
-        created_at: string;
-        updated_at: string;
-        user: {
-          id: number;
-          type: 'User';
-          name: string;
-          slug: string;
-          avatar: any;
-          initials: string;
-        };
-        source?: {
-          url: string;
-          title?: any;
-          provider?: { name: string; url: string } | null;
-        } | null;
-        _links: { self: { href: string } };
-        connection?: {
-          id: number;
-          position: number;
-          pinned: boolean;
-          connected_at: string;
-          connected_by: {
-            id: number;
-            type: 'User';
-            name: string;
-            slug: string;
-            avatar: any;
-            initials: string;
-          } | null;
-        } | null;
-      } & {
-        type: 'Attachment';
-        attachment: {
-          filename?: any;
-          content_type?: any;
-          file_size?: any;
-          file_extension?: any;
-          updated_at?: any;
-          url: string;
-        };
-        image?: {
-          alt_text?: any;
-          blurhash?: any;
-          width?: any;
-          height?: any;
-          aspect_ratio?: any;
-          content_type?: string;
-          filename?: string;
-          file_size?: any;
-          updated_at?: string;
-          small: {
-            src: string;
-            src_1x: string;
-            src_2x: string;
-            width?: any;
-            height?: any;
-          };
-          medium: {
-            src: string;
-            src_1x: string;
-            src_2x: string;
-            width?: any;
-            height?: any;
-          };
-          large: {
-            src: string;
-            src_1x: string;
-            src_2x: string;
-            width?: any;
-            height?: any;
-          };
-          square: {
-            src: string;
-            src_1x: string;
-            src_2x: string;
-            width?: any;
-            height?: any;
-          };
-        } | null;
-      })
-    | ({
-        id: number;
-        base_type: 'Block';
-        title?: any;
-        description?: { markdown: string; html: string; plain: string } | null;
-        state: 'available' | 'pending' | 'failed' | 'processing';
-        visibility: 'public' | 'private' | 'orphan';
-        comment_count: number;
-        created_at: string;
-        updated_at: string;
-        user: {
-          id: number;
-          type: 'User';
-          name: string;
-          slug: string;
-          avatar: any;
-          initials: string;
-        };
-        source?: {
-          url: string;
-          title?: any;
-          provider?: { name: string; url: string } | null;
-        } | null;
-        _links: { self: { href: string } };
-        connection?: {
-          id: number;
-          position: number;
-          pinned: boolean;
-          connected_at: string;
-          connected_by: {
-            id: number;
-            type: 'User';
-            name: string;
-            slug: string;
-            avatar: any;
-            initials: string;
-          } | null;
-        } | null;
-      } & {
-        type: 'Embed';
-        embed: {
-          url?: any;
-          type?: any;
-          title?: any;
-          author_name?: any;
-          author_url?: any;
-          source_url?: any;
-          width?: any;
-          height?: any;
-          html?: any;
-          thumbnail_url?: any;
-        };
-        image?: {
-          alt_text?: any;
-          blurhash?: any;
-          width?: any;
-          height?: any;
-          aspect_ratio?: any;
-          content_type?: string;
-          filename?: string;
-          file_size?: any;
-          updated_at?: string;
-          small: {
-            src: string;
-            src_1x: string;
-            src_2x: string;
-            width?: any;
-            height?: any;
-          };
-          medium: {
-            src: string;
-            src_1x: string;
-            src_2x: string;
-            width?: any;
-            height?: any;
-          };
-          large: {
-            src: string;
-            src_1x: string;
-            src_2x: string;
-            width?: any;
-            height?: any;
-          };
-          square: {
-            src: string;
-            src_1x: string;
-            src_2x: string;
-            width?: any;
-            height?: any;
-          };
-        } | null;
-      })
-    | {
-        id: number;
-        type: 'Channel';
+        type: 'User';
+        name: string;
         slug: string;
-        title: string;
-        description?: { markdown: string; html: string; plain: string } | null;
-        state: 'available' | 'deleted';
-        visibility: 'public' | 'private' | 'closed';
-        created_at: string;
-        updated_at: string;
-        owner:
-          | {
-              id: number;
-              type: 'User';
-              name: string;
-              slug: string;
-              avatar: any;
-              initials: string;
-            }
-          | {
-              id: number;
-              type: 'Group';
-              name: string;
-              slug: string;
-              avatar: any;
-              initials: string;
-            };
-        counts: {
-          blocks: number;
-          channels: number;
-          contents: number;
-          collaborators: number;
-        };
-        _links: { self: { href: string } };
-        connection?: {
+        avatar: any;
+        initials: string;
+      };
+    };
+  } & {
+    id: number;
+    base_type: 'Block';
+    title?: any;
+    description?: { markdown: string; html: string; plain: string };
+    state: 'available' | 'pending' | 'failed' | 'processing';
+    visibility: 'public' | 'private' | 'orphan';
+    comment_count: number;
+    created_at: string;
+    updated_at: string;
+    user: {
+      id: number;
+      type: 'User';
+      name: string;
+      slug: string;
+      avatar: any;
+      initials: string;
+    };
+    source?: {
+      url: string;
+      title?: any;
+      provider?: { name: string; url: string };
+    };
+    _links: { self: { href: string } };
+    connection?: {
+      id: number;
+      position: number;
+      pinned: boolean;
+      connected_at: string;
+      connected_by: {
+        id: number;
+        type: 'User';
+        name: string;
+        slug: string;
+        avatar: any;
+        initials: string;
+      };
+    };
+  } & {
+    id: number;
+    base_type: 'Block';
+    title?: any;
+    description?: { markdown: string; html: string; plain: string };
+    state: 'available' | 'pending' | 'failed' | 'processing';
+    visibility: 'public' | 'private' | 'orphan';
+    comment_count: number;
+    created_at: string;
+    updated_at: string;
+    user: {
+      id: number;
+      type: 'User';
+      name: string;
+      slug: string;
+      avatar: any;
+      initials: string;
+    };
+    source?: {
+      url: string;
+      title?: any;
+      provider?: { name: string; url: string };
+    };
+    _links: { self: { href: string } };
+    connection?: {
+      id: number;
+      position: number;
+      pinned: boolean;
+      connected_at: string;
+      connected_by: {
+        id: number;
+        type: 'User';
+        name: string;
+        slug: string;
+        avatar: any;
+        initials: string;
+      };
+    };
+  } & {
+    id: number;
+    base_type: 'Block';
+    title?: any;
+    description?: { markdown: string; html: string; plain: string };
+    state: 'available' | 'pending' | 'failed' | 'processing';
+    visibility: 'public' | 'private' | 'orphan';
+    comment_count: number;
+    created_at: string;
+    updated_at: string;
+    user: {
+      id: number;
+      type: 'User';
+      name: string;
+      slug: string;
+      avatar: any;
+      initials: string;
+    };
+    source?: {
+      url: string;
+      title?: any;
+      provider?: { name: string; url: string };
+    };
+    _links: { self: { href: string } };
+    connection?: {
+      id: number;
+      position: number;
+      pinned: boolean;
+      connected_at: string;
+      connected_by: {
+        id: number;
+        type: 'User';
+        name: string;
+        slug: string;
+        avatar: any;
+        initials: string;
+      };
+    };
+  } & {
+    id: number;
+    base_type: 'Block';
+    title?: any;
+    description?: { markdown: string; html: string; plain: string };
+    state: 'available' | 'pending' | 'failed' | 'processing';
+    visibility: 'public' | 'private' | 'orphan';
+    comment_count: number;
+    created_at: string;
+    updated_at: string;
+    user: {
+      id: number;
+      type: 'User';
+      name: string;
+      slug: string;
+      avatar: any;
+      initials: string;
+    };
+    source?: {
+      url: string;
+      title?: any;
+      provider?: { name: string; url: string };
+    };
+    _links: { self: { href: string } };
+    connection?: {
+      id: number;
+      position: number;
+      pinned: boolean;
+      connected_at: string;
+      connected_by: {
+        id: number;
+        type: 'User';
+        name: string;
+        slug: string;
+        avatar: any;
+        initials: string;
+      };
+    };
+  } & {
+      id: number;
+      type: 'Channel';
+      slug: string;
+      title: string;
+      description?: { markdown: string; html: string; plain: string };
+      state: 'available' | 'deleted';
+      visibility: 'public' | 'private' | 'closed';
+      created_at: string;
+      updated_at: string;
+      owner: {
+        id: number;
+        type: 'User';
+        name: string;
+        slug: string;
+        avatar: any;
+        initials: string;
+      } & {
+        id: number;
+        type: 'Group';
+        name: string;
+        slug: string;
+        avatar: any;
+        initials: string;
+      };
+      counts: {
+        blocks: number;
+        channels: number;
+        contents: number;
+        collaborators: number;
+      };
+      _links: { self: { href: string } };
+      connection?: {
+        id: number;
+        position: number;
+        pinned: boolean;
+        connected_at: string;
+        connected_by: {
           id: number;
-          position: number;
-          pinned: boolean;
-          connected_at: string;
-          connected_by: {
-            id: number;
-            type: 'User';
-            name: string;
-            slug: string;
-            avatar: any;
-            initials: string;
-          } | null;
-        } | null;
-        can: {
-          add_to: boolean;
-          update: boolean;
-          destroy: boolean;
-          manage_collaborators: boolean;
+          type: 'User';
+          name: string;
+          slug: string;
+          avatar: any;
+          initials: string;
         };
-      }[];
+      };
+      can: {
+        add_to: boolean;
+        update: boolean;
+        destroy: boolean;
+        manage_collaborators: boolean;
+      };
+    }[];
 };
 export type EverythingList = {
-  data:
-    | ({
-        id: number;
-        base_type: 'Block';
-        title?: any;
-        description?: { markdown: string; html: string; plain: string } | null;
-        state: 'available' | 'pending' | 'failed' | 'processing';
-        visibility: 'public' | 'private' | 'orphan';
-        comment_count: number;
-        created_at: string;
-        updated_at: string;
-        user: {
-          id: number;
-          type: 'User';
-          name: string;
-          slug: string;
-          avatar: any;
-          initials: string;
-        };
-        source?: {
-          url: string;
-          title?: any;
-          provider?: { name: string; url: string } | null;
-        } | null;
-        _links: { self: { href: string } };
-        connection?: {
-          id: number;
-          position: number;
-          pinned: boolean;
-          connected_at: string;
-          connected_by: {
-            id: number;
-            type: 'User';
-            name: string;
-            slug: string;
-            avatar: any;
-            initials: string;
-          } | null;
-        } | null;
-      } & {
-        type: 'Text';
-        content: { markdown: string; html: string; plain: string };
-      })
-    | ({
-        id: number;
-        base_type: 'Block';
-        title?: any;
-        description?: { markdown: string; html: string; plain: string } | null;
-        state: 'available' | 'pending' | 'failed' | 'processing';
-        visibility: 'public' | 'private' | 'orphan';
-        comment_count: number;
-        created_at: string;
-        updated_at: string;
-        user: {
-          id: number;
-          type: 'User';
-          name: string;
-          slug: string;
-          avatar: any;
-          initials: string;
-        };
-        source?: {
-          url: string;
-          title?: any;
-          provider?: { name: string; url: string } | null;
-        } | null;
-        _links: { self: { href: string } };
-        connection?: {
-          id: number;
-          position: number;
-          pinned: boolean;
-          connected_at: string;
-          connected_by: {
-            id: number;
-            type: 'User';
-            name: string;
-            slug: string;
-            avatar: any;
-            initials: string;
-          } | null;
-        } | null;
-      } & {
-        type: 'Image';
-        image: {
-          alt_text?: any;
-          blurhash?: any;
-          width?: any;
-          height?: any;
-          aspect_ratio?: any;
-          content_type?: string;
-          filename?: string;
-          file_size?: any;
-          updated_at?: string;
-          small: {
-            src: string;
-            src_1x: string;
-            src_2x: string;
-            width?: any;
-            height?: any;
-          };
-          medium: {
-            src: string;
-            src_1x: string;
-            src_2x: string;
-            width?: any;
-            height?: any;
-          };
-          large: {
-            src: string;
-            src_1x: string;
-            src_2x: string;
-            width?: any;
-            height?: any;
-          };
-          square: {
-            src: string;
-            src_1x: string;
-            src_2x: string;
-            width?: any;
-            height?: any;
-          };
-        };
-      })
-    | ({
-        id: number;
-        base_type: 'Block';
-        title?: any;
-        description?: { markdown: string; html: string; plain: string } | null;
-        state: 'available' | 'pending' | 'failed' | 'processing';
-        visibility: 'public' | 'private' | 'orphan';
-        comment_count: number;
-        created_at: string;
-        updated_at: string;
-        user: {
-          id: number;
-          type: 'User';
-          name: string;
-          slug: string;
-          avatar: any;
-          initials: string;
-        };
-        source?: {
-          url: string;
-          title?: any;
-          provider?: { name: string; url: string } | null;
-        } | null;
-        _links: { self: { href: string } };
-        connection?: {
-          id: number;
-          position: number;
-          pinned: boolean;
-          connected_at: string;
-          connected_by: {
-            id: number;
-            type: 'User';
-            name: string;
-            slug: string;
-            avatar: any;
-            initials: string;
-          } | null;
-        } | null;
-      } & {
-        type: 'Link';
-        image?: {
-          alt_text?: any;
-          blurhash?: any;
-          width?: any;
-          height?: any;
-          aspect_ratio?: any;
-          content_type?: string;
-          filename?: string;
-          file_size?: any;
-          updated_at?: string;
-          small: {
-            src: string;
-            src_1x: string;
-            src_2x: string;
-            width?: any;
-            height?: any;
-          };
-          medium: {
-            src: string;
-            src_1x: string;
-            src_2x: string;
-            width?: any;
-            height?: any;
-          };
-          large: {
-            src: string;
-            src_1x: string;
-            src_2x: string;
-            width?: any;
-            height?: any;
-          };
-          square: {
-            src: string;
-            src_1x: string;
-            src_2x: string;
-            width?: any;
-            height?: any;
-          };
-        } | null;
-        content?: { markdown: string; html: string; plain: string } | null;
-      })
-    | ({
-        id: number;
-        base_type: 'Block';
-        title?: any;
-        description?: { markdown: string; html: string; plain: string } | null;
-        state: 'available' | 'pending' | 'failed' | 'processing';
-        visibility: 'public' | 'private' | 'orphan';
-        comment_count: number;
-        created_at: string;
-        updated_at: string;
-        user: {
-          id: number;
-          type: 'User';
-          name: string;
-          slug: string;
-          avatar: any;
-          initials: string;
-        };
-        source?: {
-          url: string;
-          title?: any;
-          provider?: { name: string; url: string } | null;
-        } | null;
-        _links: { self: { href: string } };
-        connection?: {
-          id: number;
-          position: number;
-          pinned: boolean;
-          connected_at: string;
-          connected_by: {
-            id: number;
-            type: 'User';
-            name: string;
-            slug: string;
-            avatar: any;
-            initials: string;
-          } | null;
-        } | null;
-      } & {
-        type: 'Attachment';
-        attachment: {
-          filename?: any;
-          content_type?: any;
-          file_size?: any;
-          file_extension?: any;
-          updated_at?: any;
-          url: string;
-        };
-        image?: {
-          alt_text?: any;
-          blurhash?: any;
-          width?: any;
-          height?: any;
-          aspect_ratio?: any;
-          content_type?: string;
-          filename?: string;
-          file_size?: any;
-          updated_at?: string;
-          small: {
-            src: string;
-            src_1x: string;
-            src_2x: string;
-            width?: any;
-            height?: any;
-          };
-          medium: {
-            src: string;
-            src_1x: string;
-            src_2x: string;
-            width?: any;
-            height?: any;
-          };
-          large: {
-            src: string;
-            src_1x: string;
-            src_2x: string;
-            width?: any;
-            height?: any;
-          };
-          square: {
-            src: string;
-            src_1x: string;
-            src_2x: string;
-            width?: any;
-            height?: any;
-          };
-        } | null;
-      })
-    | ({
-        id: number;
-        base_type: 'Block';
-        title?: any;
-        description?: { markdown: string; html: string; plain: string } | null;
-        state: 'available' | 'pending' | 'failed' | 'processing';
-        visibility: 'public' | 'private' | 'orphan';
-        comment_count: number;
-        created_at: string;
-        updated_at: string;
-        user: {
-          id: number;
-          type: 'User';
-          name: string;
-          slug: string;
-          avatar: any;
-          initials: string;
-        };
-        source?: {
-          url: string;
-          title?: any;
-          provider?: { name: string; url: string } | null;
-        } | null;
-        _links: { self: { href: string } };
-        connection?: {
-          id: number;
-          position: number;
-          pinned: boolean;
-          connected_at: string;
-          connected_by: {
-            id: number;
-            type: 'User';
-            name: string;
-            slug: string;
-            avatar: any;
-            initials: string;
-          } | null;
-        } | null;
-      } & {
-        type: 'Embed';
-        embed: {
-          url?: any;
-          type?: any;
-          title?: any;
-          author_name?: any;
-          author_url?: any;
-          source_url?: any;
-          width?: any;
-          height?: any;
-          html?: any;
-          thumbnail_url?: any;
-        };
-        image?: {
-          alt_text?: any;
-          blurhash?: any;
-          width?: any;
-          height?: any;
-          aspect_ratio?: any;
-          content_type?: string;
-          filename?: string;
-          file_size?: any;
-          updated_at?: string;
-          small: {
-            src: string;
-            src_1x: string;
-            src_2x: string;
-            width?: any;
-            height?: any;
-          };
-          medium: {
-            src: string;
-            src_1x: string;
-            src_2x: string;
-            width?: any;
-            height?: any;
-          };
-          large: {
-            src: string;
-            src_1x: string;
-            src_2x: string;
-            width?: any;
-            height?: any;
-          };
-          square: {
-            src: string;
-            src_1x: string;
-            src_2x: string;
-            width?: any;
-            height?: any;
-          };
-        } | null;
-      })
-    | {
-        id: number;
-        type: 'Channel';
-        slug: string;
-        title: string;
-        description?: { markdown: string; html: string; plain: string } | null;
-        state: 'available' | 'deleted';
-        visibility: 'public' | 'private' | 'closed';
-        created_at: string;
-        updated_at: string;
-        owner:
-          | {
-              id: number;
-              type: 'User';
-              name: string;
-              slug: string;
-              avatar: any;
-              initials: string;
-            }
-          | {
-              id: number;
-              type: 'Group';
-              name: string;
-              slug: string;
-              avatar: any;
-              initials: string;
-            };
-        counts: {
-          blocks: number;
-          channels: number;
-          contents: number;
-          collaborators: number;
-        };
-        _links: { self: { href: string } };
-        connection?: {
-          id: number;
-          position: number;
-          pinned: boolean;
-          connected_at: string;
-          connected_by: {
-            id: number;
-            type: 'User';
-            name: string;
-            slug: string;
-            avatar: any;
-            initials: string;
-          } | null;
-        } | null;
-        can: {
-          add_to: boolean;
-          update: boolean;
-          destroy: boolean;
-          manage_collaborators: boolean;
-        };
-      }
-    | ({
+  data: {
+    id: number;
+    base_type: 'Block';
+    title?: any;
+    description?: { markdown: string; html: string; plain: string };
+    state: 'available' | 'pending' | 'failed' | 'processing';
+    visibility: 'public' | 'private' | 'orphan';
+    comment_count: number;
+    created_at: string;
+    updated_at: string;
+    user: {
+      id: number;
+      type: 'User';
+      name: string;
+      slug: string;
+      avatar: any;
+      initials: string;
+    };
+    source?: {
+      url: string;
+      title?: any;
+      provider?: { name: string; url: string };
+    };
+    _links: { self: { href: string } };
+    connection?: {
+      id: number;
+      position: number;
+      pinned: boolean;
+      connected_at: string;
+      connected_by: {
         id: number;
         type: 'User';
         name: string;
         slug: string;
         avatar: any;
         initials: string;
-      } & {
-        created_at: string;
-        updated_at: string;
-        bio?: { markdown: string; html: string; plain: string } | null;
-        counts: { channels: number; followers: number; following: number };
-        _links: { self: { href: string } };
-      })
-    | ({
+      };
+    };
+  } & {
+    id: number;
+    base_type: 'Block';
+    title?: any;
+    description?: { markdown: string; html: string; plain: string };
+    state: 'available' | 'pending' | 'failed' | 'processing';
+    visibility: 'public' | 'private' | 'orphan';
+    comment_count: number;
+    created_at: string;
+    updated_at: string;
+    user: {
+      id: number;
+      type: 'User';
+      name: string;
+      slug: string;
+      avatar: any;
+      initials: string;
+    };
+    source?: {
+      url: string;
+      title?: any;
+      provider?: { name: string; url: string };
+    };
+    _links: { self: { href: string } };
+    connection?: {
+      id: number;
+      position: number;
+      pinned: boolean;
+      connected_at: string;
+      connected_by: {
         id: number;
-        type: 'Group';
+        type: 'User';
         name: string;
         slug: string;
         avatar: any;
         initials: string;
-      } & {
-        bio?: { markdown: string; html: string; plain: string } | null;
-        created_at: string;
-        updated_at: string;
-        user: {
-          id: number;
-          type: 'User';
-          name: string;
-          slug: string;
-          avatar: any;
-          initials: string;
-        };
-        counts: { channels: number; users: number };
-        _links: { self: { href: string } };
-      }[]);
+      };
+    };
+  } & {
+    id: number;
+    base_type: 'Block';
+    title?: any;
+    description?: { markdown: string; html: string; plain: string };
+    state: 'available' | 'pending' | 'failed' | 'processing';
+    visibility: 'public' | 'private' | 'orphan';
+    comment_count: number;
+    created_at: string;
+    updated_at: string;
+    user: {
+      id: number;
+      type: 'User';
+      name: string;
+      slug: string;
+      avatar: any;
+      initials: string;
+    };
+    source?: {
+      url: string;
+      title?: any;
+      provider?: { name: string; url: string };
+    };
+    _links: { self: { href: string } };
+    connection?: {
+      id: number;
+      position: number;
+      pinned: boolean;
+      connected_at: string;
+      connected_by: {
+        id: number;
+        type: 'User';
+        name: string;
+        slug: string;
+        avatar: any;
+        initials: string;
+      };
+    };
+  } & {
+    id: number;
+    base_type: 'Block';
+    title?: any;
+    description?: { markdown: string; html: string; plain: string };
+    state: 'available' | 'pending' | 'failed' | 'processing';
+    visibility: 'public' | 'private' | 'orphan';
+    comment_count: number;
+    created_at: string;
+    updated_at: string;
+    user: {
+      id: number;
+      type: 'User';
+      name: string;
+      slug: string;
+      avatar: any;
+      initials: string;
+    };
+    source?: {
+      url: string;
+      title?: any;
+      provider?: { name: string; url: string };
+    };
+    _links: { self: { href: string } };
+    connection?: {
+      id: number;
+      position: number;
+      pinned: boolean;
+      connected_at: string;
+      connected_by: {
+        id: number;
+        type: 'User';
+        name: string;
+        slug: string;
+        avatar: any;
+        initials: string;
+      };
+    };
+  } & {
+    id: number;
+    base_type: 'Block';
+    title?: any;
+    description?: { markdown: string; html: string; plain: string };
+    state: 'available' | 'pending' | 'failed' | 'processing';
+    visibility: 'public' | 'private' | 'orphan';
+    comment_count: number;
+    created_at: string;
+    updated_at: string;
+    user: {
+      id: number;
+      type: 'User';
+      name: string;
+      slug: string;
+      avatar: any;
+      initials: string;
+    };
+    source?: {
+      url: string;
+      title?: any;
+      provider?: { name: string; url: string };
+    };
+    _links: { self: { href: string } };
+    connection?: {
+      id: number;
+      position: number;
+      pinned: boolean;
+      connected_at: string;
+      connected_by: {
+        id: number;
+        type: 'User';
+        name: string;
+        slug: string;
+        avatar: any;
+        initials: string;
+      };
+    };
+  } & {
+    id: number;
+    type: 'Channel';
+    slug: string;
+    title: string;
+    description?: { markdown: string; html: string; plain: string };
+    state: 'available' | 'deleted';
+    visibility: 'public' | 'private' | 'closed';
+    created_at: string;
+    updated_at: string;
+    owner: {
+      id: number;
+      type: 'User';
+      name: string;
+      slug: string;
+      avatar: any;
+      initials: string;
+    } & {
+      id: number;
+      type: 'Group';
+      name: string;
+      slug: string;
+      avatar: any;
+      initials: string;
+    };
+    counts: {
+      blocks: number;
+      channels: number;
+      contents: number;
+      collaborators: number;
+    };
+    _links: { self: { href: string } };
+    connection?: {
+      id: number;
+      position: number;
+      pinned: boolean;
+      connected_at: string;
+      connected_by: {
+        id: number;
+        type: 'User';
+        name: string;
+        slug: string;
+        avatar: any;
+        initials: string;
+      };
+    };
+    can: {
+      add_to: boolean;
+      update: boolean;
+      destroy: boolean;
+      manage_collaborators: boolean;
+    };
+  } & {
+    id: number;
+    type: 'User';
+    name: string;
+    slug: string;
+    avatar: any;
+    initials: string;
+  } & {
+      id: number;
+      type: 'Group';
+      name: string;
+      slug: string;
+      avatar: any;
+      initials: string;
+    }[];
 };
 export type ConnectableListResponse = {
-  data:
-    | ({
+  data: {
+    id: number;
+    base_type: 'Block';
+    title?: any;
+    description?: { markdown: string; html: string; plain: string };
+    state: 'available' | 'pending' | 'failed' | 'processing';
+    visibility: 'public' | 'private' | 'orphan';
+    comment_count: number;
+    created_at: string;
+    updated_at: string;
+    user: {
+      id: number;
+      type: 'User';
+      name: string;
+      slug: string;
+      avatar: any;
+      initials: string;
+    };
+    source?: {
+      url: string;
+      title?: any;
+      provider?: { name: string; url: string };
+    };
+    _links: { self: { href: string } };
+    connection?: {
+      id: number;
+      position: number;
+      pinned: boolean;
+      connected_at: string;
+      connected_by: {
         id: number;
-        base_type: 'Block';
-        title?: any;
-        description?: { markdown: string; html: string; plain: string } | null;
-        state: 'available' | 'pending' | 'failed' | 'processing';
-        visibility: 'public' | 'private' | 'orphan';
-        comment_count: number;
-        created_at: string;
-        updated_at: string;
-        user: {
-          id: number;
-          type: 'User';
-          name: string;
-          slug: string;
-          avatar: any;
-          initials: string;
-        };
-        source?: {
-          url: string;
-          title?: any;
-          provider?: { name: string; url: string } | null;
-        } | null;
-        _links: { self: { href: string } };
-        connection?: {
-          id: number;
-          position: number;
-          pinned: boolean;
-          connected_at: string;
-          connected_by: {
-            id: number;
-            type: 'User';
-            name: string;
-            slug: string;
-            avatar: any;
-            initials: string;
-          } | null;
-        } | null;
-      } & {
-        type: 'Text';
-        content: { markdown: string; html: string; plain: string };
-      })
-    | ({
-        id: number;
-        base_type: 'Block';
-        title?: any;
-        description?: { markdown: string; html: string; plain: string } | null;
-        state: 'available' | 'pending' | 'failed' | 'processing';
-        visibility: 'public' | 'private' | 'orphan';
-        comment_count: number;
-        created_at: string;
-        updated_at: string;
-        user: {
-          id: number;
-          type: 'User';
-          name: string;
-          slug: string;
-          avatar: any;
-          initials: string;
-        };
-        source?: {
-          url: string;
-          title?: any;
-          provider?: { name: string; url: string } | null;
-        } | null;
-        _links: { self: { href: string } };
-        connection?: {
-          id: number;
-          position: number;
-          pinned: boolean;
-          connected_at: string;
-          connected_by: {
-            id: number;
-            type: 'User';
-            name: string;
-            slug: string;
-            avatar: any;
-            initials: string;
-          } | null;
-        } | null;
-      } & {
-        type: 'Image';
-        image: {
-          alt_text?: any;
-          blurhash?: any;
-          width?: any;
-          height?: any;
-          aspect_ratio?: any;
-          content_type?: string;
-          filename?: string;
-          file_size?: any;
-          updated_at?: string;
-          small: {
-            src: string;
-            src_1x: string;
-            src_2x: string;
-            width?: any;
-            height?: any;
-          };
-          medium: {
-            src: string;
-            src_1x: string;
-            src_2x: string;
-            width?: any;
-            height?: any;
-          };
-          large: {
-            src: string;
-            src_1x: string;
-            src_2x: string;
-            width?: any;
-            height?: any;
-          };
-          square: {
-            src: string;
-            src_1x: string;
-            src_2x: string;
-            width?: any;
-            height?: any;
-          };
-        };
-      })
-    | ({
-        id: number;
-        base_type: 'Block';
-        title?: any;
-        description?: { markdown: string; html: string; plain: string } | null;
-        state: 'available' | 'pending' | 'failed' | 'processing';
-        visibility: 'public' | 'private' | 'orphan';
-        comment_count: number;
-        created_at: string;
-        updated_at: string;
-        user: {
-          id: number;
-          type: 'User';
-          name: string;
-          slug: string;
-          avatar: any;
-          initials: string;
-        };
-        source?: {
-          url: string;
-          title?: any;
-          provider?: { name: string; url: string } | null;
-        } | null;
-        _links: { self: { href: string } };
-        connection?: {
-          id: number;
-          position: number;
-          pinned: boolean;
-          connected_at: string;
-          connected_by: {
-            id: number;
-            type: 'User';
-            name: string;
-            slug: string;
-            avatar: any;
-            initials: string;
-          } | null;
-        } | null;
-      } & {
-        type: 'Link';
-        image?: {
-          alt_text?: any;
-          blurhash?: any;
-          width?: any;
-          height?: any;
-          aspect_ratio?: any;
-          content_type?: string;
-          filename?: string;
-          file_size?: any;
-          updated_at?: string;
-          small: {
-            src: string;
-            src_1x: string;
-            src_2x: string;
-            width?: any;
-            height?: any;
-          };
-          medium: {
-            src: string;
-            src_1x: string;
-            src_2x: string;
-            width?: any;
-            height?: any;
-          };
-          large: {
-            src: string;
-            src_1x: string;
-            src_2x: string;
-            width?: any;
-            height?: any;
-          };
-          square: {
-            src: string;
-            src_1x: string;
-            src_2x: string;
-            width?: any;
-            height?: any;
-          };
-        } | null;
-        content?: { markdown: string; html: string; plain: string } | null;
-      })
-    | ({
-        id: number;
-        base_type: 'Block';
-        title?: any;
-        description?: { markdown: string; html: string; plain: string } | null;
-        state: 'available' | 'pending' | 'failed' | 'processing';
-        visibility: 'public' | 'private' | 'orphan';
-        comment_count: number;
-        created_at: string;
-        updated_at: string;
-        user: {
-          id: number;
-          type: 'User';
-          name: string;
-          slug: string;
-          avatar: any;
-          initials: string;
-        };
-        source?: {
-          url: string;
-          title?: any;
-          provider?: { name: string; url: string } | null;
-        } | null;
-        _links: { self: { href: string } };
-        connection?: {
-          id: number;
-          position: number;
-          pinned: boolean;
-          connected_at: string;
-          connected_by: {
-            id: number;
-            type: 'User';
-            name: string;
-            slug: string;
-            avatar: any;
-            initials: string;
-          } | null;
-        } | null;
-      } & {
-        type: 'Attachment';
-        attachment: {
-          filename?: any;
-          content_type?: any;
-          file_size?: any;
-          file_extension?: any;
-          updated_at?: any;
-          url: string;
-        };
-        image?: {
-          alt_text?: any;
-          blurhash?: any;
-          width?: any;
-          height?: any;
-          aspect_ratio?: any;
-          content_type?: string;
-          filename?: string;
-          file_size?: any;
-          updated_at?: string;
-          small: {
-            src: string;
-            src_1x: string;
-            src_2x: string;
-            width?: any;
-            height?: any;
-          };
-          medium: {
-            src: string;
-            src_1x: string;
-            src_2x: string;
-            width?: any;
-            height?: any;
-          };
-          large: {
-            src: string;
-            src_1x: string;
-            src_2x: string;
-            width?: any;
-            height?: any;
-          };
-          square: {
-            src: string;
-            src_1x: string;
-            src_2x: string;
-            width?: any;
-            height?: any;
-          };
-        } | null;
-      })
-    | ({
-        id: number;
-        base_type: 'Block';
-        title?: any;
-        description?: { markdown: string; html: string; plain: string } | null;
-        state: 'available' | 'pending' | 'failed' | 'processing';
-        visibility: 'public' | 'private' | 'orphan';
-        comment_count: number;
-        created_at: string;
-        updated_at: string;
-        user: {
-          id: number;
-          type: 'User';
-          name: string;
-          slug: string;
-          avatar: any;
-          initials: string;
-        };
-        source?: {
-          url: string;
-          title?: any;
-          provider?: { name: string; url: string } | null;
-        } | null;
-        _links: { self: { href: string } };
-        connection?: {
-          id: number;
-          position: number;
-          pinned: boolean;
-          connected_at: string;
-          connected_by: {
-            id: number;
-            type: 'User';
-            name: string;
-            slug: string;
-            avatar: any;
-            initials: string;
-          } | null;
-        } | null;
-      } & {
-        type: 'Embed';
-        embed: {
-          url?: any;
-          type?: any;
-          title?: any;
-          author_name?: any;
-          author_url?: any;
-          source_url?: any;
-          width?: any;
-          height?: any;
-          html?: any;
-          thumbnail_url?: any;
-        };
-        image?: {
-          alt_text?: any;
-          blurhash?: any;
-          width?: any;
-          height?: any;
-          aspect_ratio?: any;
-          content_type?: string;
-          filename?: string;
-          file_size?: any;
-          updated_at?: string;
-          small: {
-            src: string;
-            src_1x: string;
-            src_2x: string;
-            width?: any;
-            height?: any;
-          };
-          medium: {
-            src: string;
-            src_1x: string;
-            src_2x: string;
-            width?: any;
-            height?: any;
-          };
-          large: {
-            src: string;
-            src_1x: string;
-            src_2x: string;
-            width?: any;
-            height?: any;
-          };
-          square: {
-            src: string;
-            src_1x: string;
-            src_2x: string;
-            width?: any;
-            height?: any;
-          };
-        } | null;
-      })
-    | {
-        id: number;
-        type: 'Channel';
+        type: 'User';
+        name: string;
         slug: string;
-        title: string;
-        description?: { markdown: string; html: string; plain: string } | null;
-        state: 'available' | 'deleted';
-        visibility: 'public' | 'private' | 'closed';
-        created_at: string;
-        updated_at: string;
-        owner:
-          | {
-              id: number;
-              type: 'User';
-              name: string;
-              slug: string;
-              avatar: any;
-              initials: string;
-            }
-          | {
-              id: number;
-              type: 'Group';
-              name: string;
-              slug: string;
-              avatar: any;
-              initials: string;
-            };
-        counts: {
-          blocks: number;
-          channels: number;
-          contents: number;
-          collaborators: number;
-        };
-        _links: { self: { href: string } };
-        connection?: {
-          id: number;
-          position: number;
-          pinned: boolean;
-          connected_at: string;
-          connected_by: {
-            id: number;
-            type: 'User';
-            name: string;
-            slug: string;
-            avatar: any;
-            initials: string;
-          } | null;
-        } | null;
-        can: {
-          add_to: boolean;
-          update: boolean;
-          destroy: boolean;
-          manage_collaborators: boolean;
-        };
-      }[];
-} & {
-  meta:
-    | {
-        current_page: number;
-        next_page?: any;
-        prev_page?: any;
-        per_page: number;
-        total_pages: number;
-        total_count: number;
-        has_more_pages: boolean;
-      }
-    | {
-        current_page: number;
-        next_page?: any;
-        prev_page?: any;
-        per_page: number;
-        has_more_pages: boolean;
+        avatar: any;
+        initials: string;
       };
-};
-export type EverythingListResponse = {
-  data:
-    | ({
+    };
+  } & {
+    id: number;
+    base_type: 'Block';
+    title?: any;
+    description?: { markdown: string; html: string; plain: string };
+    state: 'available' | 'pending' | 'failed' | 'processing';
+    visibility: 'public' | 'private' | 'orphan';
+    comment_count: number;
+    created_at: string;
+    updated_at: string;
+    user: {
+      id: number;
+      type: 'User';
+      name: string;
+      slug: string;
+      avatar: any;
+      initials: string;
+    };
+    source?: {
+      url: string;
+      title?: any;
+      provider?: { name: string; url: string };
+    };
+    _links: { self: { href: string } };
+    connection?: {
+      id: number;
+      position: number;
+      pinned: boolean;
+      connected_at: string;
+      connected_by: {
         id: number;
-        base_type: 'Block';
-        title?: any;
-        description?: { markdown: string; html: string; plain: string } | null;
-        state: 'available' | 'pending' | 'failed' | 'processing';
-        visibility: 'public' | 'private' | 'orphan';
-        comment_count: number;
-        created_at: string;
-        updated_at: string;
-        user: {
-          id: number;
-          type: 'User';
-          name: string;
-          slug: string;
-          avatar: any;
-          initials: string;
-        };
-        source?: {
-          url: string;
-          title?: any;
-          provider?: { name: string; url: string } | null;
-        } | null;
-        _links: { self: { href: string } };
-        connection?: {
-          id: number;
-          position: number;
-          pinned: boolean;
-          connected_at: string;
-          connected_by: {
-            id: number;
-            type: 'User';
-            name: string;
-            slug: string;
-            avatar: any;
-            initials: string;
-          } | null;
-        } | null;
-      } & {
-        type: 'Text';
-        content: { markdown: string; html: string; plain: string };
-      })
-    | ({
-        id: number;
-        base_type: 'Block';
-        title?: any;
-        description?: { markdown: string; html: string; plain: string } | null;
-        state: 'available' | 'pending' | 'failed' | 'processing';
-        visibility: 'public' | 'private' | 'orphan';
-        comment_count: number;
-        created_at: string;
-        updated_at: string;
-        user: {
-          id: number;
-          type: 'User';
-          name: string;
-          slug: string;
-          avatar: any;
-          initials: string;
-        };
-        source?: {
-          url: string;
-          title?: any;
-          provider?: { name: string; url: string } | null;
-        } | null;
-        _links: { self: { href: string } };
-        connection?: {
-          id: number;
-          position: number;
-          pinned: boolean;
-          connected_at: string;
-          connected_by: {
-            id: number;
-            type: 'User';
-            name: string;
-            slug: string;
-            avatar: any;
-            initials: string;
-          } | null;
-        } | null;
-      } & {
-        type: 'Image';
-        image: {
-          alt_text?: any;
-          blurhash?: any;
-          width?: any;
-          height?: any;
-          aspect_ratio?: any;
-          content_type?: string;
-          filename?: string;
-          file_size?: any;
-          updated_at?: string;
-          small: {
-            src: string;
-            src_1x: string;
-            src_2x: string;
-            width?: any;
-            height?: any;
-          };
-          medium: {
-            src: string;
-            src_1x: string;
-            src_2x: string;
-            width?: any;
-            height?: any;
-          };
-          large: {
-            src: string;
-            src_1x: string;
-            src_2x: string;
-            width?: any;
-            height?: any;
-          };
-          square: {
-            src: string;
-            src_1x: string;
-            src_2x: string;
-            width?: any;
-            height?: any;
-          };
-        };
-      })
-    | ({
-        id: number;
-        base_type: 'Block';
-        title?: any;
-        description?: { markdown: string; html: string; plain: string } | null;
-        state: 'available' | 'pending' | 'failed' | 'processing';
-        visibility: 'public' | 'private' | 'orphan';
-        comment_count: number;
-        created_at: string;
-        updated_at: string;
-        user: {
-          id: number;
-          type: 'User';
-          name: string;
-          slug: string;
-          avatar: any;
-          initials: string;
-        };
-        source?: {
-          url: string;
-          title?: any;
-          provider?: { name: string; url: string } | null;
-        } | null;
-        _links: { self: { href: string } };
-        connection?: {
-          id: number;
-          position: number;
-          pinned: boolean;
-          connected_at: string;
-          connected_by: {
-            id: number;
-            type: 'User';
-            name: string;
-            slug: string;
-            avatar: any;
-            initials: string;
-          } | null;
-        } | null;
-      } & {
-        type: 'Link';
-        image?: {
-          alt_text?: any;
-          blurhash?: any;
-          width?: any;
-          height?: any;
-          aspect_ratio?: any;
-          content_type?: string;
-          filename?: string;
-          file_size?: any;
-          updated_at?: string;
-          small: {
-            src: string;
-            src_1x: string;
-            src_2x: string;
-            width?: any;
-            height?: any;
-          };
-          medium: {
-            src: string;
-            src_1x: string;
-            src_2x: string;
-            width?: any;
-            height?: any;
-          };
-          large: {
-            src: string;
-            src_1x: string;
-            src_2x: string;
-            width?: any;
-            height?: any;
-          };
-          square: {
-            src: string;
-            src_1x: string;
-            src_2x: string;
-            width?: any;
-            height?: any;
-          };
-        } | null;
-        content?: { markdown: string; html: string; plain: string } | null;
-      })
-    | ({
-        id: number;
-        base_type: 'Block';
-        title?: any;
-        description?: { markdown: string; html: string; plain: string } | null;
-        state: 'available' | 'pending' | 'failed' | 'processing';
-        visibility: 'public' | 'private' | 'orphan';
-        comment_count: number;
-        created_at: string;
-        updated_at: string;
-        user: {
-          id: number;
-          type: 'User';
-          name: string;
-          slug: string;
-          avatar: any;
-          initials: string;
-        };
-        source?: {
-          url: string;
-          title?: any;
-          provider?: { name: string; url: string } | null;
-        } | null;
-        _links: { self: { href: string } };
-        connection?: {
-          id: number;
-          position: number;
-          pinned: boolean;
-          connected_at: string;
-          connected_by: {
-            id: number;
-            type: 'User';
-            name: string;
-            slug: string;
-            avatar: any;
-            initials: string;
-          } | null;
-        } | null;
-      } & {
-        type: 'Attachment';
-        attachment: {
-          filename?: any;
-          content_type?: any;
-          file_size?: any;
-          file_extension?: any;
-          updated_at?: any;
-          url: string;
-        };
-        image?: {
-          alt_text?: any;
-          blurhash?: any;
-          width?: any;
-          height?: any;
-          aspect_ratio?: any;
-          content_type?: string;
-          filename?: string;
-          file_size?: any;
-          updated_at?: string;
-          small: {
-            src: string;
-            src_1x: string;
-            src_2x: string;
-            width?: any;
-            height?: any;
-          };
-          medium: {
-            src: string;
-            src_1x: string;
-            src_2x: string;
-            width?: any;
-            height?: any;
-          };
-          large: {
-            src: string;
-            src_1x: string;
-            src_2x: string;
-            width?: any;
-            height?: any;
-          };
-          square: {
-            src: string;
-            src_1x: string;
-            src_2x: string;
-            width?: any;
-            height?: any;
-          };
-        } | null;
-      })
-    | ({
-        id: number;
-        base_type: 'Block';
-        title?: any;
-        description?: { markdown: string; html: string; plain: string } | null;
-        state: 'available' | 'pending' | 'failed' | 'processing';
-        visibility: 'public' | 'private' | 'orphan';
-        comment_count: number;
-        created_at: string;
-        updated_at: string;
-        user: {
-          id: number;
-          type: 'User';
-          name: string;
-          slug: string;
-          avatar: any;
-          initials: string;
-        };
-        source?: {
-          url: string;
-          title?: any;
-          provider?: { name: string; url: string } | null;
-        } | null;
-        _links: { self: { href: string } };
-        connection?: {
-          id: number;
-          position: number;
-          pinned: boolean;
-          connected_at: string;
-          connected_by: {
-            id: number;
-            type: 'User';
-            name: string;
-            slug: string;
-            avatar: any;
-            initials: string;
-          } | null;
-        } | null;
-      } & {
-        type: 'Embed';
-        embed: {
-          url?: any;
-          type?: any;
-          title?: any;
-          author_name?: any;
-          author_url?: any;
-          source_url?: any;
-          width?: any;
-          height?: any;
-          html?: any;
-          thumbnail_url?: any;
-        };
-        image?: {
-          alt_text?: any;
-          blurhash?: any;
-          width?: any;
-          height?: any;
-          aspect_ratio?: any;
-          content_type?: string;
-          filename?: string;
-          file_size?: any;
-          updated_at?: string;
-          small: {
-            src: string;
-            src_1x: string;
-            src_2x: string;
-            width?: any;
-            height?: any;
-          };
-          medium: {
-            src: string;
-            src_1x: string;
-            src_2x: string;
-            width?: any;
-            height?: any;
-          };
-          large: {
-            src: string;
-            src_1x: string;
-            src_2x: string;
-            width?: any;
-            height?: any;
-          };
-          square: {
-            src: string;
-            src_1x: string;
-            src_2x: string;
-            width?: any;
-            height?: any;
-          };
-        } | null;
-      })
-    | {
-        id: number;
-        type: 'Channel';
+        type: 'User';
+        name: string;
         slug: string;
-        title: string;
-        description?: { markdown: string; html: string; plain: string } | null;
-        state: 'available' | 'deleted';
-        visibility: 'public' | 'private' | 'closed';
-        created_at: string;
-        updated_at: string;
-        owner:
-          | {
-              id: number;
-              type: 'User';
-              name: string;
-              slug: string;
-              avatar: any;
-              initials: string;
-            }
-          | {
-              id: number;
-              type: 'Group';
-              name: string;
-              slug: string;
-              avatar: any;
-              initials: string;
-            };
-        counts: {
-          blocks: number;
-          channels: number;
-          contents: number;
-          collaborators: number;
-        };
-        _links: { self: { href: string } };
-        connection?: {
-          id: number;
-          position: number;
-          pinned: boolean;
-          connected_at: string;
-          connected_by: {
-            id: number;
-            type: 'User';
-            name: string;
-            slug: string;
-            avatar: any;
-            initials: string;
-          } | null;
-        } | null;
-        can: {
-          add_to: boolean;
-          update: boolean;
-          destroy: boolean;
-          manage_collaborators: boolean;
-        };
-      }
-    | ({
+        avatar: any;
+        initials: string;
+      };
+    };
+  } & {
+    id: number;
+    base_type: 'Block';
+    title?: any;
+    description?: { markdown: string; html: string; plain: string };
+    state: 'available' | 'pending' | 'failed' | 'processing';
+    visibility: 'public' | 'private' | 'orphan';
+    comment_count: number;
+    created_at: string;
+    updated_at: string;
+    user: {
+      id: number;
+      type: 'User';
+      name: string;
+      slug: string;
+      avatar: any;
+      initials: string;
+    };
+    source?: {
+      url: string;
+      title?: any;
+      provider?: { name: string; url: string };
+    };
+    _links: { self: { href: string } };
+    connection?: {
+      id: number;
+      position: number;
+      pinned: boolean;
+      connected_at: string;
+      connected_by: {
+        id: number;
+        type: 'User';
+        name: string;
+        slug: string;
+        avatar: any;
+        initials: string;
+      };
+    };
+  } & {
+    id: number;
+    base_type: 'Block';
+    title?: any;
+    description?: { markdown: string; html: string; plain: string };
+    state: 'available' | 'pending' | 'failed' | 'processing';
+    visibility: 'public' | 'private' | 'orphan';
+    comment_count: number;
+    created_at: string;
+    updated_at: string;
+    user: {
+      id: number;
+      type: 'User';
+      name: string;
+      slug: string;
+      avatar: any;
+      initials: string;
+    };
+    source?: {
+      url: string;
+      title?: any;
+      provider?: { name: string; url: string };
+    };
+    _links: { self: { href: string } };
+    connection?: {
+      id: number;
+      position: number;
+      pinned: boolean;
+      connected_at: string;
+      connected_by: {
+        id: number;
+        type: 'User';
+        name: string;
+        slug: string;
+        avatar: any;
+        initials: string;
+      };
+    };
+  } & {
+    id: number;
+    base_type: 'Block';
+    title?: any;
+    description?: { markdown: string; html: string; plain: string };
+    state: 'available' | 'pending' | 'failed' | 'processing';
+    visibility: 'public' | 'private' | 'orphan';
+    comment_count: number;
+    created_at: string;
+    updated_at: string;
+    user: {
+      id: number;
+      type: 'User';
+      name: string;
+      slug: string;
+      avatar: any;
+      initials: string;
+    };
+    source?: {
+      url: string;
+      title?: any;
+      provider?: { name: string; url: string };
+    };
+    _links: { self: { href: string } };
+    connection?: {
+      id: number;
+      position: number;
+      pinned: boolean;
+      connected_at: string;
+      connected_by: {
+        id: number;
+        type: 'User';
+        name: string;
+        slug: string;
+        avatar: any;
+        initials: string;
+      };
+    };
+  } & {
+      id: number;
+      type: 'Channel';
+      slug: string;
+      title: string;
+      description?: { markdown: string; html: string; plain: string };
+      state: 'available' | 'deleted';
+      visibility: 'public' | 'private' | 'closed';
+      created_at: string;
+      updated_at: string;
+      owner: {
         id: number;
         type: 'User';
         name: string;
@@ -3481,24 +1894,26 @@ export type EverythingListResponse = {
         avatar: any;
         initials: string;
       } & {
-        created_at: string;
-        updated_at: string;
-        bio?: { markdown: string; html: string; plain: string } | null;
-        counts: { channels: number; followers: number; following: number };
-        _links: { self: { href: string } };
-      })
-    | ({
         id: number;
         type: 'Group';
         name: string;
         slug: string;
         avatar: any;
         initials: string;
-      } & {
-        bio?: { markdown: string; html: string; plain: string } | null;
-        created_at: string;
-        updated_at: string;
-        user: {
+      };
+      counts: {
+        blocks: number;
+        channels: number;
+        contents: number;
+        collaborators: number;
+      };
+      _links: { self: { href: string } };
+      connection?: {
+        id: number;
+        position: number;
+        pinned: boolean;
+        connected_at: string;
+        connected_by: {
           id: number;
           type: 'User';
           name: string;
@@ -3506,9 +1921,289 @@ export type EverythingListResponse = {
           avatar: any;
           initials: string;
         };
-        counts: { channels: number; users: number };
-        _links: { self: { href: string } };
-      }[]);
+      };
+      can: {
+        add_to: boolean;
+        update: boolean;
+        destroy: boolean;
+        manage_collaborators: boolean;
+      };
+    }[];
+} & {
+  meta: {
+    current_page: number;
+    next_page?: any;
+    prev_page?: any;
+    per_page: number;
+    total_pages: number;
+    total_count: number;
+    has_more_pages: boolean;
+  } & {
+    current_page: number;
+    next_page?: any;
+    prev_page?: any;
+    per_page: number;
+    has_more_pages: boolean;
+  };
+};
+export type EverythingListResponse = {
+  data: {
+    id: number;
+    base_type: 'Block';
+    title?: any;
+    description?: { markdown: string; html: string; plain: string };
+    state: 'available' | 'pending' | 'failed' | 'processing';
+    visibility: 'public' | 'private' | 'orphan';
+    comment_count: number;
+    created_at: string;
+    updated_at: string;
+    user: {
+      id: number;
+      type: 'User';
+      name: string;
+      slug: string;
+      avatar: any;
+      initials: string;
+    };
+    source?: {
+      url: string;
+      title?: any;
+      provider?: { name: string; url: string };
+    };
+    _links: { self: { href: string } };
+    connection?: {
+      id: number;
+      position: number;
+      pinned: boolean;
+      connected_at: string;
+      connected_by: {
+        id: number;
+        type: 'User';
+        name: string;
+        slug: string;
+        avatar: any;
+        initials: string;
+      };
+    };
+  } & {
+    id: number;
+    base_type: 'Block';
+    title?: any;
+    description?: { markdown: string; html: string; plain: string };
+    state: 'available' | 'pending' | 'failed' | 'processing';
+    visibility: 'public' | 'private' | 'orphan';
+    comment_count: number;
+    created_at: string;
+    updated_at: string;
+    user: {
+      id: number;
+      type: 'User';
+      name: string;
+      slug: string;
+      avatar: any;
+      initials: string;
+    };
+    source?: {
+      url: string;
+      title?: any;
+      provider?: { name: string; url: string };
+    };
+    _links: { self: { href: string } };
+    connection?: {
+      id: number;
+      position: number;
+      pinned: boolean;
+      connected_at: string;
+      connected_by: {
+        id: number;
+        type: 'User';
+        name: string;
+        slug: string;
+        avatar: any;
+        initials: string;
+      };
+    };
+  } & {
+    id: number;
+    base_type: 'Block';
+    title?: any;
+    description?: { markdown: string; html: string; plain: string };
+    state: 'available' | 'pending' | 'failed' | 'processing';
+    visibility: 'public' | 'private' | 'orphan';
+    comment_count: number;
+    created_at: string;
+    updated_at: string;
+    user: {
+      id: number;
+      type: 'User';
+      name: string;
+      slug: string;
+      avatar: any;
+      initials: string;
+    };
+    source?: {
+      url: string;
+      title?: any;
+      provider?: { name: string; url: string };
+    };
+    _links: { self: { href: string } };
+    connection?: {
+      id: number;
+      position: number;
+      pinned: boolean;
+      connected_at: string;
+      connected_by: {
+        id: number;
+        type: 'User';
+        name: string;
+        slug: string;
+        avatar: any;
+        initials: string;
+      };
+    };
+  } & {
+    id: number;
+    base_type: 'Block';
+    title?: any;
+    description?: { markdown: string; html: string; plain: string };
+    state: 'available' | 'pending' | 'failed' | 'processing';
+    visibility: 'public' | 'private' | 'orphan';
+    comment_count: number;
+    created_at: string;
+    updated_at: string;
+    user: {
+      id: number;
+      type: 'User';
+      name: string;
+      slug: string;
+      avatar: any;
+      initials: string;
+    };
+    source?: {
+      url: string;
+      title?: any;
+      provider?: { name: string; url: string };
+    };
+    _links: { self: { href: string } };
+    connection?: {
+      id: number;
+      position: number;
+      pinned: boolean;
+      connected_at: string;
+      connected_by: {
+        id: number;
+        type: 'User';
+        name: string;
+        slug: string;
+        avatar: any;
+        initials: string;
+      };
+    };
+  } & {
+    id: number;
+    base_type: 'Block';
+    title?: any;
+    description?: { markdown: string; html: string; plain: string };
+    state: 'available' | 'pending' | 'failed' | 'processing';
+    visibility: 'public' | 'private' | 'orphan';
+    comment_count: number;
+    created_at: string;
+    updated_at: string;
+    user: {
+      id: number;
+      type: 'User';
+      name: string;
+      slug: string;
+      avatar: any;
+      initials: string;
+    };
+    source?: {
+      url: string;
+      title?: any;
+      provider?: { name: string; url: string };
+    };
+    _links: { self: { href: string } };
+    connection?: {
+      id: number;
+      position: number;
+      pinned: boolean;
+      connected_at: string;
+      connected_by: {
+        id: number;
+        type: 'User';
+        name: string;
+        slug: string;
+        avatar: any;
+        initials: string;
+      };
+    };
+  } & {
+    id: number;
+    type: 'Channel';
+    slug: string;
+    title: string;
+    description?: { markdown: string; html: string; plain: string };
+    state: 'available' | 'deleted';
+    visibility: 'public' | 'private' | 'closed';
+    created_at: string;
+    updated_at: string;
+    owner: {
+      id: number;
+      type: 'User';
+      name: string;
+      slug: string;
+      avatar: any;
+      initials: string;
+    } & {
+      id: number;
+      type: 'Group';
+      name: string;
+      slug: string;
+      avatar: any;
+      initials: string;
+    };
+    counts: {
+      blocks: number;
+      channels: number;
+      contents: number;
+      collaborators: number;
+    };
+    _links: { self: { href: string } };
+    connection?: {
+      id: number;
+      position: number;
+      pinned: boolean;
+      connected_at: string;
+      connected_by: {
+        id: number;
+        type: 'User';
+        name: string;
+        slug: string;
+        avatar: any;
+        initials: string;
+      };
+    };
+    can: {
+      add_to: boolean;
+      update: boolean;
+      destroy: boolean;
+      manage_collaborators: boolean;
+    };
+  } & {
+    id: number;
+    type: 'User';
+    name: string;
+    slug: string;
+    avatar: any;
+    initials: string;
+  } & {
+      id: number;
+      type: 'Group';
+      name: string;
+      slug: string;
+      avatar: any;
+      initials: string;
+    }[];
 } & {
   meta: {
     current_page: number;
@@ -3758,7 +2453,10 @@ export const PaginationMetaWithoutCountSchema = v.object({
   has_more_pages: v.boolean(),
 });
 export const PingResponseSchema = v.object({ status: v.literal('ok') });
-export const LinksSchema = v.objectWithRest({ self: LinkSchema }, LinkSchema);
+export const LinksSchema = v.objectWithRest(
+  { self: v.intersect([LinkSchema, v.any()]) },
+  LinkSchema,
+);
 export const ConnectionContextSchema = v.object({
   id: v.pipe(v.number(), v.integer()),
   position: v.pipe(v.number(), v.integer()),
@@ -3785,10 +2483,10 @@ export const BlockImageSchema = v.object({
   filename: v.optional(v.string()),
   file_size: v.optional(v.union([v.pipe(v.number(), v.integer()), v.null_()])),
   updated_at: v.optional(v.pipe(v.string(), v.isoTimestamp())),
-  small: ImageVersionSchema,
-  medium: ImageVersionSchema,
-  large: ImageVersionSchema,
-  square: ImageVersionSchema,
+  small: v.intersect([ImageVersionSchema, v.any()]),
+  medium: v.intersect([ImageVersionSchema, v.any()]),
+  large: v.intersect([ImageVersionSchema, v.any()]),
+  square: v.intersect([ImageVersionSchema, v.any()]),
 });
 export const PaginatedResponseWithCountBaseSchema = v.object({
   meta: PaginationMetaWithCountSchema,
@@ -3797,8 +2495,27 @@ export const PaginationMetaSchema = v.union([
   PaginationMetaWithCountSchema,
   PaginationMetaWithoutCountSchema,
 ]);
-export const UserSchema = EmbeddedUserSchema;
-export const GroupSchema = EmbeddedGroupSchema;
+export const UserSchema = v.intersect([
+  EmbeddedUserSchema,
+  v.object({
+    created_at: v.pipe(v.string(), v.isoTimestamp()),
+    updated_at: v.pipe(v.string(), v.isoTimestamp()),
+    bio: v.optional(v.union([MarkdownContentSchema, v.null_()])),
+    counts: UserCountsSchema,
+    _links: v.intersect([LinksSchema, v.any()]),
+  }),
+]);
+export const GroupSchema = v.intersect([
+  EmbeddedGroupSchema,
+  v.object({
+    bio: v.optional(v.union([MarkdownContentSchema, v.null_()])),
+    created_at: v.pipe(v.string(), v.isoTimestamp()),
+    updated_at: v.pipe(v.string(), v.isoTimestamp()),
+    user: v.intersect([EmbeddedUserSchema, v.any()]),
+    counts: GroupCountsSchema,
+    _links: v.intersect([LinksSchema, v.any()]),
+  }),
+]);
 export const CommentSchema = v.object({
   id: v.pipe(v.number(), v.integer()),
   type: v.literal('Comment'),
@@ -3806,7 +2523,7 @@ export const CommentSchema = v.object({
   created_at: v.pipe(v.string(), v.isoTimestamp()),
   updated_at: v.pipe(v.string(), v.isoTimestamp()),
   user: EmbeddedUserSchema,
-  _links: LinksSchema,
+  _links: v.intersect([LinksSchema, v.any()]),
 });
 export const ChannelSchema = v.object({
   id: v.pipe(v.number(), v.integer()),
@@ -3820,7 +2537,7 @@ export const ChannelSchema = v.object({
   updated_at: v.pipe(v.string(), v.isoTimestamp()),
   owner: ChannelOwnerSchema,
   counts: ChannelCountsSchema,
-  _links: LinksSchema,
+  _links: v.intersect([LinksSchema, v.any()]),
   connection: v.optional(v.union([ConnectionContextSchema, v.null_()])),
   can: ChannelAbilitiesSchema,
 });
@@ -3836,7 +2553,7 @@ export const BaseBlockPropertiesSchema = v.object({
   updated_at: v.pipe(v.string(), v.isoTimestamp()),
   user: EmbeddedUserSchema,
   source: v.optional(v.union([BlockSourceSchema, v.null_()])),
-  _links: LinksSchema,
+  _links: v.intersect([LinksSchema, v.any()]),
   connection: v.optional(v.union([ConnectionContextSchema, v.null_()])),
 });
 export const PaginatedResponseBaseSchema = v.object({
@@ -3848,15 +2565,54 @@ export const ChannelListSchema = v.object({ data: v.array(ChannelSchema) });
 export const FollowableListSchema = v.object({
   data: v.array(v.union([UserSchema, ChannelSchema, GroupSchema])),
 });
-export const TextBlockSchema = BaseBlockPropertiesSchema;
-export const ImageBlockSchema = BaseBlockPropertiesSchema;
-export const LinkBlockSchema = BaseBlockPropertiesSchema;
-export const AttachmentBlockSchema = BaseBlockPropertiesSchema;
-export const EmbedBlockSchema = BaseBlockPropertiesSchema;
-export const UserListResponseSchema = UserListSchema;
-export const CommentListResponseSchema = CommentListSchema;
-export const ChannelListResponseSchema = ChannelListSchema;
-export const FollowableListResponseSchema = FollowableListSchema;
+export const TextBlockSchema = v.intersect([
+  BaseBlockPropertiesSchema,
+  v.object({ type: v.literal('Text'), content: MarkdownContentSchema }),
+]);
+export const ImageBlockSchema = v.intersect([
+  BaseBlockPropertiesSchema,
+  v.object({ type: v.literal('Image'), image: BlockImageSchema }),
+]);
+export const LinkBlockSchema = v.intersect([
+  BaseBlockPropertiesSchema,
+  v.object({
+    type: v.literal('Link'),
+    image: v.optional(v.union([BlockImageSchema, v.null_()])),
+    content: v.optional(v.union([MarkdownContentSchema, v.null_()])),
+  }),
+]);
+export const AttachmentBlockSchema = v.intersect([
+  BaseBlockPropertiesSchema,
+  v.object({
+    type: v.literal('Attachment'),
+    attachment: BlockAttachmentSchema,
+    image: v.optional(v.union([BlockImageSchema, v.null_()])),
+  }),
+]);
+export const EmbedBlockSchema = v.intersect([
+  BaseBlockPropertiesSchema,
+  v.object({
+    type: v.literal('Embed'),
+    embed: BlockEmbedSchema,
+    image: v.optional(v.union([BlockImageSchema, v.null_()])),
+  }),
+]);
+export const UserListResponseSchema = v.intersect([
+  UserListSchema,
+  PaginatedResponseWithCountBaseSchema,
+]);
+export const CommentListResponseSchema = v.intersect([
+  CommentListSchema,
+  PaginatedResponseWithCountBaseSchema,
+]);
+export const ChannelListResponseSchema = v.intersect([
+  ChannelListSchema,
+  PaginatedResponseWithCountBaseSchema,
+]);
+export const FollowableListResponseSchema = v.intersect([
+  FollowableListSchema,
+  PaginatedResponseWithCountBaseSchema,
+]);
 export const BlockSchema = v.union([
   TextBlockSchema,
   ImageBlockSchema,
@@ -3890,8 +2646,14 @@ export const EverythingListSchema = v.object({
     ]),
   ),
 });
-export const ConnectableListResponseSchema = ConnectableListSchema;
-export const EverythingListResponseSchema = EverythingListSchema;
+export const ConnectableListResponseSchema = v.intersect([
+  ConnectableListSchema,
+  PaginatedResponseBaseSchema,
+]);
+export const EverythingListResponseSchema = v.intersect([
+  EverythingListSchema,
+  PaginatedResponseWithCountBaseSchema,
+]);
 export default {
   ErrorSchema,
   RateLimitErrorSchema,

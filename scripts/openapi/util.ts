@@ -221,3 +221,13 @@ export function sortSchemas<T>(
 ): Record<string, T> {
   return sortObjectByRefDependencies(schemasObject).schemas;
 }
+
+export const defaultRenderRef = (ref: string) => {
+  const parts = ref.replace(/^#/, '').split('/').filter(Boolean);
+
+  const suffix = ['components/responses'].includes(parts.slice(0, -1).join('/'))
+    ? ''
+    : 'Schema';
+
+  return `${parts.at(-1)}${suffix}`;
+};

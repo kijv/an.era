@@ -11,7 +11,7 @@ const createFetch =
     url: string | URL,
     init: RequestInit = {},
     modifyUrl: (url: URL) => URL = (u) => u,
-  ) =>
+  ): Promise<Response> =>
     global.fetch(
       modifyUrl(new URL(url.toString(), baseUrl)),
       Object.assign({}, baseInit, init),
@@ -32,7 +32,7 @@ export const createArena = (
     ...init
   } = options ?? {};
 
-  if (accessToken && 'headers' in init) {
+  if (accessToken) {
     init.headers ??= {};
     init.headers = new Headers(init.headers);
     init.headers.set('Authorization', `Bearer ${accessToken}`);
@@ -62,15 +62,23 @@ export const createArena = (
               .join('/')
           : operation.path;
 
+      const searchParams = Object.assign(
+        {},
+        params.query ?? {},
+        params.formData ?? {},
+      );
+
       return next(
         pathname,
-        {},
-        'query' in params
+        {
+          method: operation.method,
+          body: 'body' in params ? JSON.stringify(params.body) : undefined,
+        },
+        searchParams
           ? (url) => {
-              const queryParams = params.query;
-              if (v.is(v.record(v.string(), v.unknown()), queryParams)) {
-                for (const key in queryParams) {
-                  const value = queryParams[key];
+              if (typeof searchParams === 'object') {
+                for (const key in searchParams) {
+                  const value = (searchParams as Record<string, unknown>)[key];
                   url.searchParams.set(
                     key,
                     typeof value !== 'string' ? String(value) : value,

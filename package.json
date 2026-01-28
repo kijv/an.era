@@ -36,6 +36,7 @@
   "devDependencies": {
     "@types/bun": "latest",
     "@typescript/native-preview": "^7.0.0-dev.20260126.1",
+    "fast-content-type-parse": "^3.0.0",
     "form-urlencoded": "^6.1.6",
     "oas": "^28.9.0",
     "oxfmt": "^0.24.0",
