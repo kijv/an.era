@@ -54,8 +54,7 @@ export const createArena = (
                   const resolved: unknown = (
                     params.path as Record<string, unknown>
                   )[part.slice(1, part.length - 1)];
-                  if (typeof resolved === 'string') return resolved;
-                  else if (resolved != null) return String(resolved);
+                  if (resolved != null) return String(resolved);
                 }
 
                 return part;
