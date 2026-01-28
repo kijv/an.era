@@ -5,6 +5,6 @@ export default defineConfig({
   dts: {
     tsgo: true,
   },
-  inlineOnly: ['form-urlencoded'],
+  inlineOnly: ['form-urlencoded', 'oas', 'openapi-types'],
   external: ['valibot'],
 });
