@@ -1,7 +1,7 @@
-import * as v from 'valibot';
+import type * as v from 'valibot';
 import type { HttpMethods } from 'oas/types';
 export type { HttpMethods };
-import { operations } from '../openapi/paths';
+import type { operations } from '../openapi/paths';
 
 export type ValiSchema = v.BaseSchema<unknown, unknown, v.BaseIssue<unknown>>;
 
@@ -261,9 +261,39 @@ type HasNonEmptyParameters<Op extends Operation> =
       : true
     : false;
 
-// Check if an operation shares a tag with any other operation that contains the same term
-// Both operations must have non-empty parameters
-type HasSharedTagWithSameTermOp<
+// Check if two operations share at least one common parameter key
+type SharesParameterKey<
+  Op1 extends Operation,
+  Op2 extends Operation,
+> = keyof Op1['parameters'] & keyof Op2['parameters'] extends never
+  ? false
+  : true;
+
+// Count the number of parameter keys in an operation
+type ParamKeyCount<Op extends Operation> =
+  ObjectValuesToTuple<Op['parameters']> extends infer T
+    ? T extends readonly unknown[]
+      ? T['length']
+      : 0
+    : 0;
+
+// Get all operations that have the term, non-empty params, and share a tag with K
+type OpsWithTermAndSharedTag<
+  O extends Record<string, Operation>,
+  K extends keyof O,
+  Term extends string,
+> = {
+  [L in keyof O as OperationHasTerm<O, L, Term> extends true
+    ? HasNonEmptyParameters<O[L]> extends true
+      ? TagsShareCommon<O[K]['tags'], O[L]['tags']> extends true
+        ? L
+        : never
+      : never
+    : never]: O[L];
+};
+
+// Get all OTHER operations (excluding K) that have the term, non-empty params, and share a tag with K
+type OtherOpsWithTermAndSharedTag<
   O extends Record<string, Operation>,
   K extends keyof O,
   Term extends string,
@@ -276,12 +306,90 @@ type HasSharedTagWithSameTermOp<
           ? L
           : never
         : never
-      : never]: true;
-} extends infer Result
-  ? keyof Result extends never
+      : never]: O[L];
+};
+
+// Check if A > B for small numbers (0-10 should be enough for param counts)
+type GreaterThan<A extends number, B extends number> = A extends B
+  ? false
+  : [A, B] extends [0, number]
+    ? false
+    : [A, B] extends [number, 0]
+      ? true
+      : A extends 1
+        ? false
+        : B extends 1
+          ? true
+          : A extends 2
+            ? false
+            : B extends 2
+              ? true
+              : A extends 3
+                ? false
+                : B extends 3
+                  ? true
+                  : A extends 4
+                    ? false
+                    : B extends 4
+                      ? true
+                      : false;
+
+// Filter to operations that have STRICTLY MORE params than the given count
+type OpsWithMoreParams<
+  Ops extends Record<string, Operation>,
+  Count extends number,
+> = {
+  [K in keyof Ops as GreaterThan<ParamKeyCount<Ops[K]>, Count> extends true
+    ? K
+    : never]: Ops[K];
+};
+
+// Check if operation K shares at least one parameter key with ALL operations
+// that have MORE params than K (among ops with term and shared tag)
+// If no ops have more params, check if K shares with at least one other op
+type SharesParamWithMoreParamOps<
+  O extends Record<string, Operation>,
+  K extends keyof O,
+  Term extends string,
+  AllOps extends Record<string, Operation> = OpsWithTermAndSharedTag<
+    O,
+    K,
+    Term
+  >,
+  MoreParamOps extends Record<string, Operation> = OpsWithMoreParams<
+    AllOps,
+    ParamKeyCount<O[K]>
+  >,
+> = keyof MoreParamOps extends never
+  ? // No ops with more params - K has the most params, just needs to share with at least one
+    keyof OtherOpsWithTermAndSharedTag<O, K, Term> extends never
     ? false
     : true
-  : false;
+  : // There are ops with more params - K must share with ALL of them
+    {
+        [L in keyof MoreParamOps]: MoreParamOps[L] extends Operation
+          ? SharesParameterKey<O[K], MoreParamOps[L]> extends true
+            ? true
+            : false
+          : false;
+      } extends infer Result
+    ? false extends Result[keyof Result]
+      ? false // At least one more-param operation doesn't share params
+      : true
+    : false;
+
+// Check if an operation can be grouped: it must share a parameter key with ALL
+// operations that have more parameters than it (among ops with same term and tag)
+type HasSharedTagWithSameTermOp<
+  O extends Record<string, Operation>,
+  K extends keyof O,
+  Term extends string,
+> =
+  OtherOpsWithTermAndSharedTag<O, K, Term> extends infer OtherOps
+    ? keyof OtherOps extends never
+      ? false // No other ops
+      : SharesParamWithMoreParamOps<O, K, Term>
+    : false;
 
 // Filter operations that contain a term and share tags with at least one other op with that term
 // Only considers operations with non-empty parameters
