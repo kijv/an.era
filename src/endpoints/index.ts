@@ -290,16 +290,24 @@ export type CreateEndpointsOptions = {
    * Instead, the response body will be returned without validation.
    */
   ignoreMissingSchema?: boolean;
+  /**
+   * If true, disables all parsing and validation.
+   * Arguments are passed through without validation.
+   * Response body is returned without parsing or validation.
+   */
+  disableParsing?: boolean;
 };
 
 /**
  * Validate arguments against parameter schemas using valibot.
  * Throws a ValiError if validation fails.
  * Returns empty object if no parameters are defined.
+ * If disableParsing is true, returns args as params without validation.
  */
 function validateParams(
   params: Record<string, ValiSchema>,
   args: unknown[],
+  options: CreateEndpointsOptions = {},
 ): Record<string, unknown> {
   const paramKeys = Object.keys(params);
 
@@ -308,21 +316,27 @@ function validateParams(
     return {};
   }
 
-  const validated: Record<string, unknown> = {};
+  const result: Record<string, unknown> = {};
 
   for (let i = 0; i < paramKeys.length; i++) {
     const key = paramKeys[i];
     if (key) {
-      const schema = params[key];
       const value = args[i] ?? {};
-      if (schema) {
-        // Parse and validate the argument against the schema
-        validated[key] = v.parse(schema, value);
+
+      if (options.disableParsing) {
+        // Pass through without validation
+        result[key] = value;
+      } else {
+        const schema = params[key];
+        if (schema) {
+          // Parse and validate the argument against the schema
+          result[key] = v.parse(schema, value);
+        }
       }
     }
   }
 
-  return validated;
+  return result;
 }
 
 /**
@@ -426,6 +440,7 @@ async function parseResponse(
  * The returned function accepts parameter values and makes the API call.
  * Arguments are validated against the operation's parameter schemas.
  * Response is parsed and validated based on status code and content type.
+ * If disableParsing is true, skips all validation and returns parsed body without schema validation.
  */
 function createEndpointFn<O extends Operation>(
   op: O,
@@ -434,8 +449,15 @@ function createEndpointFn<O extends Operation>(
 ): Endpoint<O> {
   const fn = async (...args: unknown[]) => {
     // Validate and convert args to params object
-    const params = validateParams(op.parameters, args);
+    const params = validateParams(op.parameters, args, options);
     const response = await fetcher(op, params);
+
+    if (options.disableParsing) {
+      // Parse body based on content type but skip schema validation
+      const contentType = response.headers.get('content-type') ?? '';
+      return parseResponseBody(response, contentType);
+    }
+
     return parseResponse(response, op, options);
   };
 
@@ -447,6 +469,7 @@ function createEndpointFn<O extends Operation>(
  * Returns a function that accepts group parameters and returns an object of endpoint functions.
  * Both group parameters and operation-specific parameters are validated.
  * Responses are parsed and validated based on status code and content type.
+ * If disableParsing is true, skips all validation.
  */
 function createGroupedEndpointFn<
   TParams extends Record<string, ValiSchema>,
@@ -458,7 +481,7 @@ function createGroupedEndpointFn<
 ): GroupedEndpoint<TParams, TOps> {
   const fn = (...groupArgs: unknown[]) => {
     // Validate and convert group args to params object
-    const groupParams = validateParams(group.parameters, groupArgs);
+    const groupParams = validateParams(group.parameters, groupArgs, options);
 
     // Create endpoint functions for each operation in the group
     const endpoints: Record<string, Endpoint<Operation>> = {};

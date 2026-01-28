@@ -1,13 +1,9 @@
-import {
-  ONE_OF_DISCRIM,
-  defaultRenderRef,
-  openApiSchemaToValibotSchema,
-} from './transform';
-import type { HttpMethods } from 'oas/types';
+import type { HttpMethods, SchemaObject } from 'oas/types';
 import OASNormalize from 'oas-normalize';
 import Oas from 'oas';
 import { Operation } from 'oas/operation';
 import { dataToEsm } from '@rollup/pluginutils';
+import { defaultRenderRef } from './transform';
 import { fileURLToPath } from 'bun';
 import { getParametersAsJSONSchema } from 'oas/operation/get-parameters-as-json-schema';
 import { jsonSchemaToValibot } from 'json-schema-to-valibot';
@@ -125,6 +121,35 @@ const createRenderRef = (code: Code, filename: string) => (ref: string) => {
   return `${variableName}.${defaultRenderRef(ref)}`;
 };
 
+const jsonToVali = (
+  schema: SchemaObject,
+  renderRef?: ReturnType<typeof createRenderRef>,
+  constraints?: (c: string[]) => string[],
+) => {
+  // @ts-expect-error
+  const code = jsonSchemaToValibot(schema, {
+    module: 'esm',
+    exportDefinitions: false,
+    withTypes: true,
+    maxDepth: 999999,
+    nameRef: renderRef,
+    resolveRef: ($ref: string) => resolveRef({ $ref }),
+    constraints,
+  });
+
+  const jsDefinition = 'export const schema =';
+  const tsDefinition = 'export type schemaType =';
+
+  const isolated = code.slice(code.indexOf(jsDefinition) + jsDefinition.length);
+
+  const typesIndex = isolated.indexOf(tsDefinition);
+
+  return {
+    js: isolated.slice(0, typesIndex).trim(),
+    ts: isolated.slice(typesIndex + tsDefinition.length).trim(),
+  };
+};
+
 const createFile = <O extends Record<string, any>>(options: {
   filename: string;
   codeOptions?: Parameters<typeof createCode>[0];
@@ -176,34 +201,65 @@ const createFile = <O extends Record<string, any>>(options: {
   return code;
 };
 
-const getComponentsSchemasCode = () =>
-  createFile({
-    filename: 'components/schemas',
-    codeOptions: {
-      imports: [{ require: 'valibot', variable: '* as v' }],
-    },
-    objects: sortSchemas(oas.api.components?.schemas ?? {}),
-    types: true,
-    variableName: (n) => `${n}Schema`,
-    getLines(this, key, obj) {
-      const useVariantSchema =
-        ONE_OF_DISCRIM &&
-        typeof obj === 'object' &&
-        'oneOf' in obj &&
-        Array.isArray(obj.oneOf) &&
-        obj.discriminator != null;
-      return openApiSchemaToValibotSchema(
-        Object.assign(
-          {},
-          useVariantSchema ? derefOas.api.components.schemas[key] : obj,
-          {
-            title: key,
-          },
-        ),
-        this.renderRef,
-      );
-    },
+const getComponentsSchemasCode = () => {
+  const code = createCode({
+    imports: [
+      {
+        require: 'valibot',
+        variable: '* as v',
+      },
+    ],
   });
+
+  const data: Record<string, unknown> = {};
+  const codeReferences: Record<string, string> = {};
+
+  const schemas = sortSchemas(oas.api.components?.schemas ?? {});
+
+  for (const name in schemas) {
+    const s = schemas[name];
+    if (!s) continue;
+
+    const { js, ts } = jsonToVali(
+      // @ts-expect-error
+      Object.assign({}, s, {
+        components: derefOas.api.components,
+      }),
+      (r) => `${r.split('/').pop()!}Schema`,
+      (c) => c.map((c) => (c === 'v.isoDateTime()' ? 'v.isoTimestamp()' : c)),
+    );
+
+    const reference = ['__']
+      .concat(
+        name
+          .split('')
+          .map((s) => s.charAt(0).toUpperCase() + s.slice(1))
+          .join('')
+          .toUpperCase(),
+      )
+      .concat('__')
+      .join('');
+    codeReferences[reference] = js;
+
+    code.body += `\nexport type ${name} = ${ts}`;
+
+    data[`${name}Schema`] = reference;
+  }
+
+  code.body += `\n${dataToEsm(data, {
+    preferConst: true,
+    namedExports: true,
+    includeArbitraryNames: true,
+    objectShorthand: true,
+  })}`;
+  for (const reference in codeReferences) {
+    code.body = code.body.replaceAll(
+      JSON.stringify(reference),
+      codeReferences[reference]!,
+    );
+  }
+  return code;
+};
 
 const getPathsCode = () => {
   const code = createCode({
@@ -278,12 +334,7 @@ const getPathsCode = () => {
                 parameters.map((p) => [
                   p.type,
                   (() => {
-                    // @ts-expect-error
-                    const code = jsonSchemaToValibot(p.schema, {
-                      module: 'esm',
-                      exportDefinitions: false,
-                      nameRef: renderRef,
-                    });
+                    const code = jsonToVali(p.schema, renderRef);
                     const reference = ['__']
                       .concat(
                         pathname
@@ -295,12 +346,7 @@ const getPathsCode = () => {
                       )
                       .concat('__')
                       .join('');
-                    codeReferences[reference] = code
-                      .slice(
-                        code.indexOf('export const schema =') +
-                          'export const schema ='.length,
-                      )
-                      .trim();
+                    codeReferences[reference] = code.js;
                     return reference;
                   })(),
                 ]),
@@ -332,12 +378,7 @@ const getPathsCode = () => {
                       },
                       response.content[contentType]!.schema!,
                     );
-                    const code = jsonSchemaToValibot(schema, {
-                      module: 'esm',
-                      exportDefinitions: false,
-                      // @ts-expect-error
-                      nameRef: renderRef,
-                    });
+                    const code = jsonToVali(schema, renderRef);
                     const reference = ['__']
                       .concat(
                         pathname
@@ -355,12 +396,7 @@ const getPathsCode = () => {
                       )
                       .concat('__')
                       .join('');
-                    codeReferences[reference] = code
-                      .slice(
-                        code.indexOf('export const schema =') +
-                          'export const schema ='.length,
-                      )
-                      .trim();
+                    codeReferences[reference] = code.js;
                     return reference;
                   })(),
                 ]),

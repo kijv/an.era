@@ -1,6 +1,6 @@
 import * as o from './openapi';
 import * as v from 'valibot';
-import { createEndpoints } from './endpoints';
+import { type CreateEndpointsOptions, createEndpoints } from './endpoints';
 import { operations } from './openapi/paths';
 
 export type * from './openapi/components/schemas';
@@ -21,13 +21,14 @@ export const createArena = (
   options: {
     accessToken?: string;
     baseUrl?: (typeof o.SERVERS)[number]['url'];
-    ignoreMissingSchema?: boolean;
-  } & RequestInit = {},
+  } & CreateEndpointsOptions &
+    RequestInit = {},
 ) => {
   const {
     accessToken,
     baseUrl = 'https://api.are.na',
     ignoreMissingSchema,
+    disableParsing,
     ...init
   } = options ?? {};
 
@@ -51,9 +52,10 @@ export const createArena = (
               .map((part) => {
                 if (/{.*}/.test(part)) {
                   const resolved: unknown = (
-                    params.path as Record<string, string>
+                    params.path as Record<string, unknown>
                   )[part.slice(1, part.length - 1)];
                   if (typeof resolved === 'string') return resolved;
+                  else if (resolved != null) return String(resolved);
                 }
 
                 return part;
@@ -84,6 +86,7 @@ export const createArena = (
     },
     {
       ignoreMissingSchema,
+      disableParsing,
     },
   );
 };

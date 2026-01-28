@@ -39,7 +39,6 @@
     "@types/bun": "latest",
     "@typescript/native-preview": "^7.0.0-dev.20260126.1",
     "form-urlencoded": "^6.1.6",
-    "json-schema-to-valibot": "^0.3.0",
     "oxfmt": "^0.24.0",
     "oxlint": "^1.41.0",
     "oxlint-tsgolint": "^0.11.2",

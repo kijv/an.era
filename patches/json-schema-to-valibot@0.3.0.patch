@@ -1,13 +1,31 @@
 diff --git a/node_modules/json-schema-to-valibot/.bun-tag-124ae2ce9cf4068e b/.bun-tag-124ae2ce9cf4068e
 new file mode 100644
 index 0000000000000000000000000000000000000000..e69de29bb2d1d6434b8b29ae775ad8c2e48c5391
+diff --git a/node_modules/json-schema-to-valibot/.bun-tag-1b3c857872ec03e9 b/.bun-tag-1b3c857872ec03e9
+new file mode 100644
+index 0000000000000000000000000000000000000000..e69de29bb2d1d6434b8b29ae775ad8c2e48c5391
+diff --git a/node_modules/json-schema-to-valibot/.bun-tag-230e848de05b49fb b/.bun-tag-230e848de05b49fb
+new file mode 100644
+index 0000000000000000000000000000000000000000..e69de29bb2d1d6434b8b29ae775ad8c2e48c5391
 diff --git a/node_modules/json-schema-to-valibot/.bun-tag-2c5d702d5214ae44 b/.bun-tag-2c5d702d5214ae44
+new file mode 100644
+index 0000000000000000000000000000000000000000..e69de29bb2d1d6434b8b29ae775ad8c2e48c5391
+diff --git a/node_modules/json-schema-to-valibot/.bun-tag-3ceaadb1f62729c0 b/.bun-tag-3ceaadb1f62729c0
 new file mode 100644
 index 0000000000000000000000000000000000000000..e69de29bb2d1d6434b8b29ae775ad8c2e48c5391
 diff --git a/node_modules/json-schema-to-valibot/.bun-tag-4505a9dbf9a4d51 b/.bun-tag-4505a9dbf9a4d51
 new file mode 100644
 index 0000000000000000000000000000000000000000..e69de29bb2d1d6434b8b29ae775ad8c2e48c5391
+diff --git a/node_modules/json-schema-to-valibot/.bun-tag-710c93a404b6576b b/.bun-tag-710c93a404b6576b
+new file mode 100644
+index 0000000000000000000000000000000000000000..e69de29bb2d1d6434b8b29ae775ad8c2e48c5391
 diff --git a/node_modules/json-schema-to-valibot/.bun-tag-7f163e5d74977e81 b/.bun-tag-7f163e5d74977e81
+new file mode 100644
+index 0000000000000000000000000000000000000000..e69de29bb2d1d6434b8b29ae775ad8c2e48c5391
+diff --git a/node_modules/json-schema-to-valibot/.bun-tag-c7c348c851dd8134 b/.bun-tag-c7c348c851dd8134
+new file mode 100644
+index 0000000000000000000000000000000000000000..e69de29bb2d1d6434b8b29ae775ad8c2e48c5391
+diff --git a/node_modules/json-schema-to-valibot/.bun-tag-da506c6e9cdd7d2b b/.bun-tag-da506c6e9cdd7d2b
 new file mode 100644
 index 0000000000000000000000000000000000000000..e69de29bb2d1d6434b8b29ae775ad8c2e48c5391
 diff --git a/node_modules/json-schema-to-valibot/.bun-tag-e503a2f9525fd336 b/.bun-tag-e503a2f9525fd336
@@ -17,10 +35,37 @@ diff --git a/node_modules/json-schema-to-valibot/.bun-tag-f47d45ca97871e3d b/.bu
 new file mode 100644
 index 0000000000000000000000000000000000000000..e69de29bb2d1d6434b8b29ae775ad8c2e48c5391
 diff --git a/dist/index.js b/dist/index.js
-index c9b539a07ad6b062c14005f7ebd2f0e0fb18c307..8165b2f88b4eb07897f0de75407ad900136a40e6 100644
+index c9b539a07ad6b062c14005f7ebd2f0e0fb18c307..ed239860636d84629765ecefc50df8fda0f24520 100644
 --- a/dist/index.js
 +++ b/dist/index.js
-@@ -621,10 +621,10 @@ function handleRef(ref, context) {
+@@ -1,7 +1,7 @@
+ "use strict";
+ 
+ //#region src/parsers/parseString.ts
+-function parseString(schema, _context) {
++function parseString(schema, context) {
+ 	const imports = new Set(["string"]);
+ 	const constraints = [];
+ 	if (typeof schema.minLength === "number") {
+@@ -52,7 +52,7 @@ function parseString(schema, _context) {
+ 			break;
+ 		default: break;
+ 	}
+-	const schemaStr = constraints.length > 0 ? `v.pipe(v.string(), ${constraints.join(", ")})` : "v.string()";
++	const schemaStr = constraints.length > 0 ? `v.pipe(v.string(), ${(context.constraints ?? ((c) => c))(constraints).join(", ")})` : "v.string()";
+ 	if (constraints.length > 0) imports.add("pipe");
+ 	return {
+ 		schema: schemaStr,
+@@ -219,7 +219,7 @@ else {
+ 			currentPath: [...context.currentPath, "additionalProperties"]
+ 		});
+ 		additionalResult.imports.forEach((imp) => allImports.add(imp));
+-		if (propsEntries.length > 0) schemaStr = `v.object(${propsObject}, ${additionalResult.schema})`;
++		if (propsEntries.length > 0) schemaStr = `v.objectWithRest(${propsObject}, ${additionalResult.schema})`;
+ else {
+ 			schemaStr = `v.record(${additionalResult.schema})`;
+ 			allImports.add("record");
+@@ -621,11 +621,12 @@ function handleRef(ref, context) {
  				schema: `v.lazy(() => ${schemaReference$1})`,
  				imports: new Set(["lazy"])
  			};
@@ -30,27 +75,32 @@ index c9b539a07ad6b062c14005f7ebd2f0e0fb18c307..8165b2f88b4eb07897f0de75407ad900
 +    const schemaReference = refData.isRecursive ? `${refData.schemaName}Schema` : refData.schemaName;
  		return {
 -			schema: schemaReference,
+-			imports: new Set()
 +		  schema: context.nameRef?.(ref, refData.isRecursive) || schemaReference,
- 			imports: new Set()
++      imports: new Set(),
++      types: context.resolveRef ? parseSchema(context.resolveRef(ref), context).types : undefined
  		};
  	}
-@@ -701,12 +701,13 @@ function sanitizeIdentifier(name) {
+ 	console.warn(`$ref not found: ${ref}. Using v.any() as fallback.`);
+@@ -701,12 +702,15 @@ function sanitizeIdentifier(name) {
  	return name.replace(/[^a-zA-Z0-9_$]/g, "_").replace(/^[0-9]/, "_$&");
  }
  function jsonSchemaToValibot(schema, options = {}) {
 -	const { name = "schema", module: module$1 = "esm", withTypes = false, withJsDoc = false, maxDepth = 10, exportDefinitions = true } = options;
-+  const { name = "schema", module: module$1 = "esm", withTypes = false, withJsDoc = false, maxDepth = 10, exportDefinitions = true, nameRef } = options;
++  const { name = "schema", module: module$1 = "esm", withTypes = false, withJsDoc = false, maxDepth = 10, exportDefinitions = true, nameRef, resolveRef, constraints } = options;
  	const context = {
  		refs: new Map(),
  		depth: 0,
  		maxDepth,
 -		currentPath: []
 +    currentPath: [],
-+    nameRef
++    nameRef,
++    resolveRef,
++    constraints
  	};
  	if (typeof schema === "object") {
  		const processDefinitions = (definitions, pathPrefix) => {
-@@ -723,6 +724,10 @@ function jsonSchemaToValibot(schema, options = {}) {
+@@ -723,6 +727,10 @@ function jsonSchemaToValibot(schema, options = {}) {
  		};
  		processDefinitions(schema.definitions, "#/definitions/");
  		processDefinitions(schema.$defs, "#/$defs/");
@@ -62,38 +112,73 @@ index c9b539a07ad6b062c14005f7ebd2f0e0fb18c307..8165b2f88b4eb07897f0de75407ad900
  	const detectCircularDependencies = (schemaToCheck, refKey, visited, processing) => {
  		if (processing.has(refKey)) return true;
 diff --git a/dist/index.mjs b/dist/index.mjs
-index e3cc05f090a436efe50e7b72eb05aadf3bf0b8ad..79b7a6cfae9e6237293d4b03f1055b367f66f417 100644
+index e3cc05f090a436efe50e7b72eb05aadf3bf0b8ad..a27ba63b0cc4576e71b68bc8207fcb467c60f2a3 100644
 --- a/dist/index.mjs
 +++ b/dist/index.mjs
-@@ -621,9 +621,9 @@ function handleRef(ref, context) {
- 				imports: new Set(["lazy"])
+@@ -1,6 +1,6 @@
+ 
+ //#region src/parsers/parseString.ts
+-function parseString(schema, _context) {
++function parseString(schema, context) {
+ 	const imports = new Set(["string"]);
+ 	const constraints = [];
+ 	if (typeof schema.minLength === "number") {
+@@ -51,7 +51,7 @@ function parseString(schema, _context) {
+ 			break;
+ 		default: break;
+ 	}
+-	const schemaStr = constraints.length > 0 ? `v.pipe(v.string(), ${constraints.join(", ")})` : "v.string()";
++	const schemaStr = constraints.length > 0 ? `v.pipe(v.string(), ${(context.constraints ?? ((c) => c))(constraints).join(", ")})` : "v.string()";
+ 	if (constraints.length > 0) imports.add("pipe");
+ 	return {
+ 		schema: schemaStr,
+@@ -218,7 +218,7 @@ else {
+ 			currentPath: [...context.currentPath, "additionalProperties"]
+ 		});
+ 		additionalResult.imports.forEach((imp) => allImports.add(imp));
+-		if (propsEntries.length > 0) schemaStr = `v.object(${propsObject}, ${additionalResult.schema})`;
++		if (propsEntries.length > 0) schemaStr = `v.objectWithRest(${propsObject}, ${additionalResult.schema})`;
+ else {
+ 			schemaStr = `v.record(${additionalResult.schema})`;
+ 			allImports.add("record");
+@@ -618,13 +618,14 @@ function handleRef(ref, context) {
+ 			const schemaReference$1 = refData.isRecursive ? `${refData.schemaName}Schema` : refData.schemaName;
+ 			return {
+ 				schema: `v.lazy(() => ${schemaReference$1})`,
+-				imports: new Set(["lazy"])
++        imports: new Set(["lazy"])
  			};
  		}
 -		const schemaReference = refData.isRecursive ? `${refData.schemaName}Schema` : refData.schemaName;
 +    const schemaReference = refData.isRecursive ? `${refData.schemaName}Schema` : refData.schemaName;
  		return {
 -			schema: schemaReference,
-+			schema: context.nameRef?.(ref, refData.isRecursive) || schemaReference,,
- 			imports: new Set()
+-			imports: new Set()
++			schema: context.nameRef?.(ref, refData.isRecursive) || schemaReference,
++      imports: new Set(),
++      types: context.resolveRef ? parseSchema(context.resolveRef(ref), context).types : undefined
  		};
  	}
-@@ -700,12 +700,13 @@ function sanitizeIdentifier(name) {
+ 	console.warn(`$ref not found: ${ref}. Using v.any() as fallback.`);
+@@ -700,12 +701,15 @@ function sanitizeIdentifier(name) {
  	return name.replace(/[^a-zA-Z0-9_$]/g, "_").replace(/^[0-9]/, "_$&");
  }
  function jsonSchemaToValibot(schema, options = {}) {
 -	const { name = "schema", module = "esm", withTypes = false, withJsDoc = false, maxDepth = 10, exportDefinitions = true } = options;
-+	const { name = "schema", module = "esm", withTypes = false, withJsDoc = false, maxDepth = 10, exportDefinitions = true, nameRef } = options;
++	const { name = "schema", module = "esm", withTypes = false, withJsDoc = false, maxDepth = 10, exportDefinitions = true, nameRef, resolveRef, constraints } = options;
  	const context = {
  		refs: new Map(),
  		depth: 0,
  		maxDepth,
 -		currentPath: []
 +    currentPath: [],
-+    nameRef
++    nameRef,
++    resolveRef,
++    constraints
  	};
  	if (typeof schema === "object") {
  		const processDefinitions = (definitions, pathPrefix) => {
-@@ -722,6 +723,10 @@ function jsonSchemaToValibot(schema, options = {}) {
+@@ -722,6 +726,10 @@ function jsonSchemaToValibot(schema, options = {}) {
  		};
  		processDefinitions(schema.definitions, "#/definitions/");
  		processDefinitions(schema.$defs, "#/$defs/");
