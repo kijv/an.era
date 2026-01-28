@@ -356,14 +356,14 @@ function transformOperations<O extends Record<string, Operation>>(
 }
 
 // Type guard to check if a value is a grouped operation
-export function isGroupedOperation(
+function isGroupedOperation(
   value: Operation | GroupedOperation,
 ): value is GroupedOperation {
   return 'operations' in value && 'parameters' in value && !('method' in value);
 }
 
 // Fetcher function type - returns a Response object
-export type Fetcher = (
+type Fetcher = (
   op: Operation,
   params: Record<string, unknown>,
 ) => Promise<Response>;

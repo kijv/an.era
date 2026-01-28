@@ -522,6 +522,3 @@ export type CreateEndpoints<O extends Record<string, Operation>> = {
         : never
     : never;
 };
-
-// Endpoints type for the specific operations from openapi
-export type Endpoints = CreateEndpoints<typeof operations>;
