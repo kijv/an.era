@@ -43,133 +43,6 @@ type ObjectValuesToTuple<O, K = keyof O, Acc extends unknown[] = []> = [
       : Acc
     : never;
 
-type CountOperationsWithSameKey<
-  O extends Record<string, Operation>,
-  TargetKey extends string,
-> =
-  ObjectValuesToTuple<{
-    [K in keyof O as CamelCase<
-      RemoveMethodFromOperationKey<O, K> & string
-    > extends TargetKey
-      ? K
-      : never]: CamelCase<
-      RemoveMethodFromOperationKey<O, K> & string
-    > extends TargetKey
-      ? 1
-      : never;
-  }> extends infer Tuple
-    ? Tuple extends readonly unknown[]
-      ? Tuple['length']
-      : 0
-    : 0;
-
-type GetOperationsWithSameKey<
-  O extends Record<string, Operation>,
-  TargetKey extends string,
-> = {
-  [K in keyof O as CamelCase<
-    RemoveMethodFromOperationKey<O, K> & string
-  > extends TargetKey
-    ? K
-    : never]: O[K];
-};
-
-type GroupOperationsByKey<O extends Record<string, Operation>> = {
-  [K in keyof O as CamelCase<
-    RemoveMethodFromOperationKey<O, K> & string
-  >]: CountOperationsWithSameKey<
-    O,
-    CamelCase<RemoveMethodFromOperationKey<O, K> & string>
-  > extends 1
-    ? O[K]
-    : GetOperationsWithSameKey<
-          O,
-          CamelCase<RemoveMethodFromOperationKey<O, K> & string>
-        > extends infer U
-      ? {
-          [K in keyof U as O[K & string]['method']]: U[K];
-        }
-      : never;
-};
-
-type GroupOperationsByTag<O extends Record<string, Operation>> = {
-  [K in keyof O as O[K]['tags'] extends readonly [infer Tag]
-    ? Tag extends string
-      ? Tag
-      : never
-    : never]: {
-    [L in keyof O as O[L]['tags'] extends readonly [infer LTag]
-      ? LTag extends string
-        ? O[K]['tags'] extends readonly [infer KTag]
-          ? KTag extends string
-            ? LTag extends KTag
-              ? L
-              : never
-            : never
-          : never
-        : never
-      : never]: O[L];
-  };
-};
-
-type GroupOperationsByParameters<O extends Record<string, Operation>> = {
-  [K in keyof O as O[K]['parameters'] extends infer P
-    ? P extends Record<string, any>
-      ? keyof P extends never
-        ? 'noParameters'
-        : string extends keyof P
-          ? 'dynamicParameters'
-          : keyof P extends string
-            ? keyof P
-            : never
-      : 'noParameters'
-    : 'noParameters']: {
-    [L in keyof O as O[L]['parameters'] extends infer LP
-      ? LP extends Record<string, any>
-        ? keyof LP extends never
-          ? O[K]['parameters'] extends infer KP
-            ? KP extends Record<string, any>
-              ? keyof KP extends never
-                ? L
-                : never
-              : never
-            : never
-          : string extends keyof LP
-            ? O[K]['parameters'] extends infer KP
-              ? KP extends Record<string, any>
-                ? string extends keyof KP
-                  ? L
-                  : never
-                : never
-              : never
-            : keyof LP extends string
-              ? O[K]['parameters'] extends infer KP
-                ? KP extends Record<string, any>
-                  ? keyof KP extends string
-                    ? keyof LP extends keyof KP
-                      ? L
-                      : never
-                    : never
-                  : never
-                : never
-              : never
-        : O[K]['parameters'] extends infer KP
-          ? KP extends Record<string, any>
-            ? keyof KP extends never
-              ? L
-              : never
-            : never
-          : never
-      : O[K]['parameters'] extends infer KP
-        ? KP extends Record<string, any>
-          ? keyof KP extends never
-            ? L
-            : never
-          : never
-        : never]: O[L];
-  };
-};
-
 // Split camelCase string into terms
 // e.g., "userProfile" -> ["user", "Profile"]
 type SplitCamelCase<
@@ -190,23 +63,11 @@ type SplitCamelCase<
     ? []
     : [CurrentTerm];
 
-// Get the first term from a camelCase string (lowercased)
-type FirstTerm<S extends string> =
-  SplitCamelCase<S> extends [infer F extends string, ...any[]]
-    ? Lowercase<F>
-    : never;
-
 // Get processed key for an operation (method removed, first char lowercased)
 type ProcessedKey<
   O extends Record<string, Operation>,
   K extends keyof O,
 > = CamelCase<RemoveMethodFromOperationKey<O, K> & string>;
-
-// Get the first term of a processed operation key
-type FirstTermOfOperation<
-  O extends Record<string, Operation>,
-  K extends keyof O,
-> = FirstTerm<ProcessedKey<O, K>>;
 
 // Get all terms from a processed key (lowercased)
 type AllTermsOfKey<S extends string> =
@@ -239,19 +100,6 @@ type TagsShareCommon<
 type AllTerms<O extends Record<string, Operation>> = {
   [K in keyof O]: AllTermsOfOperation<O, K>;
 }[keyof O];
-
-// Get all unique first terms across all operations
-type AllFirstTerms<O extends Record<string, Operation>> = {
-  [K in keyof O]: FirstTermOfOperation<O, K>;
-}[keyof O];
-
-// Filter operations that have a specific first term
-type OperationsWithFirstTerm<
-  O extends Record<string, Operation>,
-  Term extends string,
-> = {
-  [K in keyof O as FirstTermOfOperation<O, K> extends Term ? K : never]: O[K];
-};
 
 // Check if an operation has non-empty parameters
 type HasNonEmptyParameters<Op extends Operation> =
@@ -517,23 +365,6 @@ type OperationWithoutCommonParams<
   tags: Op['tags'];
   parameters: Omit<Op['parameters'], CommonParamTypes>;
   response: Op['response'];
-};
-
-// Main type: Group operations by any matching term with shared tags
-type GroupOperationsByTermAndTags<O extends Record<string, Operation>> = {
-  [Term in AllTerms<O> & string]: OperationsWithTermAndSharedTags<
-    O,
-    Term
-  > extends infer Ops
-    ? Ops extends Record<string, Operation>
-      ? keyof Ops extends never
-        ? never
-        : {
-            parameters: GroupParameters<Ops>;
-            operations: Ops;
-          }
-      : never
-    : never;
 };
 
 // Clean version that removes empty groups, with stripped operation keys

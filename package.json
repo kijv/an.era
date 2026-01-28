@@ -24,15 +24,13 @@
   },
   "scripts": {
     "build": "tsdown",
-    "lint": "oxlint --type-aware -A all -D typescript/no-floating-promise",
+    "lint": "oxlint",
     "lint:fix": "oxlint --fix",
     "fmt": "oxfmt",
     "fmt:check": "oxfmt --check",
     "test": "vitest"
   },
   "dependencies": {
-    "oas": "^28.9.0",
-    "oas-normalize": "^15.7.0",
     "valibot": "^1.2.0"
   },
   "devDependencies": {

@@ -150,57 +150,6 @@ const jsonToVali = (
   };
 };
 
-const createFile = <O extends Record<string, any>>(options: {
-  filename: string;
-  codeOptions?: Parameters<typeof createCode>[0];
-  objects: O | undefined | null;
-  variableName?: (name: string) => string;
-  types?: boolean;
-  getLines: (
-    this: { code: Code; renderRef: (ref: string) => string },
-    key: string,
-    obj: O extends Record<string, infer V> ? V : never,
-  ) => string[];
-}) => {
-  const {
-    codeOptions,
-    objects,
-    types = false,
-    getLines,
-    filename,
-    ...otherOptions
-  } = options;
-
-  const code = createCode(codeOptions);
-
-  if (!objects) return code;
-
-  const renderRef = createRenderRef(code, filename);
-
-  for (const name in objects) {
-    const obj = objects[name];
-    if (obj == null) continue;
-    const variableName = otherOptions.variableName?.(name) ?? name;
-    code.body += [`\nconst ${variableName} = `]
-      .concat(
-        getLines
-          .bind({
-            code,
-            renderRef,
-          })(name, obj)
-          .join('\n'),
-      )
-      .join('');
-    code.exports.push(variableName);
-    if (types) {
-      code.body += `\ntype ${name} = v.InferInput<typeof ${variableName}>;`;
-      code.exports.push(`type ${name}`);
-    }
-  }
-
-  return code;
-};
-
 const getComponentsSchemasCode = () => {
   const code = createCode({
     imports: [
