@@ -23,7 +23,7 @@
     }
   },
   "scripts": {
-    "build": "rolldown -c",
+    "build": "tsdown",
     "lint": "oxlint --type-aware -A all -D typescript/no-floating-promise",
     "lint:fix": "oxlint --fix",
     "fmt": "oxfmt",
@@ -31,19 +31,23 @@
     "test": "vitest"
   },
   "dependencies": {
+    "oas": "^28.9.0",
+    "oas-normalize": "^15.7.0",
     "valibot": "^1.2.0"
   },
   "devDependencies": {
     "@types/bun": "latest",
     "@typescript/native-preview": "^7.0.0-dev.20260126.1",
     "form-urlencoded": "^6.1.6",
-    "oas": "^28.9.0",
-    "oas-normalize": "^15.7.0",
+    "json-schema-to-valibot": "^0.3.0",
     "oxfmt": "^0.24.0",
     "oxlint": "^1.41.0",
     "oxlint-tsgolint": "^0.11.2",
     "tsdown": "^0.20.1",
     "typescript": "^5",
     "vitest": "^3.0.0"
+  },
+  "patchedDependencies": {
+    "json-schema-to-valibot@0.3.0": "patches/json-schema-to-valibot@0.3.0.patch"
   }
 }

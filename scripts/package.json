@@ -3,6 +3,7 @@
   "private": true,
   "type": "module",
   "devDependencies": {
+    "@rollup/pluginutils": "^5.3.0",
     "oas": "^28.9.0",
     "oas-normalize": "^15.7.0",
     "openapi-types": "^12.1.3"

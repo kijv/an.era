@@ -1,0 +1,106 @@
+diff --git a/node_modules/json-schema-to-valibot/.bun-tag-124ae2ce9cf4068e b/.bun-tag-124ae2ce9cf4068e
+new file mode 100644
+index 0000000000000000000000000000000000000000..e69de29bb2d1d6434b8b29ae775ad8c2e48c5391
+diff --git a/node_modules/json-schema-to-valibot/.bun-tag-2c5d702d5214ae44 b/.bun-tag-2c5d702d5214ae44
+new file mode 100644
+index 0000000000000000000000000000000000000000..e69de29bb2d1d6434b8b29ae775ad8c2e48c5391
+diff --git a/node_modules/json-schema-to-valibot/.bun-tag-4505a9dbf9a4d51 b/.bun-tag-4505a9dbf9a4d51
+new file mode 100644
+index 0000000000000000000000000000000000000000..e69de29bb2d1d6434b8b29ae775ad8c2e48c5391
+diff --git a/node_modules/json-schema-to-valibot/.bun-tag-7f163e5d74977e81 b/.bun-tag-7f163e5d74977e81
+new file mode 100644
+index 0000000000000000000000000000000000000000..e69de29bb2d1d6434b8b29ae775ad8c2e48c5391
+diff --git a/node_modules/json-schema-to-valibot/.bun-tag-e503a2f9525fd336 b/.bun-tag-e503a2f9525fd336
+new file mode 100644
+index 0000000000000000000000000000000000000000..e69de29bb2d1d6434b8b29ae775ad8c2e48c5391
+diff --git a/node_modules/json-schema-to-valibot/.bun-tag-f47d45ca97871e3d b/.bun-tag-f47d45ca97871e3d
+new file mode 100644
+index 0000000000000000000000000000000000000000..e69de29bb2d1d6434b8b29ae775ad8c2e48c5391
+diff --git a/dist/index.js b/dist/index.js
+index c9b539a07ad6b062c14005f7ebd2f0e0fb18c307..8165b2f88b4eb07897f0de75407ad900136a40e6 100644
+--- a/dist/index.js
++++ b/dist/index.js
+@@ -621,10 +621,10 @@ function handleRef(ref, context) {
+ 				schema: `v.lazy(() => ${schemaReference$1})`,
+ 				imports: new Set(["lazy"])
+ 			};
+-		}
+-		const schemaReference = refData.isRecursive ? `${refData.schemaName}Schema` : refData.schemaName;
++    }
++    const schemaReference = refData.isRecursive ? `${refData.schemaName}Schema` : refData.schemaName;
+ 		return {
+-			schema: schemaReference,
++		  schema: context.nameRef?.(ref, refData.isRecursive) || schemaReference,
+ 			imports: new Set()
+ 		};
+ 	}
+@@ -701,12 +701,13 @@ function sanitizeIdentifier(name) {
+ 	return name.replace(/[^a-zA-Z0-9_$]/g, "_").replace(/^[0-9]/, "_$&");
+ }
+ function jsonSchemaToValibot(schema, options = {}) {
+-	const { name = "schema", module: module$1 = "esm", withTypes = false, withJsDoc = false, maxDepth = 10, exportDefinitions = true } = options;
++  const { name = "schema", module: module$1 = "esm", withTypes = false, withJsDoc = false, maxDepth = 10, exportDefinitions = true, nameRef } = options;
+ 	const context = {
+ 		refs: new Map(),
+ 		depth: 0,
+ 		maxDepth,
+-		currentPath: []
++    currentPath: [],
++    nameRef
+ 	};
+ 	if (typeof schema === "object") {
+ 		const processDefinitions = (definitions, pathPrefix) => {
+@@ -723,6 +724,10 @@ function jsonSchemaToValibot(schema, options = {}) {
+ 		};
+ 		processDefinitions(schema.definitions, "#/definitions/");
+ 		processDefinitions(schema.$defs, "#/$defs/");
++		processDefinitions(schema.components?.securitySchemes, "#/components/securitySchemes/");
++		processDefinitions(schema.components?.parameters, "#/components/parameters/");
++		processDefinitions(schema.components?.responses, "#/components/responses/");
++		processDefinitions(schema.components?.schemas, "#/components/schemas/");
+ 	}
+ 	const detectCircularDependencies = (schemaToCheck, refKey, visited, processing) => {
+ 		if (processing.has(refKey)) return true;
+diff --git a/dist/index.mjs b/dist/index.mjs
+index e3cc05f090a436efe50e7b72eb05aadf3bf0b8ad..79b7a6cfae9e6237293d4b03f1055b367f66f417 100644
+--- a/dist/index.mjs
++++ b/dist/index.mjs
+@@ -621,9 +621,9 @@ function handleRef(ref, context) {
+ 				imports: new Set(["lazy"])
+ 			};
+ 		}
+-		const schemaReference = refData.isRecursive ? `${refData.schemaName}Schema` : refData.schemaName;
++    const schemaReference = refData.isRecursive ? `${refData.schemaName}Schema` : refData.schemaName;
+ 		return {
+-			schema: schemaReference,
++			schema: context.nameRef?.(ref, refData.isRecursive) || schemaReference,,
+ 			imports: new Set()
+ 		};
+ 	}
+@@ -700,12 +700,13 @@ function sanitizeIdentifier(name) {
+ 	return name.replace(/[^a-zA-Z0-9_$]/g, "_").replace(/^[0-9]/, "_$&");
+ }
+ function jsonSchemaToValibot(schema, options = {}) {
+-	const { name = "schema", module = "esm", withTypes = false, withJsDoc = false, maxDepth = 10, exportDefinitions = true } = options;
++	const { name = "schema", module = "esm", withTypes = false, withJsDoc = false, maxDepth = 10, exportDefinitions = true, nameRef } = options;
+ 	const context = {
+ 		refs: new Map(),
+ 		depth: 0,
+ 		maxDepth,
+-		currentPath: []
++    currentPath: [],
++    nameRef
+ 	};
+ 	if (typeof schema === "object") {
+ 		const processDefinitions = (definitions, pathPrefix) => {
+@@ -722,6 +723,10 @@ function jsonSchemaToValibot(schema, options = {}) {
+ 		};
+ 		processDefinitions(schema.definitions, "#/definitions/");
+ 		processDefinitions(schema.$defs, "#/$defs/");
++		processDefinitions(schema.components.securitySchemes, "#/components/securitySchemes");
++		processDefinitions(schema.components.parameters, "#/components/parameters");
++		processDefinitions(schema.components.responses, "#/components/responses");
++		processDefinitions(schema.components.schemas, "#/components/schemas");
+ 	}
+ 	const detectCircularDependencies = (schemaToCheck, refKey, visited, processing) => {
+ 		if (processing.has(refKey)) return true;

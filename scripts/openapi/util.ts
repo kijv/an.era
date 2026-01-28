@@ -57,7 +57,7 @@ export function getAllRefs(
  */
 export function extractRefName(ref: string): string {
   const parts = ref.split('/');
-  return parts[parts.length - 1];
+  return parts[parts.length - 1]!;
 }
 
 /**

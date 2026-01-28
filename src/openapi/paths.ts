@@ -1,590 +1,741 @@
-import * as r from "./components/responses";
-import * as s from "./components/schemas";
-import * as p from "./components/parameters";
-import * as v from "valibot";
+import * as v from 'valibot';
+import * as s from './components/schemas';
 
-const Authentication = {
-	createOAuthToken: {
-		method: "post",
-		path: "/v3/oauth/token",
-		parameters: {
-		},
-		body: {
-			required: true,
-			content: {
-				"application/x-www-form-urlencoded": v.object({
-					grant_type: v.picklist(["authorization_code","client_credentials"]),
-					client_id: v.string(),
-					client_secret: v.string(),
-					code: v.string(),
-					redirect_uri: v.string(),
-					code_verifier: v.string(),
-				}),
-			},
-		},
-		responses: {
-			"200": {
-				"application/json": v.required(
-					v.object({
-						access_token: v.string(),
-						token_type: v.picklist(["Bearer"]),
-						scope: v.string(),
-						created_at: v.pipe(v.number(), v.integer()),
-					}),
-					["access_token","token_type","scope","created_at"]
-				),
-			},
-			"400": {
-				"application/json": v.object({
-					error: v.picklist(["invalid_request","invalid_client","invalid_grant","unauthorized_client","unsupported_grant_type"]),
-					error_description: v.string(),
-				}),
-			},
-			"401": {
-				"application/json": v.object({
-					error: v.string(),
-					error_description: v.string(),
-				}),
-			},
-		},
-	},
-}
-const System = {
-	getOpenapiSpec: {
-		method: "get",
-		path: "/v3/openapi",
-		parameters: {
-		},
-		responses: {
-			"200": {
-				"application/yaml": v.string(),
-			},
-			"404": r.NotFoundResponse,
-		},
-	},
-	getOpenapiSpecJson: {
-		method: "get",
-		path: "/v3/openapi.json",
-		parameters: {
-		},
-		responses: {
-			"200": {
-				"application/json": v.record(v.string(), v.union([
-				])),
-			},
-			"404": r.NotFoundResponse,
-		},
-	},
-	getPing: {
-		method: "get",
-		path: "/v3/ping",
-		parameters: {
-		},
-		responses: {
-			"200": {
-				"application/json": s.PingResponseSchema,
-			},
-			"429": r.RateLimitResponse,
-		},
-	},
-}
-const Blocks = {
-	id: {
-		$parameters: {
-			id: p.IdParamSchema
-		},
-		getBlock: {
-			method: "get",
-			path: "/v3/blocks/{id}",
-			parameters: {
-				path: {
-					id: p.IdParamSchema,
-				},
-			},
-			responses: {
-				"200": {
-					"application/json": s.BlockSchema,
-				},
-				"401": r.UnauthorizedResponse,
-				"403": r.ForbiddenResponse,
-				"404": r.NotFoundResponse,
-				"429": r.RateLimitResponse,
-			},
-		},
-		getBlockConnections: {
-			method: "get",
-			path: "/v3/blocks/{id}/connections",
-			parameters: {
-				path: {
-					id: p.IdParamSchema,
-				},
-				query: {
-					page: v.nullish(p.PageParamSchema),
-					per: v.nullish(p.PerParamSchema),
-					sort: v.nullish(p.ConnectionSortParamSchema),
-					filter: v.nullish(v.picklist(["ALL","OWN","EXCLUDE_OWN"])),
-				},
-			},
-			responses: {
-				"200": {
-					"application/json": s.ChannelListResponseSchema,
-				},
-				"401": r.UnauthorizedResponse,
-				"403": r.ForbiddenResponse,
-				"404": r.NotFoundResponse,
-				"429": r.RateLimitResponse,
-			},
-		},
-		getBlockComments: {
-			method: "get",
-			path: "/v3/blocks/{id}/comments",
-			parameters: {
-				path: {
-					id: p.IdParamSchema,
-				},
-				query: {
-					page: v.nullish(p.PageParamSchema),
-					per: v.nullish(p.PerParamSchema),
-					sort: v.nullish(p.ConnectionSortParamSchema),
-				},
-			},
-			responses: {
-				"200": {
-					"application/json": s.CommentListResponseSchema,
-				},
-				"401": r.UnauthorizedResponse,
-				"403": r.ForbiddenResponse,
-				"404": r.NotFoundResponse,
-				"429": r.RateLimitResponse,
-			},
-		},
-		createChannelBlock: {
-			method: "post",
-			path: "/v3/channels/{id}/blocks",
-			parameters: {
-				path: {
-					id: p.SlugOrIdParamSchema,
-				},
-			},
-			body: {
-				required: true,
-				content: {
-					"application/json": v.object({
-						source: v.string(),
-						content: v.string(),
-						title: v.string(),
-						description: v.string(),
-					}),
-				},
-			},
-			responses: {
-				"201": {
-					"application/json": s.BlockSchema,
-				},
-				"400": r.ValidationErrorResponse,
-				"401": r.UnauthorizedResponse,
-				"403": {
-					"application/json": s.ErrorSchema,
-				},
-				"404": r.NotFoundResponse,
-				"422": r.UnprocessableEntityResponse,
-				"429": r.RateLimitResponse,
-			},
-		},
-	}
-}
-const Channels = {
-	createChannel: {
-		method: "post",
-		path: "/v3/channels",
-		parameters: {
-		},
-		body: {
-			required: true,
-			content: {
-				"application/json": v.object({
-					title: v.string(),
-					visibility: s.ChannelVisibilitySchema,
-					description: v.string(),
-					group_id: v.pipe(v.number(), v.integer()),
-				}),
-			},
-		},
-		responses: {
-			"201": {
-				"application/json": s.ChannelSchema,
-			},
-			"400": r.ValidationErrorResponse,
-			"401": r.UnauthorizedResponse,
-			"403": r.ForbiddenResponse,
-			"422": r.UnprocessableEntityResponse,
-			"429": r.RateLimitResponse,
-		},
-	},
-	id: {
-		$parameters: {
-			id: p.SlugOrIdParamSchema
-		},
-		getChannel: {
-			method: "get",
-			path: "/v3/channels/{id}",
-			parameters: {
-				path: {
-					id: p.SlugOrIdParamSchema,
-				},
-			},
-			responses: {
-				"200": {
-					"application/json": s.ChannelSchema,
-				},
-				"401": r.UnauthorizedResponse,
-				"403": r.ForbiddenResponse,
-				"404": r.NotFoundResponse,
-				"429": r.RateLimitResponse,
-			},
-		},
-		updateChannel: {
-			method: "put",
-			path: "/v3/channels/{id}",
-			parameters: {
-				path: {
-					id: p.SlugOrIdParamSchema,
-				},
-			},
-			body: {
-				required: true,
-				content: {
-					"application/json": v.object({
-						title: v.string(),
-						visibility: s.ChannelVisibilitySchema,
-						description: v.string(),
-					}),
-				},
-			},
-			responses: {
-				"200": {
-					"application/json": s.ChannelSchema,
-				},
-				"400": r.ValidationErrorResponse,
-				"401": r.UnauthorizedResponse,
-				"403": r.ForbiddenResponse,
-				"404": r.NotFoundResponse,
-				"422": r.UnprocessableEntityResponse,
-				"429": r.RateLimitResponse,
-			},
-		},
-		deleteChannel: {
-			method: "delete",
-			path: "/v3/channels/{id}",
-			parameters: {
-				path: {
-					id: p.SlugOrIdParamSchema,
-				},
-			},
-			responses: {
-				"401": r.UnauthorizedResponse,
-				"403": r.ForbiddenResponse,
-				"404": r.NotFoundResponse,
-				"429": r.RateLimitResponse,
-			},
-		},
-		getChannelContents: {
-			method: "get",
-			path: "/v3/channels/{id}/contents",
-			parameters: {
-				path: {
-					id: p.SlugOrIdParamSchema,
-				},
-				query: {
-					page: v.nullish(p.PageParamSchema),
-					per: v.nullish(p.PerParamSchema),
-					sort: v.nullish(p.ChannelContentSortParamSchema),
-					user_id: v.nullish(v.pipe(v.number(), v.integer())),
-				},
-			},
-			responses: {
-				"200": {
-					"application/json": s.ConnectableListResponseSchema,
-				},
-				"401": r.UnauthorizedResponse,
-				"403": r.ForbiddenResponse,
-				"404": r.NotFoundResponse,
-				"429": r.RateLimitResponse,
-			},
-		},
-		getChannelConnections: {
-			method: "get",
-			path: "/v3/channels/{id}/connections",
-			parameters: {
-				path: {
-					id: p.SlugOrIdParamSchema,
-				},
-				query: {
-					page: v.nullish(p.PageParamSchema),
-					per: v.nullish(p.PerParamSchema),
-					sort: v.nullish(p.ConnectionSortParamSchema),
-				},
-			},
-			responses: {
-				"200": {
-					"application/json": s.ChannelListResponseSchema,
-				},
-				"401": r.UnauthorizedResponse,
-				"403": r.ForbiddenResponse,
-				"404": r.NotFoundResponse,
-				"429": r.RateLimitResponse,
-			},
-		},
-		getChannelFollowers: {
-			method: "get",
-			path: "/v3/channels/{id}/followers",
-			parameters: {
-				path: {
-					id: p.SlugOrIdParamSchema,
-				},
-				query: {
-					page: v.nullish(p.PageParamSchema),
-					per: v.nullish(p.PerParamSchema),
-					sort: v.nullish(p.ConnectionSortParamSchema),
-				},
-			},
-			responses: {
-				"200": {
-					"application/json": s.UserListResponseSchema,
-				},
-				"401": r.UnauthorizedResponse,
-				"403": r.ForbiddenResponse,
-				"404": r.NotFoundResponse,
-				"429": r.RateLimitResponse,
-			},
-		},
-	}
-}
-const Users = {
-	getCurrentUser: {
-		method: "get",
-		path: "/v3/me",
-		parameters: {
-		},
-		responses: {
-			"200": {
-				"application/json": s.UserSchema,
-			},
-			"401": r.UnauthorizedResponse,
-			"429": r.RateLimitResponse,
-		},
-	},
-	id: {
-		$parameters: {
-			id: p.SlugOrIdParamSchema
-		},
-		getUser: {
-			method: "get",
-			path: "/v3/users/{id}",
-			parameters: {
-				path: {
-					id: p.SlugOrIdParamSchema,
-				},
-			},
-			responses: {
-				"200": {
-					"application/json": s.UserSchema,
-				},
-				"401": r.UnauthorizedResponse,
-				"403": r.ForbiddenResponse,
-				"404": r.NotFoundResponse,
-				"429": r.RateLimitResponse,
-			},
-		},
-		getUserContents: {
-			method: "get",
-			path: "/v3/users/{id}/contents",
-			parameters: {
-				path: {
-					id: p.SlugOrIdParamSchema,
-				},
-				query: {
-					page: v.nullish(p.PageParamSchema),
-					per: v.nullish(p.PerParamSchema),
-					sort: v.nullish(p.ContentSortParamSchema),
-					type: v.nullish(p.ContentTypeFilterParamSchema),
-				},
-			},
-			responses: {
-				"200": {
-					"application/json": s.ConnectableListResponseSchema,
-				},
-				"401": r.UnauthorizedResponse,
-				"403": r.ForbiddenResponse,
-				"404": r.NotFoundResponse,
-				"429": r.RateLimitResponse,
-			},
-		},
-		getUserFollowers: {
-			method: "get",
-			path: "/v3/users/{id}/followers",
-			parameters: {
-				path: {
-					id: p.SlugOrIdParamSchema,
-				},
-				query: {
-					page: v.nullish(p.PageParamSchema),
-					per: v.nullish(p.PerParamSchema),
-					sort: v.nullish(p.ConnectionSortParamSchema),
-				},
-			},
-			responses: {
-				"200": {
-					"application/json": s.UserListResponseSchema,
-				},
-				"401": r.UnauthorizedResponse,
-				"403": r.ForbiddenResponse,
-				"404": r.NotFoundResponse,
-				"429": r.RateLimitResponse,
-			},
-		},
-		getUserFollowing: {
-			method: "get",
-			path: "/v3/users/{id}/following",
-			parameters: {
-				path: {
-					id: p.SlugOrIdParamSchema,
-				},
-				query: {
-					page: v.nullish(p.PageParamSchema),
-					per: v.nullish(p.PerParamSchema),
-					sort: v.nullish(p.ConnectionSortParamSchema),
-					type: v.nullish(v.picklist(["User","Channel","Group"])),
-				},
-			},
-			responses: {
-				"200": {
-					"application/json": s.FollowableListResponseSchema,
-				},
-				"401": r.UnauthorizedResponse,
-				"403": r.ForbiddenResponse,
-				"404": r.NotFoundResponse,
-				"429": r.RateLimitResponse,
-			},
-		},
-	}
-}
-const Groups = {
-	id: {
-		$parameters: {
-			id: p.SlugOrIdParamSchema
-		},
-		getGroup: {
-			method: "get",
-			path: "/v3/groups/{id}",
-			parameters: {
-				path: {
-					id: p.SlugOrIdParamSchema,
-				},
-			},
-			responses: {
-				"200": {
-					"application/json": s.GroupSchema,
-				},
-				"401": r.UnauthorizedResponse,
-				"403": r.ForbiddenResponse,
-				"404": r.NotFoundResponse,
-				"429": r.RateLimitResponse,
-			},
-		},
-		getGroupContents: {
-			method: "get",
-			path: "/v3/groups/{id}/contents",
-			parameters: {
-				path: {
-					id: p.SlugOrIdParamSchema,
-				},
-				query: {
-					page: v.nullish(p.PageParamSchema),
-					per: v.nullish(p.PerParamSchema),
-					sort: v.nullish(p.ContentSortParamSchema),
-					type: v.nullish(p.ContentTypeFilterParamSchema),
-				},
-			},
-			responses: {
-				"200": {
-					"application/json": s.ConnectableListResponseSchema,
-				},
-				"401": r.UnauthorizedResponse,
-				"403": r.ForbiddenResponse,
-				"404": r.NotFoundResponse,
-				"429": r.RateLimitResponse,
-			},
-		},
-		getGroupFollowers: {
-			method: "get",
-			path: "/v3/groups/{id}/followers",
-			parameters: {
-				path: {
-					id: p.SlugOrIdParamSchema,
-				},
-				query: {
-					page: v.nullish(p.PageParamSchema),
-					per: v.nullish(p.PerParamSchema),
-					sort: v.nullish(p.ConnectionSortParamSchema),
-				},
-			},
-			responses: {
-				"200": {
-					"application/json": s.UserListResponseSchema,
-				},
-				"401": r.UnauthorizedResponse,
-				"403": r.ForbiddenResponse,
-				"404": r.NotFoundResponse,
-				"429": r.RateLimitResponse,
-			},
-		},
-	}
-}
-const Search = {
-	search: {
-		method: "get",
-		path: "/v3/search",
-		parameters: {
-			query: {
-				q: v.nullish(v.string()),
-				type: v.nullish(v.array(
-					s.SearchTypeFilterSchema
-				)),
-				scope: v.nullish(v.string()),
-				in: v.nullish(v.array(
-					v.picklist(["name","description","content","domain","url"])
-				)),
-				ext: v.nullish(v.array(
-					s.FileExtensionSchema
-				)),
-				sort: v.nullish(v.picklist(["score_desc","created_at_desc","created_at_asc","updated_at_desc","updated_at_asc","name_asc","name_desc","connections_count_desc","random"])),
-				after: v.nullish(v.string()),
-				seed: v.nullish(v.pipe(v.number(), v.integer())),
-				page: v.nullish(p.PageParamSchema),
-				per: v.nullish(p.PerParamSchema),
-			},
-		},
-		responses: {
-			"200": {
-				"application/json": s.EverythingListResponseSchema,
-			},
-			"400": r.ValidationErrorResponse,
-			"401": r.UnauthorizedResponse,
-			"403": {
-				"application/json": s.ErrorSchema,
-			},
-			"429": r.RateLimitResponse,
-		},
-	},
-}
-
-export {
-	Authentication,
- 	System,
- 	Blocks,
- 	Channels,
- 	Users,
- 	Groups,
- 	Search
+export const operations = {
+  createOAuthToken: {
+    path: '/v3/oauth/token',
+    method: 'post',
+    tags: ['Authentication'],
+    parameters: {
+      formData: v.object({
+        grant_type: v.picklist(['authorization_code', 'client_credentials']),
+        client_id: v.optional(v.string()),
+        client_secret: v.optional(v.string()),
+        code: v.optional(v.string()),
+        redirect_uri: v.optional(v.pipe(v.string(), v.url())),
+        code_verifier: v.optional(v.string()),
+      }),
+    },
+    response: {
+      '200': {
+        'application/json': v.object({
+          access_token: v.string(),
+          token_type: v.literal('Bearer'),
+          scope: v.string(),
+          created_at: v.pipe(v.number(), v.integer()),
+        }),
+      },
+      '400': {
+        'application/json': v.object({
+          error: v.optional(
+            v.picklist([
+              'invalid_request',
+              'invalid_client',
+              'invalid_grant',
+              'unauthorized_client',
+              'unsupported_grant_type',
+            ]),
+          ),
+          error_description: v.optional(v.string()),
+        }),
+      },
+      '401': {
+        'application/json': v.object({
+          error: v.optional(v.string()),
+          error_description: v.optional(v.string()),
+        }),
+      },
+    },
+  },
+  getOpenapiSpec: {
+    path: '/v3/openapi',
+    method: 'get',
+    tags: ['System'],
+    parameters: {},
+    response: {
+      '200': {
+        'application/yaml': v.string(),
+      },
+      '404': {
+        'application/json': s.ErrorSchema,
+      },
+    },
+  },
+  getOpenapiSpecJson: {
+    path: '/v3/openapi.json',
+    method: 'get',
+    tags: ['System'],
+    parameters: {},
+    response: {
+      '200': {
+        'application/json': v.object({}),
+      },
+      '404': {
+        'application/json': s.ErrorSchema,
+      },
+    },
+  },
+  getPing: {
+    path: '/v3/ping',
+    method: 'get',
+    tags: ['System'],
+    parameters: {},
+    response: {
+      '200': {
+        'application/json': s.PingResponseSchema,
+      },
+      '429': {
+        'application/json': s.RateLimitErrorSchema,
+      },
+    },
+  },
+  getBlock: {
+    path: '/v3/blocks/{id}',
+    method: 'get',
+    tags: ['Blocks'],
+    parameters: {
+      path: v.object({ id: v.pipe(v.number(), v.integer()) }),
+    },
+    response: {
+      '200': {
+        'application/json': s.BlockSchema,
+      },
+      '401': {
+        'application/json': s.ErrorSchema,
+      },
+      '403': {
+        'application/json': s.ErrorSchema,
+      },
+      '404': {
+        'application/json': s.ErrorSchema,
+      },
+      '429': {
+        'application/json': s.RateLimitErrorSchema,
+      },
+    },
+  },
+  getBlockConnections: {
+    path: '/v3/blocks/{id}/connections',
+    method: 'get',
+    tags: ['Blocks'],
+    parameters: {
+      path: v.object({ id: v.pipe(v.number(), v.integer()) }),
+      query: v.object({
+        page: v.optional(v.pipe(v.number(), v.minValue(1))),
+        per: v.optional(v.pipe(v.number(), v.minValue(1), v.maxValue(100))),
+        sort: v.optional(v.picklist(['created_at_desc', 'created_at_asc'])),
+        filter: v.optional(v.picklist(['ALL', 'OWN', 'EXCLUDE_OWN'])),
+      }),
+    },
+    response: {
+      '200': {
+        'application/json': s.ChannelListResponseSchema,
+      },
+      '401': {
+        'application/json': s.ErrorSchema,
+      },
+      '403': {
+        'application/json': s.ErrorSchema,
+      },
+      '404': {
+        'application/json': s.ErrorSchema,
+      },
+      '429': {
+        'application/json': s.RateLimitErrorSchema,
+      },
+    },
+  },
+  getBlockComments: {
+    path: '/v3/blocks/{id}/comments',
+    method: 'get',
+    tags: ['Blocks'],
+    parameters: {
+      path: v.object({ id: v.pipe(v.number(), v.integer()) }),
+      query: v.object({
+        page: v.optional(v.pipe(v.number(), v.minValue(1))),
+        per: v.optional(v.pipe(v.number(), v.minValue(1), v.maxValue(100))),
+        sort: v.optional(v.picklist(['created_at_desc', 'created_at_asc'])),
+      }),
+    },
+    response: {
+      '200': {
+        'application/json': s.CommentListResponseSchema,
+      },
+      '401': {
+        'application/json': s.ErrorSchema,
+      },
+      '403': {
+        'application/json': s.ErrorSchema,
+      },
+      '404': {
+        'application/json': s.ErrorSchema,
+      },
+      '429': {
+        'application/json': s.RateLimitErrorSchema,
+      },
+    },
+  },
+  createChannel: {
+    path: '/v3/channels',
+    method: 'post',
+    tags: ['Channels'],
+    parameters: {
+      body: v.object({
+        title: v.string(),
+        visibility: v.optional(v.picklist(['public', 'private', 'closed'])),
+        description: v.optional(v.string()),
+        group_id: v.optional(v.pipe(v.number(), v.integer())),
+      }),
+    },
+    response: {
+      '201': {
+        'application/json': s.ChannelSchema,
+      },
+      '400': {
+        'application/json': s.ErrorSchema,
+      },
+      '401': {
+        'application/json': s.ErrorSchema,
+      },
+      '403': {
+        'application/json': s.ErrorSchema,
+      },
+      '422': {
+        'application/json': s.ErrorSchema,
+      },
+      '429': {
+        'application/json': s.RateLimitErrorSchema,
+      },
+    },
+  },
+  getChannel: {
+    path: '/v3/channels/{id}',
+    method: 'get',
+    tags: ['Channels'],
+    parameters: {
+      path: v.object({ id: v.string() }),
+    },
+    response: {
+      '200': {
+        'application/json': s.ChannelSchema,
+      },
+      '401': {
+        'application/json': s.ErrorSchema,
+      },
+      '403': {
+        'application/json': s.ErrorSchema,
+      },
+      '404': {
+        'application/json': s.ErrorSchema,
+      },
+      '429': {
+        'application/json': s.RateLimitErrorSchema,
+      },
+    },
+  },
+  updateChannel: {
+    path: '/v3/channels/{id}',
+    method: 'put',
+    tags: ['Channels'],
+    parameters: {
+      path: v.object({ id: v.string() }),
+      body: v.object({
+        title: v.optional(v.string()),
+        visibility: v.optional(v.picklist(['public', 'private', 'closed'])),
+        description: v.optional(v.union([v.string(), v.null_()])),
+      }),
+    },
+    response: {
+      '200': {
+        'application/json': s.ChannelSchema,
+      },
+      '400': {
+        'application/json': s.ErrorSchema,
+      },
+      '401': {
+        'application/json': s.ErrorSchema,
+      },
+      '403': {
+        'application/json': s.ErrorSchema,
+      },
+      '404': {
+        'application/json': s.ErrorSchema,
+      },
+      '422': {
+        'application/json': s.ErrorSchema,
+      },
+      '429': {
+        'application/json': s.RateLimitErrorSchema,
+      },
+    },
+  },
+  deleteChannel: {
+    path: '/v3/channels/{id}',
+    method: 'delete',
+    tags: ['Channels'],
+    parameters: {
+      path: v.object({ id: v.string() }),
+    },
+    response: {
+      '204': {},
+      '401': {
+        'application/json': s.ErrorSchema,
+      },
+      '403': {
+        'application/json': s.ErrorSchema,
+      },
+      '404': {
+        'application/json': s.ErrorSchema,
+      },
+      '429': {
+        'application/json': s.RateLimitErrorSchema,
+      },
+    },
+  },
+  createChannelBlock: {
+    path: '/v3/channels/{id}/blocks',
+    method: 'post',
+    tags: ['Blocks'],
+    parameters: {
+      path: v.object({ id: v.string() }),
+      body: v.object({
+        source: v.optional(v.pipe(v.string(), v.url())),
+        content: v.optional(v.string()),
+        title: v.optional(v.string()),
+        description: v.optional(v.string()),
+      }),
+    },
+    response: {
+      '201': {
+        'application/json': s.BlockSchema,
+      },
+      '400': {
+        'application/json': s.ErrorSchema,
+      },
+      '401': {
+        'application/json': s.ErrorSchema,
+      },
+      '403': {
+        'application/json': s.ErrorSchema,
+      },
+      '404': {
+        'application/json': s.ErrorSchema,
+      },
+      '422': {
+        'application/json': s.ErrorSchema,
+      },
+      '429': {
+        'application/json': s.RateLimitErrorSchema,
+      },
+    },
+  },
+  getChannelContents: {
+    path: '/v3/channels/{id}/contents',
+    method: 'get',
+    tags: ['Channels'],
+    parameters: {
+      path: v.object({ id: v.string() }),
+      query: v.object({
+        page: v.optional(v.pipe(v.number(), v.minValue(1))),
+        per: v.optional(v.pipe(v.number(), v.minValue(1), v.maxValue(100))),
+        sort: v.optional(
+          v.picklist([
+            'position_asc',
+            'position_desc',
+            'created_at_asc',
+            'created_at_desc',
+            'updated_at_asc',
+            'updated_at_desc',
+          ]),
+        ),
+        user_id: v.optional(v.pipe(v.number(), v.integer())),
+      }),
+    },
+    response: {
+      '200': {
+        'application/json': s.ConnectableListResponseSchema,
+      },
+      '401': {
+        'application/json': s.ErrorSchema,
+      },
+      '403': {
+        'application/json': s.ErrorSchema,
+      },
+      '404': {
+        'application/json': s.ErrorSchema,
+      },
+      '429': {
+        'application/json': s.RateLimitErrorSchema,
+      },
+    },
+  },
+  getChannelConnections: {
+    path: '/v3/channels/{id}/connections',
+    method: 'get',
+    tags: ['Channels'],
+    parameters: {
+      path: v.object({ id: v.string() }),
+      query: v.object({
+        page: v.optional(v.pipe(v.number(), v.minValue(1))),
+        per: v.optional(v.pipe(v.number(), v.minValue(1), v.maxValue(100))),
+        sort: v.optional(v.picklist(['created_at_desc', 'created_at_asc'])),
+      }),
+    },
+    response: {
+      '200': {
+        'application/json': s.ChannelListResponseSchema,
+      },
+      '401': {
+        'application/json': s.ErrorSchema,
+      },
+      '403': {
+        'application/json': s.ErrorSchema,
+      },
+      '404': {
+        'application/json': s.ErrorSchema,
+      },
+      '429': {
+        'application/json': s.RateLimitErrorSchema,
+      },
+    },
+  },
+  getChannelFollowers: {
+    path: '/v3/channels/{id}/followers',
+    method: 'get',
+    tags: ['Channels'],
+    parameters: {
+      path: v.object({ id: v.string() }),
+      query: v.object({
+        page: v.optional(v.pipe(v.number(), v.minValue(1))),
+        per: v.optional(v.pipe(v.number(), v.minValue(1), v.maxValue(100))),
+        sort: v.optional(v.picklist(['created_at_desc', 'created_at_asc'])),
+      }),
+    },
+    response: {
+      '200': {
+        'application/json': s.UserListResponseSchema,
+      },
+      '401': {
+        'application/json': s.ErrorSchema,
+      },
+      '403': {
+        'application/json': s.ErrorSchema,
+      },
+      '404': {
+        'application/json': s.ErrorSchema,
+      },
+      '429': {
+        'application/json': s.RateLimitErrorSchema,
+      },
+    },
+  },
+  getCurrentUser: {
+    path: '/v3/me',
+    method: 'get',
+    tags: ['Users'],
+    parameters: {},
+    response: {
+      '200': {
+        'application/json': s.UserSchema,
+      },
+      '401': {
+        'application/json': s.ErrorSchema,
+      },
+      '429': {
+        'application/json': s.RateLimitErrorSchema,
+      },
+    },
+  },
+  getUser: {
+    path: '/v3/users/{id}',
+    method: 'get',
+    tags: ['Users'],
+    parameters: {
+      path: v.object({ id: v.string() }),
+    },
+    response: {
+      '200': {
+        'application/json': s.UserSchema,
+      },
+      '401': {
+        'application/json': s.ErrorSchema,
+      },
+      '403': {
+        'application/json': s.ErrorSchema,
+      },
+      '404': {
+        'application/json': s.ErrorSchema,
+      },
+      '429': {
+        'application/json': s.RateLimitErrorSchema,
+      },
+    },
+  },
+  getUserContents: {
+    path: '/v3/users/{id}/contents',
+    method: 'get',
+    tags: ['Users'],
+    parameters: {
+      path: v.object({ id: v.string() }),
+      query: v.object({
+        page: v.optional(v.pipe(v.number(), v.minValue(1))),
+        per: v.optional(v.pipe(v.number(), v.minValue(1), v.maxValue(100))),
+        sort: v.optional(
+          v.picklist([
+            'created_at_asc',
+            'created_at_desc',
+            'updated_at_asc',
+            'updated_at_desc',
+          ]),
+        ),
+        type: v.optional(
+          v.picklist([
+            'Text',
+            'Image',
+            'Link',
+            'Attachment',
+            'Embed',
+            'Channel',
+            'Block',
+          ]),
+        ),
+      }),
+    },
+    response: {
+      '200': {
+        'application/json': s.ConnectableListResponseSchema,
+      },
+      '401': {
+        'application/json': s.ErrorSchema,
+      },
+      '403': {
+        'application/json': s.ErrorSchema,
+      },
+      '404': {
+        'application/json': s.ErrorSchema,
+      },
+      '429': {
+        'application/json': s.RateLimitErrorSchema,
+      },
+    },
+  },
+  getUserFollowers: {
+    path: '/v3/users/{id}/followers',
+    method: 'get',
+    tags: ['Users'],
+    parameters: {
+      path: v.object({ id: v.string() }),
+      query: v.object({
+        page: v.optional(v.pipe(v.number(), v.minValue(1))),
+        per: v.optional(v.pipe(v.number(), v.minValue(1), v.maxValue(100))),
+        sort: v.optional(v.picklist(['created_at_desc', 'created_at_asc'])),
+      }),
+    },
+    response: {
+      '200': {
+        'application/json': s.UserListResponseSchema,
+      },
+      '401': {
+        'application/json': s.ErrorSchema,
+      },
+      '403': {
+        'application/json': s.ErrorSchema,
+      },
+      '404': {
+        'application/json': s.ErrorSchema,
+      },
+      '429': {
+        'application/json': s.RateLimitErrorSchema,
+      },
+    },
+  },
+  getUserFollowing: {
+    path: '/v3/users/{id}/following',
+    method: 'get',
+    tags: ['Users'],
+    parameters: {
+      path: v.object({ id: v.string() }),
+      query: v.object({
+        page: v.optional(v.pipe(v.number(), v.minValue(1))),
+        per: v.optional(v.pipe(v.number(), v.minValue(1), v.maxValue(100))),
+        sort: v.optional(v.picklist(['created_at_desc', 'created_at_asc'])),
+        type: v.optional(v.picklist(['User', 'Channel', 'Group'])),
+      }),
+    },
+    response: {
+      '200': {
+        'application/json': s.FollowableListResponseSchema,
+      },
+      '401': {
+        'application/json': s.ErrorSchema,
+      },
+      '403': {
+        'application/json': s.ErrorSchema,
+      },
+      '404': {
+        'application/json': s.ErrorSchema,
+      },
+      '429': {
+        'application/json': s.RateLimitErrorSchema,
+      },
+    },
+  },
+  getGroup: {
+    path: '/v3/groups/{id}',
+    method: 'get',
+    tags: ['Groups'],
+    parameters: {
+      path: v.object({ id: v.string() }),
+    },
+    response: {
+      '200': {
+        'application/json': s.GroupSchema,
+      },
+      '401': {
+        'application/json': s.ErrorSchema,
+      },
+      '403': {
+        'application/json': s.ErrorSchema,
+      },
+      '404': {
+        'application/json': s.ErrorSchema,
+      },
+      '429': {
+        'application/json': s.RateLimitErrorSchema,
+      },
+    },
+  },
+  getGroupContents: {
+    path: '/v3/groups/{id}/contents',
+    method: 'get',
+    tags: ['Groups'],
+    parameters: {
+      path: v.object({ id: v.string() }),
+      query: v.object({
+        page: v.optional(v.pipe(v.number(), v.minValue(1))),
+        per: v.optional(v.pipe(v.number(), v.minValue(1), v.maxValue(100))),
+        sort: v.optional(
+          v.picklist([
+            'created_at_asc',
+            'created_at_desc',
+            'updated_at_asc',
+            'updated_at_desc',
+          ]),
+        ),
+        type: v.optional(
+          v.picklist([
+            'Text',
+            'Image',
+            'Link',
+            'Attachment',
+            'Embed',
+            'Channel',
+            'Block',
+          ]),
+        ),
+      }),
+    },
+    response: {
+      '200': {
+        'application/json': s.ConnectableListResponseSchema,
+      },
+      '401': {
+        'application/json': s.ErrorSchema,
+      },
+      '403': {
+        'application/json': s.ErrorSchema,
+      },
+      '404': {
+        'application/json': s.ErrorSchema,
+      },
+      '429': {
+        'application/json': s.RateLimitErrorSchema,
+      },
+    },
+  },
+  getGroupFollowers: {
+    path: '/v3/groups/{id}/followers',
+    method: 'get',
+    tags: ['Groups'],
+    parameters: {
+      path: v.object({ id: v.string() }),
+      query: v.object({
+        page: v.optional(v.pipe(v.number(), v.minValue(1))),
+        per: v.optional(v.pipe(v.number(), v.minValue(1), v.maxValue(100))),
+        sort: v.optional(v.picklist(['created_at_desc', 'created_at_asc'])),
+      }),
+    },
+    response: {
+      '200': {
+        'application/json': s.UserListResponseSchema,
+      },
+      '401': {
+        'application/json': s.ErrorSchema,
+      },
+      '403': {
+        'application/json': s.ErrorSchema,
+      },
+      '404': {
+        'application/json': s.ErrorSchema,
+      },
+      '429': {
+        'application/json': s.RateLimitErrorSchema,
+      },
+    },
+  },
+  search: {
+    path: '/v3/search',
+    method: 'get',
+    tags: ['Search'],
+    parameters: {
+      query: v.object({
+        q: v.optional(v.string()),
+        type: v.optional(v.array(s.SearchTypeFilterSchema)),
+        scope: v.optional(v.string()),
+        in: v.optional(
+          v.array(
+            v.picklist(['name', 'description', 'content', 'domain', 'url']),
+          ),
+        ),
+        ext: v.optional(v.array(s.FileExtensionSchema)),
+        sort: v.optional(
+          v.picklist([
+            'score_desc',
+            'created_at_desc',
+            'created_at_asc',
+            'updated_at_desc',
+            'updated_at_asc',
+            'name_asc',
+            'name_desc',
+            'connections_count_desc',
+            'random',
+          ]),
+        ),
+        after: v.optional(v.pipe(v.string(), v.isoDateTime())),
+        seed: v.optional(v.pipe(v.number(), v.integer())),
+        page: v.optional(v.pipe(v.number(), v.minValue(1))),
+        per: v.optional(v.pipe(v.number(), v.minValue(1), v.maxValue(100))),
+      }),
+    },
+    response: {
+      '200': {
+        'application/json': s.EverythingListResponseSchema,
+      },
+      '400': {
+        'application/json': s.ErrorSchema,
+      },
+      '401': {
+        'application/json': s.ErrorSchema,
+      },
+      '403': {
+        'application/json': s.ErrorSchema,
+      },
+      '429': {
+        'application/json': s.RateLimitErrorSchema,
+      },
+    },
+  },
+} as const;
+export default {
+  operations,
 };
