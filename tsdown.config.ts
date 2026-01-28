@@ -6,5 +6,5 @@ export default defineConfig({
     tsgo: true,
   },
   inlineOnly: ['form-urlencoded'],
-  external: ['valibot', 'oas', 'oas-normalize'],
+  external: ['valibot'],
 });

@@ -5,8 +5,6 @@
     "": {
       "name": "an.era",
       "dependencies": {
-        "oas": "^28.9.0",
-        "oas-normalize": "^15.7.0",
         "valibot": "^1.2.0",
       },
       "devDependencies": {
