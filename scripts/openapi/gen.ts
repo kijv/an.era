@@ -77,14 +77,20 @@ type Code = {
     require: string;
     variable: string;
   }[];
-  exports: string[];
+  exports: {
+    default: string[];
+    type: string[];
+  };
   body: string;
   toString: () => string;
 };
 
 const createCode = ({
   imports = [],
-  exports = [],
+  exports = {
+    default: [],
+    type: [],
+  },
   body = '',
 }: Partial<Omit<Code, 'toString'>> = {}): Code => ({
   imports,
@@ -93,32 +99,41 @@ const createCode = ({
   toString() {
     return this.imports
       .map((i) => `import ${i.variable} from "${i.require}";`)
-      .concat([this.body])
+      .concat([this.body.trim()])
       .concat(
-        this.exports.length > 0
-          ? [
-              `\nexport {\n${this.exports.map((s) => `\t${s}`).join(',\n ')}\n};`,
-            ]
-          : [],
+        Object.entries(this.exports)
+          .filter(([, v]) => v.length > 0)
+          .map(
+            ([k, v]) =>
+              `export ${k} {\n${v.map((s) => `\t${s}`).join(',\n ')}\n};`,
+          ),
       )
       .join('\n')
       .trim();
   },
 });
 
-const createRenderRef = (code: Code, filename: string) => (ref: string) => {
-  const refPath = ref.replace(/^#\//, '').split('/');
-  const parent = refPath.slice(0, -1).join('/');
-  const variableName = parent.split('/').at(-1)!.charAt(0);
-  const relativeParent = path.relative(path.dirname(filename), parent);
-  if (!code.imports.find((c) => c.require === `./${relativeParent}`)) {
-    code.imports.push({
-      require: `./${relativeParent}`,
-      variable: `* as ${variableName}`,
-    });
-  }
-  return `${variableName}.${defaultRenderRef(ref)}`;
-};
+const createRenderRef =
+  (code: Code, filename: string) =>
+  (ref: string, types = false, shouldImport = true) => {
+    const refPath = ref.replace(/^#\//, '').split('/');
+    const parent = refPath.slice(0, -1).join('/');
+    const variableName = parent.split('/').at(-1)!.charAt(0);
+    const relativeParent = path.relative(path.dirname(filename), parent);
+    if (path.relative(path.dirname(filename), filename) === relativeParent) {
+      return defaultRenderRef(ref, !types);
+    }
+    if (
+      shouldImport &&
+      !code.imports.find((c) => c.require === `./${relativeParent}`)
+    ) {
+      code.imports.push({
+        require: `./${relativeParent}`,
+        variable: `* as ${variableName}`,
+      });
+    }
+    return `${variableName}.${defaultRenderRef(ref, !types)}`;
+  };
 
 const jsonToVali = (
   schema: SchemaObject & {
@@ -133,7 +148,8 @@ const jsonToVali = (
     exportDefinitions: false,
     withTypes: true,
     maxDepth: 999999,
-    nameRef: renderRef,
+    nameRef: (ref: string, types: boolean) => renderRef?.(ref, types, false),
+    importRef: (ref: string) => renderRef?.(ref, false, true),
     resolveRef: ($ref: string) => resolveRef({ $ref }),
     constraints,
   });
@@ -177,7 +193,8 @@ const getComponentsSchemasCode = () => {
       Object.assign({}, s, {
         components: derefOas.api.components,
       }),
-      (r) => `${r.split('/').pop()!}Schema`,
+      createRenderRef(code, 'components/schemas'),
+      // (r) => `${r.split('/').pop()!}Schema`,
       (c) => c.map((c) => (c === 'v.isoDateTime()' ? 'v.isoTimestamp()' : c)),
     );
 
@@ -191,9 +208,9 @@ const getComponentsSchemasCode = () => {
       )
       .concat('__')
       .join('');
-    codeReferences[reference] = js;
+    codeReferences[reference] = `${js};\ntype ${name} = ${ts}`;
 
-    code.body += `\nexport type ${name} = ${ts}`;
+    code.exports.type.push(name);
 
     data[`${name}Schema`] = reference;
   }
@@ -213,7 +230,7 @@ const getComponentsSchemasCode = () => {
   return code;
 };
 
-const getPathsCode = () => {
+const getOperationsCode = () => {
   const code = createCode({
     imports: [
       {
@@ -222,7 +239,7 @@ const getPathsCode = () => {
       },
     ],
   });
-  const renderRef = createRenderRef(code, 'paths');
+  const renderRef = createRenderRef(code, 'operations');
 
   const paths = oas.getPaths();
   const operations: Record<
@@ -232,10 +249,6 @@ const getPathsCode = () => {
       method: string;
       tags: string[];
       parameters: Record<string, string>;
-      body: {
-        contentType: string;
-        schema: string | {};
-      }[];
       response: Record<string, Record<string, string>>;
     }
   > = {};
@@ -280,6 +293,8 @@ const getPathsCode = () => {
         },
       );
 
+      const parameterOrder = ['path', 'body', 'formData', 'query'];
+
       operations[operationId] = {
         path: pathname,
         method,
@@ -287,25 +302,31 @@ const getPathsCode = () => {
         parameters:
           parameters != null && Array.isArray(parameters)
             ? Object.fromEntries(
-                parameters.map((p) => [
-                  p.type,
-                  (() => {
-                    const code = jsonToVali(p.schema, renderRef);
-                    const reference = ['__']
-                      .concat(
-                        pathname
-                          .split('/')
-                          .concat([method, operationId, 'parameters', p.type])
-                          .filter(Boolean)
-                          .map((s) => s.toUpperCase())
-                          .join('_'),
-                      )
-                      .concat('__')
-                      .join('');
-                    codeReferences[reference] = code.js;
-                    return reference;
-                  })(),
-                ]),
+                parameters
+                  .sort(
+                    (a, b) =>
+                      parameterOrder.indexOf(a.type) -
+                      parameterOrder.indexOf(b.type),
+                  )
+                  .map((p) => [
+                    p.type,
+                    (() => {
+                      const code = jsonToVali(p.schema, renderRef);
+                      const reference = ['__']
+                        .concat(
+                          pathname
+                            .split('/')
+                            .concat([method, operationId, 'parameters', p.type])
+                            .filter(Boolean)
+                            .map((s) => s.toUpperCase())
+                            .join('_'),
+                        )
+                        .concat('__')
+                        .join('');
+                      codeReferences[reference] = code.js;
+                      return reference;
+                    })(),
+                  ]),
               )
             : {},
         response: Object.fromEntries(
@@ -334,7 +355,7 @@ const getPathsCode = () => {
                       },
                       response.content[contentType]!.schema!,
                     );
-                    const code = jsonToVali(schema, renderRef);
+                    const { js, ts } = jsonToVali(schema, renderRef);
                     const reference = ['__']
                       .concat(
                         pathname
@@ -352,7 +373,8 @@ const getPathsCode = () => {
                       )
                       .concat('__')
                       .join('');
-                    codeReferences[reference] = code.js;
+                    codeReferences[reference] =
+                      `Object.assign({}, ${js}, { _type: {} as unknown as ${ts} })`;
                     return reference;
                   })(),
                 ]),
@@ -363,20 +385,16 @@ const getPathsCode = () => {
       };
     }
   }
-  code.body += `\n${dataToEsm(
-    {
-      operations,
-    },
-    {
-      preferConst: true,
-      namedExports: true,
-      includeArbitraryNames: true,
-      objectShorthand: true,
-    },
-  ).replace(
-    /((const .* = {\n)(\n|(?!export|const).)*)(};)/gm,
-    (m, b) => `${b}} as const;`,
-  )}`;
+  code.body += `\n${dataToEsm(operations, {
+    preferConst: true,
+    namedExports: true,
+    includeArbitraryNames: true,
+    objectShorthand: true,
+  }).replaceAll(/({\n(\n|(?!export|const).)*})(;)/gm, '$1 as const;')}`;
+  //   .replace(
+  //   /((const .* = {\n)(\n|(?!export|const).)*})(;)/gm,
+  //   (m, b) => `${b} as const;`,
+  // )
   for (const reference in codeReferences) {
     code.body = code.body.replaceAll(
       JSON.stringify(reference),
@@ -402,7 +420,7 @@ const getMainCode = () => {
 
 const contents: Record<string, () => Code> = {
   'components/schemas': getComponentsSchemasCode,
-  paths: getPathsCode,
+  operations: getOperationsCode,
   index: getMainCode,
 };
 
