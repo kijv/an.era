@@ -22,6 +22,9 @@ index 0000000000000000000000000000000000000000..e69de29bb2d1d6434b8b29ae775ad8c2
 diff --git a/node_modules/json-schema-to-valibot/.bun-tag-4505a9dbf9a4d51 b/.bun-tag-4505a9dbf9a4d51
 new file mode 100644
 index 0000000000000000000000000000000000000000..e69de29bb2d1d6434b8b29ae775ad8c2e48c5391
+diff --git a/node_modules/json-schema-to-valibot/.bun-tag-5068625f8a06499a b/.bun-tag-5068625f8a06499a
+new file mode 100644
+index 0000000000000000000000000000000000000000..e69de29bb2d1d6434b8b29ae775ad8c2e48c5391
 diff --git a/node_modules/json-schema-to-valibot/.bun-tag-60faeefa0ffe1b07 b/.bun-tag-60faeefa0ffe1b07
 new file mode 100644
 index 0000000000000000000000000000000000000000..e69de29bb2d1d6434b8b29ae775ad8c2e48c5391
@@ -68,7 +71,7 @@ diff --git a/node_modules/json-schema-to-valibot/.bun-tag-fe185554f631bd1 b/.bun
 new file mode 100644
 index 0000000000000000000000000000000000000000..e69de29bb2d1d6434b8b29ae775ad8c2e48c5391
 diff --git a/dist/index.js b/dist/index.js
-index c9b539a07ad6b062c14005f7ebd2f0e0fb18c307..007dc1cc67696ab8ce07853272131d3f17939372 100644
+index c9b539a07ad6b062c14005f7ebd2f0e0fb18c307..f1e9e67625a4722274d0b05aeee5d613cd575f0b 100644
 --- a/dist/index.js
 +++ b/dist/index.js
 @@ -1,7 +1,7 @@
@@ -279,7 +282,7 @@ index c9b539a07ad6b062c14005f7ebd2f0e0fb18c307..007dc1cc67696ab8ce07853272131d3f
 +    const refData = context.refs.get(refKey);
 +    if (refData) {
 +      context.importRef(refKey);
-+      return refData.schemaName;
++      return refData.schemaTypeName;
 +    }
  		return "any";
 -	}
@@ -312,7 +315,7 @@ index c9b539a07ad6b062c14005f7ebd2f0e0fb18c307..007dc1cc67696ab8ce07853272131d3f
  			return "any";
  	}
  }
-@@ -701,19 +724,23 @@ function sanitizeIdentifier(name) {
+@@ -701,21 +724,26 @@ function sanitizeIdentifier(name) {
  	return name.replace(/[^a-zA-Z0-9_$]/g, "_").replace(/^[0-9]/, "_$&");
  }
  function jsonSchemaToValibot(schema, options = {}) {
@@ -337,9 +340,13 @@ index c9b539a07ad6b062c14005f7ebd2f0e0fb18c307..007dc1cc67696ab8ce07853272131d3f
 -					const schemaName = sanitizeIdentifier(key);
 +					const schemaName = context.nameRef?.(`${pathPrefix}${key}`, false) || sanitizeIdentifier(key);
  					context.refs.set(`${pathPrefix}${key}`, {
- 						schemaName,
+-						schemaName,
++            schemaName,
++						schemaTypeName: context.nameRef?.(`${pathPrefix}${key}`, true) || schemaName,
  						rawSchema: defSchema
-@@ -723,6 +750,10 @@ function jsonSchemaToValibot(schema, options = {}) {
+ 					});
+ 				}
+@@ -723,6 +751,10 @@ function jsonSchemaToValibot(schema, options = {}) {
  		};
  		processDefinitions(schema.definitions, "#/definitions/");
  		processDefinitions(schema.$defs, "#/$defs/");

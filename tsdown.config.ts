@@ -17,16 +17,16 @@ export default defineConfig({
     'stable-hash',
   ],
   external: ['valibot'],
-  outputOptions: {
-    codeSplitting: {
-      groups: [
-        {
-          name: 'openapi',
-          test: 'openapi',
-        },
-      ],
-    },
-  },
+  // outputOptions: {
+  //   codeSplitting: {
+  //     groups: [
+  //       {
+  //         name: 'openapi',
+  //         test: 'openapi',
+  //       },
+  //     ],
+  //   },
+  // },
   publint: true,
   attw: true,
 });

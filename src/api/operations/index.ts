@@ -14,7 +14,15 @@ import { parseResponseBody } from '@/api/util';
 
 export type Operation = {
   path: string;
-  method: string;
+  method:
+    | 'delete'
+    | 'get'
+    | 'head'
+    | 'options'
+    | 'patch'
+    | 'post'
+    | 'put'
+    | 'trace';
   tags: readonly string[];
   parameters: Record<string, ValiSchema | ValiSchemaWithType>;
   response: Record<string, Record<string, ValiSchema | ValiSchemaWithType>>;

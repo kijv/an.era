@@ -1,6 +1,4 @@
-import { createApi } from './api';
-
-export const createArena: typeof createApi = createApi;
+export { createApi as createArena } from './api';
 
 export type {
   Error,

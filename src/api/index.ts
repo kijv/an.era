@@ -26,6 +26,8 @@ import type { MapResponseToUnion } from './declaration';
 import type { SERVERS } from '@/openapi';
 import contentTypeParser from 'fast-content-type-parse';
 // import { LinksSchema } from '@/openapi/components/schemas';
+//
+type DefaultOperations = typeof openApiOperations.operations;
 
 export interface ApiOptions<TOperations extends Record<string, Operation>> {
   baseUrl?: (typeof SERVERS)[number]['url'];
@@ -73,14 +75,13 @@ type CreateApiReturn<TOperations extends Record<string, Operation>> = {
 };
 
 export const createApi = <
-  TOperations extends Record<string, Operation> =
-    typeof openApiOperations.default,
+  const TOperations extends Record<string, Operation> = DefaultOperations,
 >({
   baseUrl = 'https://api.are.na',
   requestInit = {},
   accessToken,
   // useHateoas = false,
-  operations = openApiOperations.default as unknown as TOperations,
+  operations = openApiOperations.operations as unknown as TOperations,
   ignoreValidation = false,
 }: ApiOptions<TOperations> = {}): CreateApiReturn<TOperations> => {
   if (accessToken) {

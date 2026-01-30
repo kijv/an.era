@@ -385,12 +385,15 @@ const getOperationsCode = () => {
       };
     }
   }
-  code.body += `\n${dataToEsm(operations, {
-    preferConst: true,
-    namedExports: true,
-    includeArbitraryNames: true,
-    objectShorthand: true,
-  }).replaceAll(/({\n(\n|(?!export|const).)*})(;)/gm, '$1 as const;')}`;
+  code.body += `\n${dataToEsm(
+    { operations },
+    {
+      preferConst: true,
+      namedExports: true,
+      includeArbitraryNames: true,
+      objectShorthand: true,
+    },
+  ).replaceAll(/({\n(\n|(?!export|const).)*})(;)/gm, '$1 as const;')}`;
   //   .replace(
   //   /((const .* = {\n)(\n|(?!export|const).)*})(;)/gm,
   //   (m, b) => `${b} as const;`,
