@@ -1,5 +1,4 @@
-import type * as v from 'valibot';
-import type { ValiSchema } from '@/declaration';
+import type { MaybeValiSchema, ValiSchemaInferInput } from '@/declaration';
 
 export type Fetcher<TData> = (
   data: TData,
@@ -8,8 +7,8 @@ export type Fetcher<TData> = (
 
 export type MapResponseToUnion<T> = {
   [K in keyof T]: {
-    [M in keyof T[K]]: T[K][M] extends ValiSchema
-      ? v.InferOutput<T[K][M]>
+    [M in keyof T[K]]: T[K][M] extends MaybeValiSchema
+      ? ValiSchemaInferInput<T[K][M]>
       : never;
   }[keyof T[K]];
 }[keyof T];
