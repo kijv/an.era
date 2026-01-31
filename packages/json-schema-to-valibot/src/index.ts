@@ -1,6 +1,6 @@
 import type { ConversionOptions, ParserContext } from './declaration';
-import { generateTypeScriptType } from './util';
 import type { SchemaObject } from 'oas/types';
+import { generateTypeScriptType } from './util';
 import { parseSchema } from './parse';
 
 function sanitizeIdentifier(name: string): string {

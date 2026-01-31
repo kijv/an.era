@@ -1,12 +1,12 @@
 import type {
-  ParserContext,
-  ParseResult,
-  Schema,
   JsonSchemaObject,
+  ParseResult,
+  ParserContext,
+  Schema,
 } from '../declaration';
+import { generateTypeScriptType } from '../util';
 import { handleRef } from './util';
 import { isRef } from 'oas/types';
-import { generateTypeScriptType } from '../util';
 
 export function parseSchema(
   schema: Schema,
@@ -38,7 +38,7 @@ export function parseSchema(
   if (schema.not) return parseNot(schema, context);
 
   // Handle const and enum
-  if (schema.const !== undefined) return parseConst(schema, context);
+  if (schema.const !== undefined) return parseConst(schema);
   if (schema.enum) return parseEnum(schema, context);
 
   // Handle nullable
@@ -261,7 +261,7 @@ export function parseAnyOf(
 
   if (nonNeverSchemas.length === 1) {
     // Only one non-never schema, return it directly
-    const nonNeverResults = results.filter((r) => r.schema !== 'v.never()');
+    const nonNeverResults = results.find((r) => r.schema !== 'v.never()');
     const result = nonNeverResults[0];
     if (!result) {
       return {
@@ -337,8 +337,8 @@ export function parseOneOf(
 
   if (nonNeverSchemas.length === 1) {
     // Only one non-never schema, return it directly
-    const nonNeverResults = results.filter((r) => r.schema !== 'v.never()');
-    const result = nonNeverResults[0];
+    const nonNeverResults = results.find((r) => r.schema !== 'v.never()');
+    const result = nonNeverResults[0]!;
     if (!result) {
       return {
         schema: 'v.never()',
@@ -371,10 +371,7 @@ export function parseOneOf(
   };
 }
 
-export function parseConst(
-  schema: JsonSchemaObject,
-  context: ParserContext,
-): ParseResult {
+export function parseConst(schema: JsonSchemaObject): ParseResult {
   const value = schema.const;
 
   // For primitive values, use literal which is more efficient
@@ -398,7 +395,7 @@ export function parseConst(
     const itemTypes: string[] = [];
 
     for (const item of value) {
-      const itemResult = parseConst({ const: item }, context);
+      const itemResult = parseConst({ const: item });
       itemSchemas.push(itemResult.schema);
       itemResult.imports.forEach((imp) => allImports.add(imp));
       itemTypes.push(itemResult.types || 'any');
@@ -418,7 +415,7 @@ export function parseConst(
     const propertyTypes: string[] = [];
 
     for (const [key, propValue] of Object.entries(value)) {
-      const propResult = parseConst({ const: propValue }, context);
+      const propResult = parseConst({ const: propValue });
       properties.push(`${JSON.stringify(key)}: ${propResult.schema}`);
       propResult.imports.forEach((imp) => allImports.add(imp));
 
@@ -445,7 +442,7 @@ export function parseConst(
 
 export function parseEnum(
   schema: JsonSchemaObject,
-  context: ParserContext,
+  _context: ParserContext,
 ): ParseResult {
   if (!schema.enum || schema.enum.length === 0) {
     return { schema: 'v.any()', imports: new Set(['any']) };
@@ -458,7 +455,7 @@ export function parseEnum(
 
   if (schema.enum.length === 1) {
     // Single enum value - delegate to parseConst
-    return parseConst({ const: schema.enum[0] }, context);
+    return parseConst({ const: schema.enum[0] });
   }
 
   if (hasComplexValues) {
@@ -468,7 +465,7 @@ export function parseEnum(
     const types: string[] = [];
 
     for (const value of schema.enum) {
-      const valueResult = parseConst({ const: value }, context);
+      const valueResult = parseConst({ const: value });
       validators.push(valueResult.schema);
       valueResult.imports.forEach((imp) => imports.add(imp));
       types.push(valueResult.types || 'any');

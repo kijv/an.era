@@ -1,4 +1,4 @@
-import type { ParserContext, ParseResult } from '../declaration';
+import type { ParseResult, ParserContext } from '../declaration';
 import { generateTypeScriptType } from '../util';
 
 export function handleRef(ref: string, context: ParserContext): ParseResult {

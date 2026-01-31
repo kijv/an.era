@@ -1,4 +1,4 @@
-import { isRef, type SchemaObject } from 'oas/types';
+import { type SchemaObject, isRef } from 'oas/types';
 import type { ParserContext } from './declaration';
 
 export function sanitizeIdentifier(name: string): string {
