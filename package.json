@@ -19,8 +19,5 @@
     "tsdown": "^0.20.1",
     "typescript": "^5",
     "vitest": "^4.0.18"
-  },
-  "patchedDependencies": {
-    "json-schema-to-valibot@0.3.0": "patches/json-schema-to-valibot@0.3.0.patch"
   }
 }
