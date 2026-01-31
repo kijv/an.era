@@ -1,0 +1,11 @@
+{
+  "name": "@repo/json-schema-to-valibot",
+  "private": true,
+  "exports": {
+    ".": "./src/index.ts",
+    "./package.json": "./package.json"
+  },
+  "dependencies": {
+    "oas": "^28.9.0"
+  }
+}

@@ -1,5 +1,5 @@
-import * as v from 'valibot';
 import * as s from './components/schemas';
+import * as v from 'valibot';
 export const operations = {
   createOAuthToken: {
     path: '/v3/oauth/token',

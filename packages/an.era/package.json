@@ -1,0 +1,44 @@
+{
+  "name": "an.era",
+  "version": "0.3.0-beta.0",
+  "description": "Interfacing for Are.na API",
+  "keywords": [
+    "are.na"
+  ],
+  "license": "BSD-2-Clause",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kijv/an.era.git",
+    "directory": "packages/an.era"
+  },
+  "files": [
+    "dist"
+  ],
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "scripts": {
+    "build": "tsdown",
+    "lint": "oxlint",
+    "lint:fix": "oxlint --fix",
+    "fmt": "oxfmt",
+    "fmt:check": "oxfmt --check",
+    "test": "vitest"
+  },
+  "dependencies": {
+    "valibot": "^1.2.0"
+  },
+  "devDependencies": {
+    "fast-content-type-parse": "^3.0.0",
+    "publint": "^0.3.17",
+    "stable-hash": "^0.0.6",
+    "url-template": "^3.1.1"
+  }
+}

@@ -445,13 +445,13 @@ type EmbeddedConnection = {
   position: number;
   pinned: boolean;
   connected_at: string;
-  connected_by: EmbeddedUser;
+  connected_by: EmbeddedUser | null;
 };
 export const ChannelOwnerSchema = v.union([
   EmbeddedUserSchema,
   EmbeddedGroupSchema,
 ]);
-type ChannelOwner = EmbeddedUser & EmbeddedGroup;
+type ChannelOwner = EmbeddedUser | EmbeddedGroup;
 export const BlockSourceSchema = v.object({
   url: v.pipe(v.string(), v.url()),
   title: v.optional(v.union([v.string(), v.null_()])),
@@ -460,7 +460,7 @@ export const BlockSourceSchema = v.object({
 type BlockSource = {
   url: string;
   title?: string | null;
-  provider?: BlockProvider;
+  provider?: BlockProvider | null;
 };
 export const BlockImageSchema = v.object({
   alt_text: v.optional(v.union([v.string(), v.null_()])),
@@ -504,7 +504,13 @@ export const UserSchema = v.intersect([
     _links: LinksSchema,
   }),
 ]);
-type User = EmbeddedUser;
+type User = EmbeddedUser & {
+  created_at: string;
+  updated_at: string;
+  bio?: MarkdownContent | null;
+  counts: UserCounts;
+  _links: Links;
+};
 export const GroupSchema = v.intersect([
   EmbeddedGroupSchema,
   v.object({
@@ -516,7 +522,14 @@ export const GroupSchema = v.intersect([
     _links: LinksSchema,
   }),
 ]);
-type Group = EmbeddedGroup;
+type Group = EmbeddedGroup & {
+  bio?: MarkdownContent | null;
+  created_at: string;
+  updated_at: string;
+  user: EmbeddedUser;
+  counts: GroupCounts;
+  _links: Links;
+};
 export const CommentSchema = v.object({
   id: v.pipe(v.number(), v.integer()),
   type: v.literal('Comment'),
@@ -529,7 +542,7 @@ export const CommentSchema = v.object({
 type Comment = {
   id: number;
   type: 'Comment';
-  body?: MarkdownContent;
+  body?: MarkdownContent | null;
   created_at: string;
   updated_at: string;
   user: EmbeddedUser;
@@ -539,7 +552,10 @@ export const ConnectionSchema = v.intersect([
   EmbeddedConnectionSchema,
   v.object({ can: ConnectionAbilitiesSchema, _links: LinksSchema }),
 ]);
-type Connection = EmbeddedConnection;
+type Connection = EmbeddedConnection & {
+  can: ConnectionAbilities;
+  _links: Links;
+};
 export const ChannelSchema = v.object({
   id: v.pipe(v.number(), v.integer()),
   type: v.literal('Channel'),
@@ -561,7 +577,7 @@ type Channel = {
   type: 'Channel';
   slug: string;
   title: string;
-  description?: MarkdownContent;
+  description?: MarkdownContent | null;
   state: 'available' | 'deleted';
   visibility: ChannelVisibility;
   created_at: string;
@@ -569,8 +585,8 @@ type Channel = {
   owner: ChannelOwner;
   counts: ChannelCounts;
   _links: Links;
-  connection?: EmbeddedConnection;
-  can?: ChannelAbilities;
+  connection?: EmbeddedConnection | null;
+  can?: ChannelAbilities | null;
 };
 export const BaseBlockPropertiesSchema = v.object({
   id: v.pipe(v.number(), v.integer()),
@@ -592,17 +608,17 @@ type BaseBlockProperties = {
   id: number;
   base_type: 'Block';
   title?: string | null;
-  description?: MarkdownContent;
+  description?: MarkdownContent | null;
   state: 'processing' | 'available' | 'failed';
   visibility: 'public' | 'private' | 'orphan';
   comment_count: number;
   created_at: string;
   updated_at: string;
   user: EmbeddedUser;
-  source?: BlockSource;
+  source?: BlockSource | null;
   _links: Links;
-  connection?: EmbeddedConnection;
-  can?: BlockAbilities;
+  connection?: EmbeddedConnection | null;
+  can?: BlockAbilities | null;
 };
 export const UserListSchema = v.object({ data: v.array(UserSchema) });
 type UserList = { data: User[] };
@@ -613,17 +629,20 @@ type ChannelList = { data: Channel[] };
 export const FollowableListSchema = v.object({
   data: v.array(v.union([UserSchema, ChannelSchema, GroupSchema])),
 });
-type FollowableList = { data: User & Channel & Group[] };
+type FollowableList = { data: User | Channel | Group[] };
 export const TextBlockSchema = v.intersect([
   BaseBlockPropertiesSchema,
   v.object({ type: v.literal('Text'), content: MarkdownContentSchema }),
 ]);
-type TextBlock = BaseBlockProperties;
+type TextBlock = BaseBlockProperties & {
+  type: 'Text';
+  content: MarkdownContent;
+};
 export const ImageBlockSchema = v.intersect([
   BaseBlockPropertiesSchema,
   v.object({ type: v.literal('Image'), image: BlockImageSchema }),
 ]);
-type ImageBlock = BaseBlockProperties;
+type ImageBlock = BaseBlockProperties & { type: 'Image'; image: BlockImage };
 export const LinkBlockSchema = v.intersect([
   BaseBlockPropertiesSchema,
   v.object({
@@ -632,7 +651,11 @@ export const LinkBlockSchema = v.intersect([
     content: v.optional(v.union([MarkdownContentSchema, v.null_()])),
   }),
 ]);
-type LinkBlock = BaseBlockProperties;
+type LinkBlock = BaseBlockProperties & {
+  type: 'Link';
+  image?: BlockImage | null;
+  content?: MarkdownContent | null;
+};
 export const AttachmentBlockSchema = v.intersect([
   BaseBlockPropertiesSchema,
   v.object({
@@ -641,7 +664,11 @@ export const AttachmentBlockSchema = v.intersect([
     image: v.optional(v.union([BlockImageSchema, v.null_()])),
   }),
 ]);
-type AttachmentBlock = BaseBlockProperties;
+type AttachmentBlock = BaseBlockProperties & {
+  type: 'Attachment';
+  attachment: BlockAttachment;
+  image?: BlockImage | null;
+};
 export const EmbedBlockSchema = v.intersect([
   BaseBlockPropertiesSchema,
   v.object({
@@ -650,12 +677,16 @@ export const EmbedBlockSchema = v.intersect([
     image: v.optional(v.union([BlockImageSchema, v.null_()])),
   }),
 ]);
-type EmbedBlock = BaseBlockProperties;
+type EmbedBlock = BaseBlockProperties & {
+  type: 'Embed';
+  embed: BlockEmbed;
+  image?: BlockImage | null;
+};
 export const PendingBlockSchema = v.intersect([
   BaseBlockPropertiesSchema,
   v.object({ type: v.literal('PendingBlock') }),
 ]);
-type PendingBlock = BaseBlockProperties;
+type PendingBlock = BaseBlockProperties & { type: 'PendingBlock' };
 export const UserListResponseSchema = v.intersect([
   UserListSchema,
   PaginatedResponseSchema,
@@ -689,12 +720,13 @@ export const ConnectableListSchema = v.object({
   ),
 });
 type ConnectableList = {
-  data: TextBlock &
-    ImageBlock &
-    LinkBlock &
-    AttachmentBlock &
-    EmbedBlock &
-    Channel[];
+  data:
+    | TextBlock
+    | ImageBlock
+    | LinkBlock
+    | AttachmentBlock
+    | EmbedBlock
+    | Channel[];
 };
 export const EverythingListSchema = v.object({
   data: v.array(
@@ -711,14 +743,15 @@ export const EverythingListSchema = v.object({
   ),
 });
 type EverythingList = {
-  data: TextBlock &
-    ImageBlock &
-    LinkBlock &
-    AttachmentBlock &
-    EmbedBlock &
-    Channel &
-    User &
-    Group[];
+  data:
+    | TextBlock
+    | ImageBlock
+    | LinkBlock
+    | AttachmentBlock
+    | EmbedBlock
+    | Channel
+    | User
+    | Group[];
 };
 export const BlockSchema = v.union([
   TextBlockSchema,
@@ -728,12 +761,13 @@ export const BlockSchema = v.union([
   EmbedBlockSchema,
   PendingBlockSchema,
 ]);
-type Block = TextBlock &
-  ImageBlock &
-  LinkBlock &
-  AttachmentBlock &
-  EmbedBlock &
-  PendingBlock;
+type Block =
+  | TextBlock
+  | ImageBlock
+  | LinkBlock
+  | AttachmentBlock
+  | EmbedBlock
+  | PendingBlock;
 export const ConnectableListResponseSchema = v.intersect([
   ConnectableListSchema,
   PaginatedResponseSchema,
