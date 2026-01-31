@@ -13,70 +13,64 @@ export const operations = {
         code: v.optional(v.string()),
         redirect_uri: v.optional(v.pipe(v.string(), v.url())),
         code_verifier: v.optional(v.string()),
-      }),
+      }) as unknown as {
+        __TYPE__: {
+          grant_type: 'authorization_code' | 'client_credentials';
+          client_id?: string;
+          client_secret?: string;
+          code?: string;
+          redirect_uri?: string;
+          code_verifier?: string;
+        };
+      },
     },
     response: {
       '200': {
-        'application/json': Object.assign(
-          {},
-          v.object({
-            access_token: v.string(),
-            token_type: v.literal('Bearer'),
-            scope: v.string(),
-            created_at: v.pipe(v.number(), v.integer()),
-          }),
-          {
-            _type: {} as unknown as {
-              access_token: string;
-              token_type: 'Bearer';
-              scope: string;
-              created_at: number;
-            },
-          },
-        ),
+        'application/json': v.object({
+          access_token: v.string(),
+          token_type: v.literal('Bearer'),
+          scope: v.string(),
+          created_at: v.pipe(v.number(), v.integer()),
+        }) as unknown as {
+          __TYPE__: {
+            access_token: string;
+            token_type: 'Bearer';
+            scope: string;
+            created_at: number;
+          };
+        },
       },
       '400': {
-        'application/json': Object.assign(
-          {},
-          v.object({
-            error: v.optional(
-              v.picklist([
-                'invalid_request',
-                'invalid_client',
-                'invalid_grant',
-                'unauthorized_client',
-                'unsupported_grant_type',
-              ]),
-            ),
-            error_description: v.optional(v.string()),
-          }),
-          {
-            _type: {} as unknown as {
-              error?:
-                | 'invalid_request'
-                | 'invalid_client'
-                | 'invalid_grant'
-                | 'unauthorized_client'
-                | 'unsupported_grant_type';
-              error_description?: string;
-            },
-          },
-        ),
+        'application/json': v.object({
+          error: v.optional(
+            v.picklist([
+              'invalid_request',
+              'invalid_client',
+              'invalid_grant',
+              'unauthorized_client',
+              'unsupported_grant_type',
+            ]),
+          ),
+          error_description: v.optional(v.string()),
+        }) as unknown as {
+          __TYPE__: {
+            error?:
+              | 'invalid_request'
+              | 'invalid_client'
+              | 'invalid_grant'
+              | 'unauthorized_client'
+              | 'unsupported_grant_type';
+            error_description?: string;
+          };
+        },
       },
       '401': {
-        'application/json': Object.assign(
-          {},
-          v.object({
-            error: v.optional(v.string()),
-            error_description: v.optional(v.string()),
-          }),
-          {
-            _type: {} as unknown as {
-              error?: string;
-              error_description?: string;
-            },
-          },
-        ),
+        'application/json': v.object({
+          error: v.optional(v.string()),
+          error_description: v.optional(v.string()),
+        }) as unknown as {
+          __TYPE__: { error?: string; error_description?: string };
+        },
       },
     },
   },
@@ -87,14 +81,10 @@ export const operations = {
     parameters: {},
     response: {
       '200': {
-        'application/yaml': Object.assign({}, v.string(), {
-          _type: {} as unknown as string,
-        }),
+        'application/yaml': v.string() as unknown as { __TYPE__: string },
       },
       '404': {
-        'application/json': Object.assign({}, s.ErrorSchema, {
-          _type: {} as unknown as s.Error,
-        }),
+        'application/json': s.ErrorSchema as unknown as { __TYPE__: s.Error },
       },
     },
   },
@@ -105,14 +95,10 @@ export const operations = {
     parameters: {},
     response: {
       '200': {
-        'application/json': Object.assign({}, v.object({}), {
-          _type: {} as unknown as {},
-        }),
+        'application/json': v.object({}) as unknown as { __TYPE__: {} },
       },
       '404': {
-        'application/json': Object.assign({}, s.ErrorSchema, {
-          _type: {} as unknown as s.Error,
-        }),
+        'application/json': s.ErrorSchema as unknown as { __TYPE__: s.Error },
       },
     },
   },
@@ -123,14 +109,14 @@ export const operations = {
     parameters: {},
     response: {
       '200': {
-        'application/json': Object.assign({}, s.PingResponseSchema, {
-          _type: {} as unknown as s.PingResponse,
-        }),
+        'application/json': s.PingResponseSchema as unknown as {
+          __TYPE__: s.PingResponse;
+        },
       },
       '429': {
-        'application/json': Object.assign({}, s.RateLimitErrorSchema, {
-          _type: {} as unknown as s.RateLimitError,
-        }),
+        'application/json': s.RateLimitErrorSchema as unknown as {
+          __TYPE__: s.RateLimitError;
+        },
       },
     },
   },
@@ -152,38 +138,39 @@ export const operations = {
         original_source_title: v.optional(v.string()),
         alt_text: v.optional(v.string()),
         insert_at: v.optional(v.pipe(v.number(), v.integer())),
-      }),
+      }) as unknown as {
+        __TYPE__: {
+          value: string;
+          channel_ids: number[];
+          title?: string;
+          description?: string;
+          original_source_url?: string;
+          original_source_title?: string;
+          alt_text?: string;
+          insert_at?: number;
+        };
+      },
     },
     response: {
       '201': {
-        'application/json': Object.assign({}, s.BlockSchema, {
-          _type: {} as unknown as s.Block,
-        }),
+        'application/json': s.BlockSchema as unknown as { __TYPE__: s.Block },
       },
       '400': {
-        'application/json': Object.assign({}, s.ErrorSchema, {
-          _type: {} as unknown as s.Error,
-        }),
+        'application/json': s.ErrorSchema as unknown as { __TYPE__: s.Error },
       },
       '401': {
-        'application/json': Object.assign({}, s.ErrorSchema, {
-          _type: {} as unknown as s.Error,
-        }),
+        'application/json': s.ErrorSchema as unknown as { __TYPE__: s.Error },
       },
       '403': {
-        'application/json': Object.assign({}, s.ErrorSchema, {
-          _type: {} as unknown as s.Error,
-        }),
+        'application/json': s.ErrorSchema as unknown as { __TYPE__: s.Error },
       },
       '404': {
-        'application/json': Object.assign({}, s.ErrorSchema, {
-          _type: {} as unknown as s.Error,
-        }),
+        'application/json': s.ErrorSchema as unknown as { __TYPE__: s.Error },
       },
       '429': {
-        'application/json': Object.assign({}, s.RateLimitErrorSchema, {
-          _type: {} as unknown as s.RateLimitError,
-        }),
+        'application/json': s.RateLimitErrorSchema as unknown as {
+          __TYPE__: s.RateLimitError;
+        },
       },
     },
   },
@@ -192,33 +179,27 @@ export const operations = {
     method: 'get',
     tags: ['Blocks'],
     parameters: {
-      path: v.object({ id: v.pipe(v.number(), v.integer()) }),
+      path: v.object({ id: v.pipe(v.number(), v.integer()) }) as unknown as {
+        __TYPE__: { id: number };
+      },
     },
     response: {
       '200': {
-        'application/json': Object.assign({}, s.BlockSchema, {
-          _type: {} as unknown as s.Block,
-        }),
+        'application/json': s.BlockSchema as unknown as { __TYPE__: s.Block },
       },
       '401': {
-        'application/json': Object.assign({}, s.ErrorSchema, {
-          _type: {} as unknown as s.Error,
-        }),
+        'application/json': s.ErrorSchema as unknown as { __TYPE__: s.Error },
       },
       '403': {
-        'application/json': Object.assign({}, s.ErrorSchema, {
-          _type: {} as unknown as s.Error,
-        }),
+        'application/json': s.ErrorSchema as unknown as { __TYPE__: s.Error },
       },
       '404': {
-        'application/json': Object.assign({}, s.ErrorSchema, {
-          _type: {} as unknown as s.Error,
-        }),
+        'application/json': s.ErrorSchema as unknown as { __TYPE__: s.Error },
       },
       '429': {
-        'application/json': Object.assign({}, s.RateLimitErrorSchema, {
-          _type: {} as unknown as s.RateLimitError,
-        }),
+        'application/json': s.RateLimitErrorSchema as unknown as {
+          __TYPE__: s.RateLimitError;
+        },
       },
     },
   },
@@ -227,49 +208,46 @@ export const operations = {
     method: 'put',
     tags: ['Blocks'],
     parameters: {
-      path: v.object({ id: v.pipe(v.number(), v.integer()) }),
+      path: v.object({ id: v.pipe(v.number(), v.integer()) }) as unknown as {
+        __TYPE__: { id: number };
+      },
       body: v.object({
         title: v.optional(v.string()),
         description: v.optional(v.string()),
         content: v.optional(v.string()),
         alt_text: v.optional(v.string()),
-      }),
+      }) as unknown as {
+        __TYPE__: {
+          title?: string;
+          description?: string;
+          content?: string;
+          alt_text?: string;
+        };
+      },
     },
     response: {
       '200': {
-        'application/json': Object.assign({}, s.BlockSchema, {
-          _type: {} as unknown as s.Block,
-        }),
+        'application/json': s.BlockSchema as unknown as { __TYPE__: s.Block },
       },
       '400': {
-        'application/json': Object.assign({}, s.ErrorSchema, {
-          _type: {} as unknown as s.Error,
-        }),
+        'application/json': s.ErrorSchema as unknown as { __TYPE__: s.Error },
       },
       '401': {
-        'application/json': Object.assign({}, s.ErrorSchema, {
-          _type: {} as unknown as s.Error,
-        }),
+        'application/json': s.ErrorSchema as unknown as { __TYPE__: s.Error },
       },
       '403': {
-        'application/json': Object.assign({}, s.ErrorSchema, {
-          _type: {} as unknown as s.Error,
-        }),
+        'application/json': s.ErrorSchema as unknown as { __TYPE__: s.Error },
       },
       '404': {
-        'application/json': Object.assign({}, s.ErrorSchema, {
-          _type: {} as unknown as s.Error,
-        }),
+        'application/json': s.ErrorSchema as unknown as { __TYPE__: s.Error },
       },
       '422': {
-        'application/json': Object.assign({}, s.ErrorSchema, {
-          _type: {} as unknown as s.Error,
-        }),
+        'application/json': s.ErrorSchema as unknown as { __TYPE__: s.Error },
       },
       '429': {
-        'application/json': Object.assign({}, s.RateLimitErrorSchema, {
-          _type: {} as unknown as s.RateLimitError,
-        }),
+        'application/json': s.RateLimitErrorSchema as unknown as {
+          __TYPE__: s.RateLimitError;
+        },
       },
     },
   },
@@ -278,39 +256,42 @@ export const operations = {
     method: 'get',
     tags: ['Blocks'],
     parameters: {
-      path: v.object({ id: v.pipe(v.number(), v.integer()) }),
+      path: v.object({ id: v.pipe(v.number(), v.integer()) }) as unknown as {
+        __TYPE__: { id: number };
+      },
       query: v.object({
         page: v.optional(v.pipe(v.number(), v.minValue(1))),
         per: v.optional(v.pipe(v.number(), v.minValue(1), v.maxValue(100))),
         sort: v.optional(v.picklist(['created_at_desc', 'created_at_asc'])),
         filter: v.optional(v.picklist(['ALL', 'OWN', 'EXCLUDE_OWN'])),
-      }),
+      }) as unknown as {
+        __TYPE__: {
+          page?: number;
+          per?: number;
+          sort?: 'created_at_desc' | 'created_at_asc';
+          filter?: 'ALL' | 'OWN' | 'EXCLUDE_OWN';
+        };
+      },
     },
     response: {
       '200': {
-        'application/json': Object.assign({}, s.ChannelListResponseSchema, {
-          _type: {} as unknown as s.ChannelListResponse,
-        }),
+        'application/json': s.ChannelListResponseSchema as unknown as {
+          __TYPE__: s.ChannelListResponse;
+        },
       },
       '401': {
-        'application/json': Object.assign({}, s.ErrorSchema, {
-          _type: {} as unknown as s.Error,
-        }),
+        'application/json': s.ErrorSchema as unknown as { __TYPE__: s.Error },
       },
       '403': {
-        'application/json': Object.assign({}, s.ErrorSchema, {
-          _type: {} as unknown as s.Error,
-        }),
+        'application/json': s.ErrorSchema as unknown as { __TYPE__: s.Error },
       },
       '404': {
-        'application/json': Object.assign({}, s.ErrorSchema, {
-          _type: {} as unknown as s.Error,
-        }),
+        'application/json': s.ErrorSchema as unknown as { __TYPE__: s.Error },
       },
       '429': {
-        'application/json': Object.assign({}, s.RateLimitErrorSchema, {
-          _type: {} as unknown as s.RateLimitError,
-        }),
+        'application/json': s.RateLimitErrorSchema as unknown as {
+          __TYPE__: s.RateLimitError;
+        },
       },
     },
   },
@@ -319,38 +300,40 @@ export const operations = {
     method: 'get',
     tags: ['Blocks'],
     parameters: {
-      path: v.object({ id: v.pipe(v.number(), v.integer()) }),
+      path: v.object({ id: v.pipe(v.number(), v.integer()) }) as unknown as {
+        __TYPE__: { id: number };
+      },
       query: v.object({
         page: v.optional(v.pipe(v.number(), v.minValue(1))),
         per: v.optional(v.pipe(v.number(), v.minValue(1), v.maxValue(100))),
         sort: v.optional(v.picklist(['created_at_desc', 'created_at_asc'])),
-      }),
+      }) as unknown as {
+        __TYPE__: {
+          page?: number;
+          per?: number;
+          sort?: 'created_at_desc' | 'created_at_asc';
+        };
+      },
     },
     response: {
       '200': {
-        'application/json': Object.assign({}, s.CommentListResponseSchema, {
-          _type: {} as unknown as s.CommentListResponse,
-        }),
+        'application/json': s.CommentListResponseSchema as unknown as {
+          __TYPE__: s.CommentListResponse;
+        },
       },
       '401': {
-        'application/json': Object.assign({}, s.ErrorSchema, {
-          _type: {} as unknown as s.Error,
-        }),
+        'application/json': s.ErrorSchema as unknown as { __TYPE__: s.Error },
       },
       '403': {
-        'application/json': Object.assign({}, s.ErrorSchema, {
-          _type: {} as unknown as s.Error,
-        }),
+        'application/json': s.ErrorSchema as unknown as { __TYPE__: s.Error },
       },
       '404': {
-        'application/json': Object.assign({}, s.ErrorSchema, {
-          _type: {} as unknown as s.Error,
-        }),
+        'application/json': s.ErrorSchema as unknown as { __TYPE__: s.Error },
       },
       '429': {
-        'application/json': Object.assign({}, s.RateLimitErrorSchema, {
-          _type: {} as unknown as s.RateLimitError,
-        }),
+        'application/json': s.RateLimitErrorSchema as unknown as {
+          __TYPE__: s.RateLimitError;
+        },
       },
     },
   },
@@ -364,38 +347,37 @@ export const operations = {
         visibility: v.optional(v.picklist(['public', 'private', 'closed'])),
         description: v.optional(v.string()),
         group_id: v.optional(v.pipe(v.number(), v.integer())),
-      }),
+      }) as unknown as {
+        __TYPE__: {
+          title: string;
+          visibility?: 'public' | 'private' | 'closed';
+          description?: string;
+          group_id?: number;
+        };
+      },
     },
     response: {
       '201': {
-        'application/json': Object.assign({}, s.ChannelSchema, {
-          _type: {} as unknown as s.Channel,
-        }),
+        'application/json': s.ChannelSchema as unknown as {
+          __TYPE__: s.Channel;
+        },
       },
       '400': {
-        'application/json': Object.assign({}, s.ErrorSchema, {
-          _type: {} as unknown as s.Error,
-        }),
+        'application/json': s.ErrorSchema as unknown as { __TYPE__: s.Error },
       },
       '401': {
-        'application/json': Object.assign({}, s.ErrorSchema, {
-          _type: {} as unknown as s.Error,
-        }),
+        'application/json': s.ErrorSchema as unknown as { __TYPE__: s.Error },
       },
       '403': {
-        'application/json': Object.assign({}, s.ErrorSchema, {
-          _type: {} as unknown as s.Error,
-        }),
+        'application/json': s.ErrorSchema as unknown as { __TYPE__: s.Error },
       },
       '422': {
-        'application/json': Object.assign({}, s.ErrorSchema, {
-          _type: {} as unknown as s.Error,
-        }),
+        'application/json': s.ErrorSchema as unknown as { __TYPE__: s.Error },
       },
       '429': {
-        'application/json': Object.assign({}, s.RateLimitErrorSchema, {
-          _type: {} as unknown as s.RateLimitError,
-        }),
+        'application/json': s.RateLimitErrorSchema as unknown as {
+          __TYPE__: s.RateLimitError;
+        },
       },
     },
   },
@@ -404,33 +386,29 @@ export const operations = {
     method: 'get',
     tags: ['Channels'],
     parameters: {
-      path: v.object({ id: v.string() }),
+      path: v.object({ id: v.string() }) as unknown as {
+        __TYPE__: { id: string };
+      },
     },
     response: {
       '200': {
-        'application/json': Object.assign({}, s.ChannelSchema, {
-          _type: {} as unknown as s.Channel,
-        }),
+        'application/json': s.ChannelSchema as unknown as {
+          __TYPE__: s.Channel;
+        },
       },
       '401': {
-        'application/json': Object.assign({}, s.ErrorSchema, {
-          _type: {} as unknown as s.Error,
-        }),
+        'application/json': s.ErrorSchema as unknown as { __TYPE__: s.Error },
       },
       '403': {
-        'application/json': Object.assign({}, s.ErrorSchema, {
-          _type: {} as unknown as s.Error,
-        }),
+        'application/json': s.ErrorSchema as unknown as { __TYPE__: s.Error },
       },
       '404': {
-        'application/json': Object.assign({}, s.ErrorSchema, {
-          _type: {} as unknown as s.Error,
-        }),
+        'application/json': s.ErrorSchema as unknown as { __TYPE__: s.Error },
       },
       '429': {
-        'application/json': Object.assign({}, s.RateLimitErrorSchema, {
-          _type: {} as unknown as s.RateLimitError,
-        }),
+        'application/json': s.RateLimitErrorSchema as unknown as {
+          __TYPE__: s.RateLimitError;
+        },
       },
     },
   },
@@ -439,48 +417,46 @@ export const operations = {
     method: 'put',
     tags: ['Channels'],
     parameters: {
-      path: v.object({ id: v.string() }),
+      path: v.object({ id: v.string() }) as unknown as {
+        __TYPE__: { id: string };
+      },
       body: v.object({
         title: v.optional(v.string()),
         visibility: v.optional(v.picklist(['public', 'private', 'closed'])),
         description: v.optional(v.union([v.string(), v.null_()])),
-      }),
+      }) as unknown as {
+        __TYPE__: {
+          title?: string;
+          visibility?: 'public' | 'private' | 'closed';
+          description?: string | null;
+        };
+      },
     },
     response: {
       '200': {
-        'application/json': Object.assign({}, s.ChannelSchema, {
-          _type: {} as unknown as s.Channel,
-        }),
+        'application/json': s.ChannelSchema as unknown as {
+          __TYPE__: s.Channel;
+        },
       },
       '400': {
-        'application/json': Object.assign({}, s.ErrorSchema, {
-          _type: {} as unknown as s.Error,
-        }),
+        'application/json': s.ErrorSchema as unknown as { __TYPE__: s.Error },
       },
       '401': {
-        'application/json': Object.assign({}, s.ErrorSchema, {
-          _type: {} as unknown as s.Error,
-        }),
+        'application/json': s.ErrorSchema as unknown as { __TYPE__: s.Error },
       },
       '403': {
-        'application/json': Object.assign({}, s.ErrorSchema, {
-          _type: {} as unknown as s.Error,
-        }),
+        'application/json': s.ErrorSchema as unknown as { __TYPE__: s.Error },
       },
       '404': {
-        'application/json': Object.assign({}, s.ErrorSchema, {
-          _type: {} as unknown as s.Error,
-        }),
+        'application/json': s.ErrorSchema as unknown as { __TYPE__: s.Error },
       },
       '422': {
-        'application/json': Object.assign({}, s.ErrorSchema, {
-          _type: {} as unknown as s.Error,
-        }),
+        'application/json': s.ErrorSchema as unknown as { __TYPE__: s.Error },
       },
       '429': {
-        'application/json': Object.assign({}, s.RateLimitErrorSchema, {
-          _type: {} as unknown as s.RateLimitError,
-        }),
+        'application/json': s.RateLimitErrorSchema as unknown as {
+          __TYPE__: s.RateLimitError;
+        },
       },
     },
   },
@@ -489,29 +465,25 @@ export const operations = {
     method: 'delete',
     tags: ['Channels'],
     parameters: {
-      path: v.object({ id: v.string() }),
+      path: v.object({ id: v.string() }) as unknown as {
+        __TYPE__: { id: string };
+      },
     },
     response: {
       '204': {},
       '401': {
-        'application/json': Object.assign({}, s.ErrorSchema, {
-          _type: {} as unknown as s.Error,
-        }),
+        'application/json': s.ErrorSchema as unknown as { __TYPE__: s.Error },
       },
       '403': {
-        'application/json': Object.assign({}, s.ErrorSchema, {
-          _type: {} as unknown as s.Error,
-        }),
+        'application/json': s.ErrorSchema as unknown as { __TYPE__: s.Error },
       },
       '404': {
-        'application/json': Object.assign({}, s.ErrorSchema, {
-          _type: {} as unknown as s.Error,
-        }),
+        'application/json': s.ErrorSchema as unknown as { __TYPE__: s.Error },
       },
       '429': {
-        'application/json': Object.assign({}, s.RateLimitErrorSchema, {
-          _type: {} as unknown as s.RateLimitError,
-        }),
+        'application/json': s.RateLimitErrorSchema as unknown as {
+          __TYPE__: s.RateLimitError;
+        },
       },
     },
   },
@@ -520,33 +492,29 @@ export const operations = {
     method: 'get',
     tags: ['Connections'],
     parameters: {
-      path: v.object({ id: v.pipe(v.number(), v.integer()) }),
+      path: v.object({ id: v.pipe(v.number(), v.integer()) }) as unknown as {
+        __TYPE__: { id: number };
+      },
     },
     response: {
       '200': {
-        'application/json': Object.assign({}, s.ConnectionSchema, {
-          _type: {} as unknown as s.Connection,
-        }),
+        'application/json': s.ConnectionSchema as unknown as {
+          __TYPE__: s.Connection;
+        },
       },
       '401': {
-        'application/json': Object.assign({}, s.ErrorSchema, {
-          _type: {} as unknown as s.Error,
-        }),
+        'application/json': s.ErrorSchema as unknown as { __TYPE__: s.Error },
       },
       '403': {
-        'application/json': Object.assign({}, s.ErrorSchema, {
-          _type: {} as unknown as s.Error,
-        }),
+        'application/json': s.ErrorSchema as unknown as { __TYPE__: s.Error },
       },
       '404': {
-        'application/json': Object.assign({}, s.ErrorSchema, {
-          _type: {} as unknown as s.Error,
-        }),
+        'application/json': s.ErrorSchema as unknown as { __TYPE__: s.Error },
       },
       '429': {
-        'application/json': Object.assign({}, s.RateLimitErrorSchema, {
-          _type: {} as unknown as s.RateLimitError,
-        }),
+        'application/json': s.RateLimitErrorSchema as unknown as {
+          __TYPE__: s.RateLimitError;
+        },
       },
     },
   },
@@ -555,29 +523,25 @@ export const operations = {
     method: 'delete',
     tags: ['Connections'],
     parameters: {
-      path: v.object({ id: v.pipe(v.number(), v.integer()) }),
+      path: v.object({ id: v.pipe(v.number(), v.integer()) }) as unknown as {
+        __TYPE__: { id: number };
+      },
     },
     response: {
       '204': {},
       '401': {
-        'application/json': Object.assign({}, s.ErrorSchema, {
-          _type: {} as unknown as s.Error,
-        }),
+        'application/json': s.ErrorSchema as unknown as { __TYPE__: s.Error },
       },
       '403': {
-        'application/json': Object.assign({}, s.ErrorSchema, {
-          _type: {} as unknown as s.Error,
-        }),
+        'application/json': s.ErrorSchema as unknown as { __TYPE__: s.Error },
       },
       '404': {
-        'application/json': Object.assign({}, s.ErrorSchema, {
-          _type: {} as unknown as s.Error,
-        }),
+        'application/json': s.ErrorSchema as unknown as { __TYPE__: s.Error },
       },
       '429': {
-        'application/json': Object.assign({}, s.RateLimitErrorSchema, {
-          _type: {} as unknown as s.RateLimitError,
-        }),
+        'application/json': s.RateLimitErrorSchema as unknown as {
+          __TYPE__: s.RateLimitError;
+        },
       },
     },
   },
@@ -586,7 +550,9 @@ export const operations = {
     method: 'get',
     tags: ['Channels'],
     parameters: {
-      path: v.object({ id: v.string() }),
+      path: v.object({ id: v.string() }) as unknown as {
+        __TYPE__: { id: string };
+      },
       query: v.object({
         page: v.optional(v.pipe(v.number(), v.minValue(1))),
         per: v.optional(v.pipe(v.number(), v.minValue(1), v.maxValue(100))),
@@ -601,33 +567,40 @@ export const operations = {
           ]),
         ),
         user_id: v.optional(v.pipe(v.number(), v.integer())),
-      }),
+      }) as unknown as {
+        __TYPE__: {
+          page?: number;
+          per?: number;
+          sort?:
+            | 'position_asc'
+            | 'position_desc'
+            | 'created_at_asc'
+            | 'created_at_desc'
+            | 'updated_at_asc'
+            | 'updated_at_desc';
+          user_id?: number;
+        };
+      },
     },
     response: {
       '200': {
-        'application/json': Object.assign({}, s.ConnectableListResponseSchema, {
-          _type: {} as unknown as s.ConnectableListResponse,
-        }),
+        'application/json': s.ConnectableListResponseSchema as unknown as {
+          __TYPE__: s.ConnectableListResponse;
+        },
       },
       '401': {
-        'application/json': Object.assign({}, s.ErrorSchema, {
-          _type: {} as unknown as s.Error,
-        }),
+        'application/json': s.ErrorSchema as unknown as { __TYPE__: s.Error },
       },
       '403': {
-        'application/json': Object.assign({}, s.ErrorSchema, {
-          _type: {} as unknown as s.Error,
-        }),
+        'application/json': s.ErrorSchema as unknown as { __TYPE__: s.Error },
       },
       '404': {
-        'application/json': Object.assign({}, s.ErrorSchema, {
-          _type: {} as unknown as s.Error,
-        }),
+        'application/json': s.ErrorSchema as unknown as { __TYPE__: s.Error },
       },
       '429': {
-        'application/json': Object.assign({}, s.RateLimitErrorSchema, {
-          _type: {} as unknown as s.RateLimitError,
-        }),
+        'application/json': s.RateLimitErrorSchema as unknown as {
+          __TYPE__: s.RateLimitError;
+        },
       },
     },
   },
@@ -636,38 +609,40 @@ export const operations = {
     method: 'get',
     tags: ['Channels'],
     parameters: {
-      path: v.object({ id: v.string() }),
+      path: v.object({ id: v.string() }) as unknown as {
+        __TYPE__: { id: string };
+      },
       query: v.object({
         page: v.optional(v.pipe(v.number(), v.minValue(1))),
         per: v.optional(v.pipe(v.number(), v.minValue(1), v.maxValue(100))),
         sort: v.optional(v.picklist(['created_at_desc', 'created_at_asc'])),
-      }),
+      }) as unknown as {
+        __TYPE__: {
+          page?: number;
+          per?: number;
+          sort?: 'created_at_desc' | 'created_at_asc';
+        };
+      },
     },
     response: {
       '200': {
-        'application/json': Object.assign({}, s.ChannelListResponseSchema, {
-          _type: {} as unknown as s.ChannelListResponse,
-        }),
+        'application/json': s.ChannelListResponseSchema as unknown as {
+          __TYPE__: s.ChannelListResponse;
+        },
       },
       '401': {
-        'application/json': Object.assign({}, s.ErrorSchema, {
-          _type: {} as unknown as s.Error,
-        }),
+        'application/json': s.ErrorSchema as unknown as { __TYPE__: s.Error },
       },
       '403': {
-        'application/json': Object.assign({}, s.ErrorSchema, {
-          _type: {} as unknown as s.Error,
-        }),
+        'application/json': s.ErrorSchema as unknown as { __TYPE__: s.Error },
       },
       '404': {
-        'application/json': Object.assign({}, s.ErrorSchema, {
-          _type: {} as unknown as s.Error,
-        }),
+        'application/json': s.ErrorSchema as unknown as { __TYPE__: s.Error },
       },
       '429': {
-        'application/json': Object.assign({}, s.RateLimitErrorSchema, {
-          _type: {} as unknown as s.RateLimitError,
-        }),
+        'application/json': s.RateLimitErrorSchema as unknown as {
+          __TYPE__: s.RateLimitError;
+        },
       },
     },
   },
@@ -676,38 +651,40 @@ export const operations = {
     method: 'get',
     tags: ['Channels'],
     parameters: {
-      path: v.object({ id: v.string() }),
+      path: v.object({ id: v.string() }) as unknown as {
+        __TYPE__: { id: string };
+      },
       query: v.object({
         page: v.optional(v.pipe(v.number(), v.minValue(1))),
         per: v.optional(v.pipe(v.number(), v.minValue(1), v.maxValue(100))),
         sort: v.optional(v.picklist(['created_at_desc', 'created_at_asc'])),
-      }),
+      }) as unknown as {
+        __TYPE__: {
+          page?: number;
+          per?: number;
+          sort?: 'created_at_desc' | 'created_at_asc';
+        };
+      },
     },
     response: {
       '200': {
-        'application/json': Object.assign({}, s.UserListResponseSchema, {
-          _type: {} as unknown as s.UserListResponse,
-        }),
+        'application/json': s.UserListResponseSchema as unknown as {
+          __TYPE__: s.UserListResponse;
+        },
       },
       '401': {
-        'application/json': Object.assign({}, s.ErrorSchema, {
-          _type: {} as unknown as s.Error,
-        }),
+        'application/json': s.ErrorSchema as unknown as { __TYPE__: s.Error },
       },
       '403': {
-        'application/json': Object.assign({}, s.ErrorSchema, {
-          _type: {} as unknown as s.Error,
-        }),
+        'application/json': s.ErrorSchema as unknown as { __TYPE__: s.Error },
       },
       '404': {
-        'application/json': Object.assign({}, s.ErrorSchema, {
-          _type: {} as unknown as s.Error,
-        }),
+        'application/json': s.ErrorSchema as unknown as { __TYPE__: s.Error },
       },
       '429': {
-        'application/json': Object.assign({}, s.RateLimitErrorSchema, {
-          _type: {} as unknown as s.RateLimitError,
-        }),
+        'application/json': s.RateLimitErrorSchema as unknown as {
+          __TYPE__: s.RateLimitError;
+        },
       },
     },
   },
@@ -718,19 +695,15 @@ export const operations = {
     parameters: {},
     response: {
       '200': {
-        'application/json': Object.assign({}, s.UserSchema, {
-          _type: {} as unknown as s.User,
-        }),
+        'application/json': s.UserSchema as unknown as { __TYPE__: s.User },
       },
       '401': {
-        'application/json': Object.assign({}, s.ErrorSchema, {
-          _type: {} as unknown as s.Error,
-        }),
+        'application/json': s.ErrorSchema as unknown as { __TYPE__: s.Error },
       },
       '429': {
-        'application/json': Object.assign({}, s.RateLimitErrorSchema, {
-          _type: {} as unknown as s.RateLimitError,
-        }),
+        'application/json': s.RateLimitErrorSchema as unknown as {
+          __TYPE__: s.RateLimitError;
+        },
       },
     },
   },
@@ -739,33 +712,27 @@ export const operations = {
     method: 'get',
     tags: ['Users'],
     parameters: {
-      path: v.object({ id: v.string() }),
+      path: v.object({ id: v.string() }) as unknown as {
+        __TYPE__: { id: string };
+      },
     },
     response: {
       '200': {
-        'application/json': Object.assign({}, s.UserSchema, {
-          _type: {} as unknown as s.User,
-        }),
+        'application/json': s.UserSchema as unknown as { __TYPE__: s.User },
       },
       '401': {
-        'application/json': Object.assign({}, s.ErrorSchema, {
-          _type: {} as unknown as s.Error,
-        }),
+        'application/json': s.ErrorSchema as unknown as { __TYPE__: s.Error },
       },
       '403': {
-        'application/json': Object.assign({}, s.ErrorSchema, {
-          _type: {} as unknown as s.Error,
-        }),
+        'application/json': s.ErrorSchema as unknown as { __TYPE__: s.Error },
       },
       '404': {
-        'application/json': Object.assign({}, s.ErrorSchema, {
-          _type: {} as unknown as s.Error,
-        }),
+        'application/json': s.ErrorSchema as unknown as { __TYPE__: s.Error },
       },
       '429': {
-        'application/json': Object.assign({}, s.RateLimitErrorSchema, {
-          _type: {} as unknown as s.RateLimitError,
-        }),
+        'application/json': s.RateLimitErrorSchema as unknown as {
+          __TYPE__: s.RateLimitError;
+        },
       },
     },
   },
@@ -774,7 +741,9 @@ export const operations = {
     method: 'get',
     tags: ['Users'],
     parameters: {
-      path: v.object({ id: v.string() }),
+      path: v.object({ id: v.string() }) as unknown as {
+        __TYPE__: { id: string };
+      },
       query: v.object({
         page: v.optional(v.pipe(v.number(), v.minValue(1))),
         per: v.optional(v.pipe(v.number(), v.minValue(1), v.maxValue(100))),
@@ -797,33 +766,45 @@ export const operations = {
             'Block',
           ]),
         ),
-      }),
+      }) as unknown as {
+        __TYPE__: {
+          page?: number;
+          per?: number;
+          sort?:
+            | 'created_at_asc'
+            | 'created_at_desc'
+            | 'updated_at_asc'
+            | 'updated_at_desc';
+          type?:
+            | 'Text'
+            | 'Image'
+            | 'Link'
+            | 'Attachment'
+            | 'Embed'
+            | 'Channel'
+            | 'Block';
+        };
+      },
     },
     response: {
       '200': {
-        'application/json': Object.assign({}, s.ConnectableListResponseSchema, {
-          _type: {} as unknown as s.ConnectableListResponse,
-        }),
+        'application/json': s.ConnectableListResponseSchema as unknown as {
+          __TYPE__: s.ConnectableListResponse;
+        },
       },
       '401': {
-        'application/json': Object.assign({}, s.ErrorSchema, {
-          _type: {} as unknown as s.Error,
-        }),
+        'application/json': s.ErrorSchema as unknown as { __TYPE__: s.Error },
       },
       '403': {
-        'application/json': Object.assign({}, s.ErrorSchema, {
-          _type: {} as unknown as s.Error,
-        }),
+        'application/json': s.ErrorSchema as unknown as { __TYPE__: s.Error },
       },
       '404': {
-        'application/json': Object.assign({}, s.ErrorSchema, {
-          _type: {} as unknown as s.Error,
-        }),
+        'application/json': s.ErrorSchema as unknown as { __TYPE__: s.Error },
       },
       '429': {
-        'application/json': Object.assign({}, s.RateLimitErrorSchema, {
-          _type: {} as unknown as s.RateLimitError,
-        }),
+        'application/json': s.RateLimitErrorSchema as unknown as {
+          __TYPE__: s.RateLimitError;
+        },
       },
     },
   },
@@ -832,38 +813,40 @@ export const operations = {
     method: 'get',
     tags: ['Users'],
     parameters: {
-      path: v.object({ id: v.string() }),
+      path: v.object({ id: v.string() }) as unknown as {
+        __TYPE__: { id: string };
+      },
       query: v.object({
         page: v.optional(v.pipe(v.number(), v.minValue(1))),
         per: v.optional(v.pipe(v.number(), v.minValue(1), v.maxValue(100))),
         sort: v.optional(v.picklist(['created_at_desc', 'created_at_asc'])),
-      }),
+      }) as unknown as {
+        __TYPE__: {
+          page?: number;
+          per?: number;
+          sort?: 'created_at_desc' | 'created_at_asc';
+        };
+      },
     },
     response: {
       '200': {
-        'application/json': Object.assign({}, s.UserListResponseSchema, {
-          _type: {} as unknown as s.UserListResponse,
-        }),
+        'application/json': s.UserListResponseSchema as unknown as {
+          __TYPE__: s.UserListResponse;
+        },
       },
       '401': {
-        'application/json': Object.assign({}, s.ErrorSchema, {
-          _type: {} as unknown as s.Error,
-        }),
+        'application/json': s.ErrorSchema as unknown as { __TYPE__: s.Error },
       },
       '403': {
-        'application/json': Object.assign({}, s.ErrorSchema, {
-          _type: {} as unknown as s.Error,
-        }),
+        'application/json': s.ErrorSchema as unknown as { __TYPE__: s.Error },
       },
       '404': {
-        'application/json': Object.assign({}, s.ErrorSchema, {
-          _type: {} as unknown as s.Error,
-        }),
+        'application/json': s.ErrorSchema as unknown as { __TYPE__: s.Error },
       },
       '429': {
-        'application/json': Object.assign({}, s.RateLimitErrorSchema, {
-          _type: {} as unknown as s.RateLimitError,
-        }),
+        'application/json': s.RateLimitErrorSchema as unknown as {
+          __TYPE__: s.RateLimitError;
+        },
       },
     },
   },
@@ -872,39 +855,42 @@ export const operations = {
     method: 'get',
     tags: ['Users'],
     parameters: {
-      path: v.object({ id: v.string() }),
+      path: v.object({ id: v.string() }) as unknown as {
+        __TYPE__: { id: string };
+      },
       query: v.object({
         page: v.optional(v.pipe(v.number(), v.minValue(1))),
         per: v.optional(v.pipe(v.number(), v.minValue(1), v.maxValue(100))),
         sort: v.optional(v.picklist(['created_at_desc', 'created_at_asc'])),
         type: v.optional(v.picklist(['User', 'Channel', 'Group'])),
-      }),
+      }) as unknown as {
+        __TYPE__: {
+          page?: number;
+          per?: number;
+          sort?: 'created_at_desc' | 'created_at_asc';
+          type?: 'User' | 'Channel' | 'Group';
+        };
+      },
     },
     response: {
       '200': {
-        'application/json': Object.assign({}, s.FollowableListResponseSchema, {
-          _type: {} as unknown as s.FollowableListResponse,
-        }),
+        'application/json': s.FollowableListResponseSchema as unknown as {
+          __TYPE__: s.FollowableListResponse;
+        },
       },
       '401': {
-        'application/json': Object.assign({}, s.ErrorSchema, {
-          _type: {} as unknown as s.Error,
-        }),
+        'application/json': s.ErrorSchema as unknown as { __TYPE__: s.Error },
       },
       '403': {
-        'application/json': Object.assign({}, s.ErrorSchema, {
-          _type: {} as unknown as s.Error,
-        }),
+        'application/json': s.ErrorSchema as unknown as { __TYPE__: s.Error },
       },
       '404': {
-        'application/json': Object.assign({}, s.ErrorSchema, {
-          _type: {} as unknown as s.Error,
-        }),
+        'application/json': s.ErrorSchema as unknown as { __TYPE__: s.Error },
       },
       '429': {
-        'application/json': Object.assign({}, s.RateLimitErrorSchema, {
-          _type: {} as unknown as s.RateLimitError,
-        }),
+        'application/json': s.RateLimitErrorSchema as unknown as {
+          __TYPE__: s.RateLimitError;
+        },
       },
     },
   },
@@ -913,33 +899,27 @@ export const operations = {
     method: 'get',
     tags: ['Groups'],
     parameters: {
-      path: v.object({ id: v.string() }),
+      path: v.object({ id: v.string() }) as unknown as {
+        __TYPE__: { id: string };
+      },
     },
     response: {
       '200': {
-        'application/json': Object.assign({}, s.GroupSchema, {
-          _type: {} as unknown as s.Group,
-        }),
+        'application/json': s.GroupSchema as unknown as { __TYPE__: s.Group },
       },
       '401': {
-        'application/json': Object.assign({}, s.ErrorSchema, {
-          _type: {} as unknown as s.Error,
-        }),
+        'application/json': s.ErrorSchema as unknown as { __TYPE__: s.Error },
       },
       '403': {
-        'application/json': Object.assign({}, s.ErrorSchema, {
-          _type: {} as unknown as s.Error,
-        }),
+        'application/json': s.ErrorSchema as unknown as { __TYPE__: s.Error },
       },
       '404': {
-        'application/json': Object.assign({}, s.ErrorSchema, {
-          _type: {} as unknown as s.Error,
-        }),
+        'application/json': s.ErrorSchema as unknown as { __TYPE__: s.Error },
       },
       '429': {
-        'application/json': Object.assign({}, s.RateLimitErrorSchema, {
-          _type: {} as unknown as s.RateLimitError,
-        }),
+        'application/json': s.RateLimitErrorSchema as unknown as {
+          __TYPE__: s.RateLimitError;
+        },
       },
     },
   },
@@ -948,7 +928,9 @@ export const operations = {
     method: 'get',
     tags: ['Groups'],
     parameters: {
-      path: v.object({ id: v.string() }),
+      path: v.object({ id: v.string() }) as unknown as {
+        __TYPE__: { id: string };
+      },
       query: v.object({
         page: v.optional(v.pipe(v.number(), v.minValue(1))),
         per: v.optional(v.pipe(v.number(), v.minValue(1), v.maxValue(100))),
@@ -971,33 +953,45 @@ export const operations = {
             'Block',
           ]),
         ),
-      }),
+      }) as unknown as {
+        __TYPE__: {
+          page?: number;
+          per?: number;
+          sort?:
+            | 'created_at_asc'
+            | 'created_at_desc'
+            | 'updated_at_asc'
+            | 'updated_at_desc';
+          type?:
+            | 'Text'
+            | 'Image'
+            | 'Link'
+            | 'Attachment'
+            | 'Embed'
+            | 'Channel'
+            | 'Block';
+        };
+      },
     },
     response: {
       '200': {
-        'application/json': Object.assign({}, s.ConnectableListResponseSchema, {
-          _type: {} as unknown as s.ConnectableListResponse,
-        }),
+        'application/json': s.ConnectableListResponseSchema as unknown as {
+          __TYPE__: s.ConnectableListResponse;
+        },
       },
       '401': {
-        'application/json': Object.assign({}, s.ErrorSchema, {
-          _type: {} as unknown as s.Error,
-        }),
+        'application/json': s.ErrorSchema as unknown as { __TYPE__: s.Error },
       },
       '403': {
-        'application/json': Object.assign({}, s.ErrorSchema, {
-          _type: {} as unknown as s.Error,
-        }),
+        'application/json': s.ErrorSchema as unknown as { __TYPE__: s.Error },
       },
       '404': {
-        'application/json': Object.assign({}, s.ErrorSchema, {
-          _type: {} as unknown as s.Error,
-        }),
+        'application/json': s.ErrorSchema as unknown as { __TYPE__: s.Error },
       },
       '429': {
-        'application/json': Object.assign({}, s.RateLimitErrorSchema, {
-          _type: {} as unknown as s.RateLimitError,
-        }),
+        'application/json': s.RateLimitErrorSchema as unknown as {
+          __TYPE__: s.RateLimitError;
+        },
       },
     },
   },
@@ -1006,38 +1000,40 @@ export const operations = {
     method: 'get',
     tags: ['Groups'],
     parameters: {
-      path: v.object({ id: v.string() }),
+      path: v.object({ id: v.string() }) as unknown as {
+        __TYPE__: { id: string };
+      },
       query: v.object({
         page: v.optional(v.pipe(v.number(), v.minValue(1))),
         per: v.optional(v.pipe(v.number(), v.minValue(1), v.maxValue(100))),
         sort: v.optional(v.picklist(['created_at_desc', 'created_at_asc'])),
-      }),
+      }) as unknown as {
+        __TYPE__: {
+          page?: number;
+          per?: number;
+          sort?: 'created_at_desc' | 'created_at_asc';
+        };
+      },
     },
     response: {
       '200': {
-        'application/json': Object.assign({}, s.UserListResponseSchema, {
-          _type: {} as unknown as s.UserListResponse,
-        }),
+        'application/json': s.UserListResponseSchema as unknown as {
+          __TYPE__: s.UserListResponse;
+        },
       },
       '401': {
-        'application/json': Object.assign({}, s.ErrorSchema, {
-          _type: {} as unknown as s.Error,
-        }),
+        'application/json': s.ErrorSchema as unknown as { __TYPE__: s.Error },
       },
       '403': {
-        'application/json': Object.assign({}, s.ErrorSchema, {
-          _type: {} as unknown as s.Error,
-        }),
+        'application/json': s.ErrorSchema as unknown as { __TYPE__: s.Error },
       },
       '404': {
-        'application/json': Object.assign({}, s.ErrorSchema, {
-          _type: {} as unknown as s.Error,
-        }),
+        'application/json': s.ErrorSchema as unknown as { __TYPE__: s.Error },
       },
       '429': {
-        'application/json': Object.assign({}, s.RateLimitErrorSchema, {
-          _type: {} as unknown as s.RateLimitError,
-        }),
+        'application/json': s.RateLimitErrorSchema as unknown as {
+          __TYPE__: s.RateLimitError;
+        },
       },
     },
   },
@@ -1073,33 +1069,49 @@ export const operations = {
         seed: v.optional(v.pipe(v.number(), v.integer())),
         page: v.optional(v.pipe(v.number(), v.minValue(1))),
         per: v.optional(v.pipe(v.number(), v.minValue(1), v.maxValue(100))),
-      }),
+      }) as unknown as {
+        __TYPE__: {
+          q?: string;
+          type?: s.SearchTypeFilter[];
+          scope?: string;
+          in?: 'name' | 'description' | 'content' | 'domain' | 'url'[];
+          ext?: s.FileExtension[];
+          sort?:
+            | 'score_desc'
+            | 'created_at_desc'
+            | 'created_at_asc'
+            | 'updated_at_desc'
+            | 'updated_at_asc'
+            | 'name_asc'
+            | 'name_desc'
+            | 'connections_count_desc'
+            | 'random';
+          after?: string;
+          seed?: number;
+          page?: number;
+          per?: number;
+        };
+      },
     },
     response: {
       '200': {
-        'application/json': Object.assign({}, s.EverythingListResponseSchema, {
-          _type: {} as unknown as s.EverythingListResponse,
-        }),
+        'application/json': s.EverythingListResponseSchema as unknown as {
+          __TYPE__: s.EverythingListResponse;
+        },
       },
       '400': {
-        'application/json': Object.assign({}, s.ErrorSchema, {
-          _type: {} as unknown as s.Error,
-        }),
+        'application/json': s.ErrorSchema as unknown as { __TYPE__: s.Error },
       },
       '401': {
-        'application/json': Object.assign({}, s.ErrorSchema, {
-          _type: {} as unknown as s.Error,
-        }),
+        'application/json': s.ErrorSchema as unknown as { __TYPE__: s.Error },
       },
       '403': {
-        'application/json': Object.assign({}, s.ErrorSchema, {
-          _type: {} as unknown as s.Error,
-        }),
+        'application/json': s.ErrorSchema as unknown as { __TYPE__: s.Error },
       },
       '429': {
-        'application/json': Object.assign({}, s.RateLimitErrorSchema, {
-          _type: {} as unknown as s.RateLimitError,
-        }),
+        'application/json': s.RateLimitErrorSchema as unknown as {
+          __TYPE__: s.RateLimitError;
+        },
       },
     },
   },

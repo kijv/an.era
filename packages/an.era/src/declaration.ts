@@ -2,9 +2,18 @@ import type * as v from 'valibot';
 
 export type ValiSchema = v.BaseSchema<unknown, unknown, v.BaseIssue<unknown>>;
 
-export type ValiSchemaWithType = ValiSchema & {
-  _type: unknown;
+export type FakeValiSchema = {
+  __TYPE__: {};
 };
+
+export type MaybeValiSchema = ValiSchema | FakeValiSchema;
+
+export type ValiSchemaInferInput<T extends MaybeValiSchema> =
+  T extends FakeValiSchema
+    ? T['__TYPE__']
+    : T extends ValiSchema
+      ? v.InferInput<T>
+      : T;
 
 export type Prettify<T> = { [K in keyof T]: T[K] } & {};
 
@@ -64,16 +73,13 @@ export type MakeTrailingOptional<T extends unknown[]> = T extends []
       : T
     : T;
 
-export type MapSchemaTupleToInput<T extends ValiSchema[]> = T extends [
-  infer First extends ValiSchema,
-  ...infer Rest extends ValiSchema[],
+export type MapSchemaTupleToInput<T extends MaybeValiSchema[]> = T extends [
+  infer First extends MaybeValiSchema,
+  ...infer Rest extends MaybeValiSchema[],
 ]
   ? Rest extends []
-    ? [First extends ValiSchemaWithType ? First['_type'] : v.InferInput<First>]
-    : [
-        First extends ValiSchemaWithType ? First['_type'] : v.InferInput<First>,
-        ...MapSchemaTupleToInput<Rest>,
-      ]
+    ? [ValiSchemaInferInput<First>]
+    : [ValiSchemaInferInput<First>, ...MapSchemaTupleToInput<Rest>]
   : [];
 
 type UnionToIntersection<U> = (

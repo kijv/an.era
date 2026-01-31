@@ -3,11 +3,10 @@ import type {
   MakeTrailingOptional,
   MapSchemaTupleToInput,
   MapUniqueUnion,
+  MaybeValiSchema,
   ObjectValuesToTuple,
   Prettify,
   PrettifyTuple,
-  ValiSchema,
-  ValiSchemaWithType,
 } from '@/declaration';
 import contentTypeParser from 'fast-content-type-parse';
 import { parseResponseBody } from '@/api/util';
@@ -24,8 +23,8 @@ export type Operation = {
     | 'put'
     | 'trace';
   tags: readonly string[];
-  parameters: Record<string, ValiSchema | ValiSchemaWithType>;
-  response: Record<string, Record<string, ValiSchema | ValiSchemaWithType>>;
+  parameters: Record<string, MaybeValiSchema>;
+  response: Record<string, Record<string, MaybeValiSchema>>;
 };
 
 type OperationFunction<TOperation extends Operation> = (

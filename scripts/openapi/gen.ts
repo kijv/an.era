@@ -333,7 +333,8 @@ const getOperationsCode = () => {
                         )
                         .concat('__')
                         .join('');
-                      codeReferences[reference] = code.js;
+                      codeReferences[reference] =
+                        `${code.js} as unknown as { __TYPE__: ${code.ts} }`;
                       return reference;
                     })(),
                   ]),
@@ -384,7 +385,7 @@ const getOperationsCode = () => {
                       .concat('__')
                       .join('');
                     codeReferences[reference] =
-                      `Object.assign({}, ${js}, { _type: {} as unknown as ${ts} })`;
+                      `${js} as unknown as { __TYPE__: ${ts} }`;
                     return reference;
                   })(),
                 ]),
