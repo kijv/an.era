@@ -1,6 +1,7 @@
 {
   "name": "an.era",
-  "version": "0.3.2-beta",
+  "version": "0.3.0-beta.0",
+  "description": "Interfacing for Are.na API",
   "keywords": [
     "are.na"
   ],
@@ -16,15 +17,18 @@
     "dist"
   ],
   "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
   "exports": {
     ".": {
-      "types": "./dist/index.d.mts",
-      "default": "./dist/index.mjs"
-    }
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./package.json": "./package.json"
   },
   "scripts": {
-    "build": "rolldown -c",
-    "lint": "oxlint --type-aware -A all -D typescript/no-floating-promise",
+    "build": "tsdown",
+    "lint": "oxlint",
     "lint:fix": "oxlint --fix",
     "fmt": "oxfmt",
     "fmt:check": "oxfmt --check",
@@ -34,16 +38,19 @@
     "valibot": "^1.2.0"
   },
   "devDependencies": {
-    "@types/bun": "latest",
-    "@typescript/native-preview": "^7.0.0-dev.20260126.1",
-    "form-urlencoded": "^6.1.6",
-    "oas": "^28.9.0",
-    "oas-normalize": "^15.7.0",
+    "@arethetypeswrong/core": "^0.18.2",
+    "fast-content-type-parse": "^3.0.0",
     "oxfmt": "^0.24.0",
     "oxlint": "^1.41.0",
     "oxlint-tsgolint": "^0.11.2",
+    "publint": "^0.3.17",
+    "stable-hash": "^0.0.6",
     "tsdown": "^0.20.1",
     "typescript": "^5",
-    "vitest": "^3.0.0"
+    "url-template": "^3.1.1",
+    "vitest": "^4.0.18"
+  },
+  "patchedDependencies": {
+    "json-schema-to-valibot@0.3.0": "patches/json-schema-to-valibot@0.3.0.patch"
   }
 }

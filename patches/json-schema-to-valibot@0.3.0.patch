@@ -1,0 +1,486 @@
+diff --git a/node_modules/json-schema-to-valibot/.bun-tag-124ae2ce9cf4068e b/.bun-tag-124ae2ce9cf4068e
+new file mode 100644
+index 0000000000000000000000000000000000000000..e69de29bb2d1d6434b8b29ae775ad8c2e48c5391
+diff --git a/node_modules/json-schema-to-valibot/.bun-tag-1b3c857872ec03e9 b/.bun-tag-1b3c857872ec03e9
+new file mode 100644
+index 0000000000000000000000000000000000000000..e69de29bb2d1d6434b8b29ae775ad8c2e48c5391
+diff --git a/node_modules/json-schema-to-valibot/.bun-tag-230e848de05b49fb b/.bun-tag-230e848de05b49fb
+new file mode 100644
+index 0000000000000000000000000000000000000000..e69de29bb2d1d6434b8b29ae775ad8c2e48c5391
+diff --git a/node_modules/json-schema-to-valibot/.bun-tag-2891e1b6383c7e8f b/.bun-tag-2891e1b6383c7e8f
+new file mode 100644
+index 0000000000000000000000000000000000000000..e69de29bb2d1d6434b8b29ae775ad8c2e48c5391
+diff --git a/node_modules/json-schema-to-valibot/.bun-tag-2c5d702d5214ae44 b/.bun-tag-2c5d702d5214ae44
+new file mode 100644
+index 0000000000000000000000000000000000000000..e69de29bb2d1d6434b8b29ae775ad8c2e48c5391
+diff --git a/node_modules/json-schema-to-valibot/.bun-tag-37e2c504769f0aa5 b/.bun-tag-37e2c504769f0aa5
+new file mode 100644
+index 0000000000000000000000000000000000000000..e69de29bb2d1d6434b8b29ae775ad8c2e48c5391
+diff --git a/node_modules/json-schema-to-valibot/.bun-tag-3ceaadb1f62729c0 b/.bun-tag-3ceaadb1f62729c0
+new file mode 100644
+index 0000000000000000000000000000000000000000..e69de29bb2d1d6434b8b29ae775ad8c2e48c5391
+diff --git a/node_modules/json-schema-to-valibot/.bun-tag-4505a9dbf9a4d51 b/.bun-tag-4505a9dbf9a4d51
+new file mode 100644
+index 0000000000000000000000000000000000000000..e69de29bb2d1d6434b8b29ae775ad8c2e48c5391
+diff --git a/node_modules/json-schema-to-valibot/.bun-tag-5068625f8a06499a b/.bun-tag-5068625f8a06499a
+new file mode 100644
+index 0000000000000000000000000000000000000000..e69de29bb2d1d6434b8b29ae775ad8c2e48c5391
+diff --git a/node_modules/json-schema-to-valibot/.bun-tag-60faeefa0ffe1b07 b/.bun-tag-60faeefa0ffe1b07
+new file mode 100644
+index 0000000000000000000000000000000000000000..e69de29bb2d1d6434b8b29ae775ad8c2e48c5391
+diff --git a/node_modules/json-schema-to-valibot/.bun-tag-710c93a404b6576b b/.bun-tag-710c93a404b6576b
+new file mode 100644
+index 0000000000000000000000000000000000000000..e69de29bb2d1d6434b8b29ae775ad8c2e48c5391
+diff --git a/node_modules/json-schema-to-valibot/.bun-tag-7f163e5d74977e81 b/.bun-tag-7f163e5d74977e81
+new file mode 100644
+index 0000000000000000000000000000000000000000..e69de29bb2d1d6434b8b29ae775ad8c2e48c5391
+diff --git a/node_modules/json-schema-to-valibot/.bun-tag-9694ef73f03a0e83 b/.bun-tag-9694ef73f03a0e83
+new file mode 100644
+index 0000000000000000000000000000000000000000..e69de29bb2d1d6434b8b29ae775ad8c2e48c5391
+diff --git a/node_modules/json-schema-to-valibot/.bun-tag-a526f1dc16b3770d b/.bun-tag-a526f1dc16b3770d
+new file mode 100644
+index 0000000000000000000000000000000000000000..e69de29bb2d1d6434b8b29ae775ad8c2e48c5391
+diff --git a/node_modules/json-schema-to-valibot/.bun-tag-c7c348c851dd8134 b/.bun-tag-c7c348c851dd8134
+new file mode 100644
+index 0000000000000000000000000000000000000000..e69de29bb2d1d6434b8b29ae775ad8c2e48c5391
+diff --git a/node_modules/json-schema-to-valibot/.bun-tag-d0a6917ed0169161 b/.bun-tag-d0a6917ed0169161
+new file mode 100644
+index 0000000000000000000000000000000000000000..e69de29bb2d1d6434b8b29ae775ad8c2e48c5391
+diff --git a/node_modules/json-schema-to-valibot/.bun-tag-da506c6e9cdd7d2b b/.bun-tag-da506c6e9cdd7d2b
+new file mode 100644
+index 0000000000000000000000000000000000000000..e69de29bb2d1d6434b8b29ae775ad8c2e48c5391
+diff --git a/node_modules/json-schema-to-valibot/.bun-tag-e41618523ed1f9b2 b/.bun-tag-e41618523ed1f9b2
+new file mode 100644
+index 0000000000000000000000000000000000000000..e69de29bb2d1d6434b8b29ae775ad8c2e48c5391
+diff --git a/node_modules/json-schema-to-valibot/.bun-tag-e503a2f9525fd336 b/.bun-tag-e503a2f9525fd336
+new file mode 100644
+index 0000000000000000000000000000000000000000..e69de29bb2d1d6434b8b29ae775ad8c2e48c5391
+diff --git a/node_modules/json-schema-to-valibot/.bun-tag-edff4a7ec159ee00 b/.bun-tag-edff4a7ec159ee00
+new file mode 100644
+index 0000000000000000000000000000000000000000..e69de29bb2d1d6434b8b29ae775ad8c2e48c5391
+diff --git a/node_modules/json-schema-to-valibot/.bun-tag-f2f4f13eaf3f76b1 b/.bun-tag-f2f4f13eaf3f76b1
+new file mode 100644
+index 0000000000000000000000000000000000000000..e69de29bb2d1d6434b8b29ae775ad8c2e48c5391
+diff --git a/node_modules/json-schema-to-valibot/.bun-tag-f426be089f94daf3 b/.bun-tag-f426be089f94daf3
+new file mode 100644
+index 0000000000000000000000000000000000000000..e69de29bb2d1d6434b8b29ae775ad8c2e48c5391
+diff --git a/node_modules/json-schema-to-valibot/.bun-tag-f47d45ca97871e3d b/.bun-tag-f47d45ca97871e3d
+new file mode 100644
+index 0000000000000000000000000000000000000000..e69de29bb2d1d6434b8b29ae775ad8c2e48c5391
+diff --git a/node_modules/json-schema-to-valibot/.bun-tag-fe185554f631bd1 b/.bun-tag-fe185554f631bd1
+new file mode 100644
+index 0000000000000000000000000000000000000000..e69de29bb2d1d6434b8b29ae775ad8c2e48c5391
+diff --git a/dist/index.js b/dist/index.js
+index c9b539a07ad6b062c14005f7ebd2f0e0fb18c307..f1e9e67625a4722274d0b05aeee5d613cd575f0b 100644
+--- a/dist/index.js
++++ b/dist/index.js
+@@ -1,7 +1,7 @@
+ "use strict";
+ 
+ //#region src/parsers/parseString.ts
+-function parseString(schema, _context) {
++function parseString(schema, context) {
+ 	const imports = new Set(["string"]);
+ 	const constraints = [];
+ 	if (typeof schema.minLength === "number") {
+@@ -52,7 +52,7 @@ function parseString(schema, _context) {
+ 			break;
+ 		default: break;
+ 	}
+-	const schemaStr = constraints.length > 0 ? `v.pipe(v.string(), ${constraints.join(", ")})` : "v.string()";
++	const schemaStr = constraints.length > 0 ? `v.pipe(v.string(), ${(context.constraints ?? ((c) => c))(constraints).join(", ")})` : "v.string()";
+ 	if (constraints.length > 0) imports.add("pipe");
+ 	return {
+ 		schema: schemaStr,
+@@ -143,7 +143,7 @@ function parseArray(schema, context) {
+ 				depth: context.depth + 1
+ 			});
+ 			itemsSchema = firstItemResult.schema;
+-			itemsImports = firstItemResult.imports;
++      itemsImports = firstItemResult.imports;
+ 			itemsType = firstItemResult.types || "any";
+ 		}
+ 	} else {
+@@ -152,7 +152,7 @@ function parseArray(schema, context) {
+ 			depth: context.depth + 1
+ 		});
+ 		itemsSchema = itemsResult.schema;
+-		itemsImports = itemsResult.imports;
++    itemsImports = itemsResult.imports;
+ 		itemsType = itemsResult.types || "any";
+ 	}
+ else itemsImports.add("any");
+@@ -192,7 +192,7 @@ function parseObject(schema, context) {
+ 			depth: context.depth + 1,
+ 			currentPath: [...context.currentPath, key]
+ 		});
+-		properties[key] = propResult.schema;
++    properties[key] = propResult.schema;
+ 		propertyTypes[key] = propResult.types || "any";
+ 		propResult.imports.forEach((imp) => allImports.add(imp));
+ 	}
+@@ -219,7 +219,7 @@ else {
+ 			currentPath: [...context.currentPath, "additionalProperties"]
+ 		});
+ 		additionalResult.imports.forEach((imp) => allImports.add(imp));
+-		if (propsEntries.length > 0) schemaStr = `v.object(${propsObject}, ${additionalResult.schema})`;
++		if (propsEntries.length > 0) schemaStr = `v.objectWithRest(${propsObject}, ${additionalResult.schema})`;
+ else {
+ 			schemaStr = `v.record(${additionalResult.schema})`;
+ 			allImports.add("record");
+@@ -312,19 +312,20 @@ function parseAnyOf(schema, context) {
+ //#endregion
+ //#region src/parsers/parseAllOf.ts
+ function parseAllOf(schema, context) {
+-	if (!schema.allOf || schema.allOf.length === 0) return {
++  const allOf = schema.allOf.filter(s => typeof s === "object" && ("type" in s || "$ref" in s))
++	if (!allOf || allOf.length === 0) return {
+ 		schema: "v.any()",
+ 		imports: new Set(["any"])
+ 	};
+-	if (schema.allOf.length === 1) {
+-		const firstSchema = schema.allOf[0];
++	if (allOf.length === 1) {
++		const firstSchema = allOf[0];
+ 		if (firstSchema == null) throw new Error("Invalid schema in allOf");
+ 		return parseSchema(firstSchema, {
+ 			...context,
+ 			depth: context.depth + 1
+ 		});
+ 	}
+-	const results = schema.allOf.map((subSchema) => {
++	const results = allOf.map((subSchema) => {
+ 		if (subSchema == null) throw new Error("Invalid schema in allOf");
+ 		return parseSchema(subSchema, {
+ 			...context,
+@@ -337,9 +338,9 @@ function parseAllOf(schema, context) {
+ 		result.imports.forEach((imp) => allImports.add(imp));
+ 		if (result.types) types.push(result.types);
+ 	});
+-	const allObjects = schema.allOf.every((subSchema) => typeof subSchema === "object" && subSchema !== null && (subSchema.type === "object" || subSchema.properties));
++	const allObjects = allOf.every((subSchema) => typeof subSchema === "object" && subSchema !== null && (subSchema.type === "object" || subSchema.properties));
+ 	if (allObjects) {
+-		allImports.add("intersect");
++    allImports.add("intersect");
+ 		return {
+ 			schema: `v.intersect([${results.map((r) => r.schema).join(", ")}])`,
+ 			imports: allImports,
+@@ -356,7 +357,7 @@ function parseAllOf(schema, context) {
+ 		};
+ 	}
+ 	const nonAnyResults = results.filter((result) => result.schema !== "v.any()");
+-	if (nonAnyResults.length === 0) {
++  if (nonAnyResults.length === 0) {
+ 		allImports.add("any");
+ 		return {
+ 			schema: "v.any()",
+@@ -364,12 +365,21 @@ function parseAllOf(schema, context) {
+ 			types: types.length > 0 ? types.join(" & ") : undefined
+ 		};
+ 	}
+-	const firstResult = nonAnyResults[0];
++  const firstResult = nonAnyResults[0];
+ 	if (!firstResult) return {
+ 		schema: "v.any()",
+ 		imports: new Set(["any"]),
+ 		types: undefined
+-	};
++  };
++	if (allOf.some(s => typeof s.$ref === "string")) {
++    allImports.add("intersect");
++    const types = allOf.map(s => typeof s.$ref === "string" ? context.resolveRef ? parseSchema(s, context).types : undefined : s.types).filter(Boolean);
++    return {
++  		schema: `v.intersect([${results.map(r => r.schema).join(", ")}])`,
++  		imports: allImports,
++  		types: types.length > 0 ? types.join(" & ") : undefined
++  	};
++  };
+ 	return {
+ 		schema: firstResult.schema,
+ 		imports: allImports,
+@@ -428,7 +438,15 @@ function parseOneOf(schema, context) {
+ 			imports: allImports,
+ 			types: result.types
+ 		};
+-	}
++  }
++	if (schema.oneOf.some(s => typeof s.$ref === "string")) {
++     const types = schema.oneOf.map(s => typeof s.$ref === "string" ? context.resolveRef ? parseSchema(s, context).types : undefined : s.types).filter(Boolean);
++     return {
++   		schema: `v.union([${results.map(r => r.schema).join(", ")}])`,
++   		imports: allImports,
++   		types: types.length > 0 ? types.join(" & ") : undefined
++   	};
++  };
+ 	const nonNeverTypes = types.filter((_, i) => results[i]?.schema !== "v.never()");
+ 	return {
+ 		schema: `v.union([${nonNeverSchemas.join(", ")}])`,
+@@ -581,7 +599,7 @@ else return {
+ 	return parseSchemaType(schema, context);
+ }
+ function parseSchemaType(schema, context) {
+-	const type = schema.type;
++  const type = schema.type;
+ 	if (Array.isArray(type)) {
+ 		const results = type.map((t) => parseSchema({
+ 			...schema,
+@@ -590,10 +608,11 @@ function parseSchemaType(schema, context) {
+ 		const schemas = results.map((r) => r.schema);
+ 		const allImports = new Set();
+ 		results.forEach((r) => r.imports.forEach((imp) => allImports.add(imp)));
+-		allImports.add("union");
++    allImports.add("union");
+ 		return {
+ 			schema: `v.union([${schemas.join(", ")}])`,
+-			imports: allImports
++      imports: allImports,
++			types: schema.type.map((type) => generateTypeScriptType({ type }, "", context)).join(" | ")
+ 		};
+ 	}
+ 	switch (type) {
+@@ -611,7 +630,7 @@ function parseSchemaType(schema, context) {
+ 	}
+ }
+ function handleRef(ref, context) {
+-	const refData = context.refs.get(ref);
++  const refData = context.refs.get(ref);
+ 	if (refData) {
+ 		if (refData.isProcessing) {
+ 			console.warn(`Circular dependency detected for ${ref}. Using v.lazy() for proper recursion.`);
+@@ -621,11 +640,13 @@ function handleRef(ref, context) {
+ 				schema: `v.lazy(() => ${schemaReference$1})`,
+ 				imports: new Set(["lazy"])
+ 			};
+-		}
+-		const schemaReference = refData.isRecursive ? `${refData.schemaName}Schema` : refData.schemaName;
++    }
++    const schemaReference = refData.isRecursive ? `${refData.schemaName}Schema` : refData.schemaName;
++    context.importRef(ref);
+ 		return {
+-			schema: schemaReference,
+-			imports: new Set()
++		  schema: schemaReference,
++      imports: new Set(),
++      types: generateTypeScriptType({ $ref: ref }, refData.schemaName, context)
+ 		};
+ 	}
+ 	console.warn(`$ref not found: ${ref}. Using v.any() as fallback.`);
+@@ -634,17 +655,19 @@ function handleRef(ref, context) {
+ 		imports: new Set(["v"])
+ 	};
+ }
+-
+ //#endregion
+ //#region src/utils/generateTypeScript.ts
+ function generateTypeScriptType(schema, typeName, context) {
+-	if (typeof schema === "boolean") return schema ? "any" : "never";
++  if (typeof schema === "boolean") return schema ? "any" : "never";
+ 	if (schema.$ref) {
+ 		const refKey = schema.$ref;
+-		const refData = context.refs.get(refKey);
+-		if (refData) return refData.schemaName;
++    const refData = context.refs.get(refKey);
++    if (refData) {
++      context.importRef(refKey);
++      return refData.schemaTypeName;
++    }
+ 		return "any";
+-	}
++  }
+ 	switch (schema.type) {
+ 		case "string": return "string";
+ 		case "number":
+@@ -661,10 +684,10 @@ function generateTypeScriptType(schema, typeName, context) {
+ 			}
+ 			return "any[]";
+ 		case "object":
+-			if (schema.properties) {
++      if (schema.properties) {
+ 				const required = schema.required || [];
+ 				const props = Object.entries(schema.properties).map(([key, propSchema]) => {
+-					const propType = generateTypeScriptType(propSchema, `${typeName}${key.charAt(0).toUpperCase() + key.slice(1)}`, context);
++          const propType = generateTypeScriptType(propSchema, `${typeName}${key.charAt(0).toUpperCase() + key.slice(1)}`, context);
+ 					const isRequired = required.includes(key);
+ 					const keyStr = /^[a-zA-Z_$][a-zA-Z0-9_$]*$/.test(key) ? key : `"${key}"`;
+ 					return `${keyStr}${isRequired ? "" : "?"}: ${propType}`;
+@@ -688,9 +711,9 @@ else if (typeof schema.additionalProperties === "object") {
+ 				return types.join(" | ");
+ 			}
+ 			if (schema.allOf) {
+-				const types = schema.allOf.map((s, i) => generateTypeScriptType(s, `${typeName}Variant${i}`, context));
++        const types = schema.allOf.map((s, i) => generateTypeScriptType(s, `${typeName}Variant${i}`, context));
+ 				return types.join(" & ");
+-			}
++      }
+ 			return "any";
+ 	}
+ }
+@@ -701,21 +724,26 @@ function sanitizeIdentifier(name) {
+ 	return name.replace(/[^a-zA-Z0-9_$]/g, "_").replace(/^[0-9]/, "_$&");
+ }
+ function jsonSchemaToValibot(schema, options = {}) {
+-	const { name = "schema", module: module$1 = "esm", withTypes = false, withJsDoc = false, maxDepth = 10, exportDefinitions = true } = options;
++  const { name = "schema", module: module$1 = "esm", withTypes = false, withJsDoc = false, maxDepth = 10, exportDefinitions = true, nameRef, resolveRef, importRef, constraints } = options;
+ 	const context = {
+ 		refs: new Map(),
+ 		depth: 0,
+ 		maxDepth,
+-		currentPath: []
++    currentPath: [],
++    nameRef,
++    resolveRef,
++    importRef,
++    constraints
+ 	};
+ 	if (typeof schema === "object") {
+ 		const processDefinitions = (definitions, pathPrefix) => {
+ 			if (definitions) for (const key in definitions) {
+ 				const defSchema = definitions[key];
+ 				if (typeof defSchema === "object") {
+-					const schemaName = sanitizeIdentifier(key);
++					const schemaName = context.nameRef?.(`${pathPrefix}${key}`, false) || sanitizeIdentifier(key);
+ 					context.refs.set(`${pathPrefix}${key}`, {
+-						schemaName,
++            schemaName,
++						schemaTypeName: context.nameRef?.(`${pathPrefix}${key}`, true) || schemaName,
+ 						rawSchema: defSchema
+ 					});
+ 				}
+@@ -723,6 +751,10 @@ function jsonSchemaToValibot(schema, options = {}) {
+ 		};
+ 		processDefinitions(schema.definitions, "#/definitions/");
+ 		processDefinitions(schema.$defs, "#/$defs/");
++		processDefinitions(schema.components?.securitySchemes, "#/components/securitySchemes/");
++		processDefinitions(schema.components?.parameters, "#/components/parameters/");
++		processDefinitions(schema.components?.responses, "#/components/responses/");
++		processDefinitions(schema.components?.schemas, "#/components/schemas/");
+ 	}
+ 	const detectCircularDependencies = (schemaToCheck, refKey, visited, processing) => {
+ 		if (processing.has(refKey)) return true;
+diff --git a/dist/index.mjs b/dist/index.mjs
+index e3cc05f090a436efe50e7b72eb05aadf3bf0b8ad..e3e40a54901be0b239e2b90a75507c47a8da6fe6 100644
+--- a/dist/index.mjs
++++ b/dist/index.mjs
+@@ -1,6 +1,6 @@
+ 
+ //#region src/parsers/parseString.ts
+-function parseString(schema, _context) {
++function parseString(schema, context) {
+ 	const imports = new Set(["string"]);
+ 	const constraints = [];
+ 	if (typeof schema.minLength === "number") {
+@@ -51,7 +51,7 @@ function parseString(schema, _context) {
+ 			break;
+ 		default: break;
+ 	}
+-	const schemaStr = constraints.length > 0 ? `v.pipe(v.string(), ${constraints.join(", ")})` : "v.string()";
++	const schemaStr = constraints.length > 0 ? `v.pipe(v.string(), ${(context.constraints ?? ((c) => c))(constraints).join(", ")})` : "v.string()";
+ 	if (constraints.length > 0) imports.add("pipe");
+ 	return {
+ 		schema: schemaStr,
+@@ -218,7 +218,7 @@ else {
+ 			currentPath: [...context.currentPath, "additionalProperties"]
+ 		});
+ 		additionalResult.imports.forEach((imp) => allImports.add(imp));
+-		if (propsEntries.length > 0) schemaStr = `v.object(${propsObject}, ${additionalResult.schema})`;
++		if (propsEntries.length > 0) schemaStr = `v.objectWithRest(${propsObject}, ${additionalResult.schema})`;
+ else {
+ 			schemaStr = `v.record(${additionalResult.schema})`;
+ 			allImports.add("record");
+@@ -368,7 +368,16 @@ function parseAllOf(schema, context) {
+ 		schema: "v.any()",
+ 		imports: new Set(["any"]),
+ 		types: undefined
+-	};
++  };
++	if (schema.allOf.some(s => typeof s.$ref === "string")) {
++    allImports.add("intersect");
++    const types = schema.allOf.map(s => typeof s.$ref === "string" ? context.resolveRef ? parseSchema(s, context).types : undefined : s.types).filter(Boolean);
++    return {
++  		schema: `v.intersect([${results.map(r => r.schema).join(", ")}])`,
++  		imports: allImports,
++  		types: types.length > 0 ? types.join(" & ") : undefined
++  	};
++  };
+ 	return {
+ 		schema: firstResult.schema,
+ 		imports: allImports,
+@@ -427,7 +436,15 @@ function parseOneOf(schema, context) {
+ 			imports: allImports,
+ 			types: result.types
+ 		};
+-	}
++  }
++	if (schema.oneOf.some(s => typeof s.$ref === "string")) {
++	   const types = schema.oneOf.map(s => typeof s.$ref === "string" ? context.resolveRef ? parseSchema(s, context).types : undefined : s.types).filter(Boolean);
++     return {
++   		schema: `v.union([${results.map(r => r.schema).join(", ")}])`,
++   		imports: allImports,
++   		types: types.length > 0 ? types.join(" & ") : undefined
++   	};
++  };
+ 	const nonNeverTypes = types.filter((_, i) => results[i]?.schema !== "v.never()");
+ 	return {
+ 		schema: `v.union([${nonNeverSchemas.join(", ")}])`,
+@@ -618,13 +635,14 @@ function handleRef(ref, context) {
+ 			const schemaReference$1 = refData.isRecursive ? `${refData.schemaName}Schema` : refData.schemaName;
+ 			return {
+ 				schema: `v.lazy(() => ${schemaReference$1})`,
+-				imports: new Set(["lazy"])
++        imports: new Set(["lazy"])
+ 			};
+ 		}
+-		const schemaReference = refData.isRecursive ? `${refData.schemaName}Schema` : refData.schemaName;
++    const schemaReference = refData.isRecursive ? `${refData.schemaName}Schema` : refData.schemaName;
+ 		return {
+-			schema: schemaReference,
+-			imports: new Set()
++			schema: context.nameRef?.(ref, refData.isRecursive) || schemaReference,
++      imports: new Set(),
++      types: context.resolveRef ? parseSchema(context.resolveRef(ref), context).types : undefined
+ 		};
+ 	}
+ 	console.warn(`$ref not found: ${ref}. Using v.any() as fallback.`);
+@@ -637,11 +655,11 @@ function handleRef(ref, context) {
+ //#endregion
+ //#region src/utils/generateTypeScript.ts
+ function generateTypeScriptType(schema, typeName, context) {
+-	if (typeof schema === "boolean") return schema ? "any" : "never";
++  if (typeof schema === "boolean") return schema ? "any" : "never";
+ 	if (schema.$ref) {
+ 		const refKey = schema.$ref;
+ 		const refData = context.refs.get(refKey);
+-		if (refData) return refData.schemaName;
++    if (refData) return refData.schemaName;
+ 		return "any";
+ 	}
+ 	switch (schema.type) {
+@@ -700,12 +718,15 @@ function sanitizeIdentifier(name) {
+ 	return name.replace(/[^a-zA-Z0-9_$]/g, "_").replace(/^[0-9]/, "_$&");
+ }
+ function jsonSchemaToValibot(schema, options = {}) {
+-	const { name = "schema", module = "esm", withTypes = false, withJsDoc = false, maxDepth = 10, exportDefinitions = true } = options;
++	const { name = "schema", module = "esm", withTypes = false, withJsDoc = false, maxDepth = 10, exportDefinitions = true, nameRef, resolveRef, constraints } = options;
+ 	const context = {
+ 		refs: new Map(),
+ 		depth: 0,
+ 		maxDepth,
+-		currentPath: []
++    currentPath: [],
++    nameRef,
++    resolveRef,
++    constraints
+ 	};
+ 	if (typeof schema === "object") {
+ 		const processDefinitions = (definitions, pathPrefix) => {
+@@ -722,6 +743,10 @@ function jsonSchemaToValibot(schema, options = {}) {
+ 		};
+ 		processDefinitions(schema.definitions, "#/definitions/");
+ 		processDefinitions(schema.$defs, "#/$defs/");
++		processDefinitions(schema.components.securitySchemes, "#/components/securitySchemes");
++		processDefinitions(schema.components.parameters, "#/components/parameters");
++		processDefinitions(schema.components.responses, "#/components/responses");
++		processDefinitions(schema.components.schemas, "#/components/schemas");
+ 	}
+ 	const detectCircularDependencies = (schemaToCheck, refKey, visited, processing) => {
+ 		if (processing.has(refKey)) return true;

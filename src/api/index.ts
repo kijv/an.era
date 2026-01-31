@@ -1,218 +1,207 @@
-import * as defaultGroupedPaths from '../openapi/paths';
-import * as o from '../openapi';
+import * as openApiOperations from '@/openapi/operations';
 import * as v from 'valibot';
-import type { Api, GroupedPaths, Path } from './declaration';
-import { findKeyWithSingleOccurrence, removeCommonPrefix } from '../util';
-import formUrlencoded from 'form-urlencoded';
-import { getPathsFromOpenApi } from '../openapi/runtime';
+import {
+  type GroupedOperation,
+  type TransformOperations,
+  type TransformedOperation,
+  transformOperations,
+} from './operations/group';
+import type {
+  MakeTrailingOptional,
+  MapSchemaTupleToInput,
+  MapUniqueUnion,
+  ObjectValuesToTuple,
+  Prettify,
+  PrettifyTuple,
+  ValiSchema,
+} from '@/declaration';
+import { type Operation, routeOperations } from './operations';
+import {
+  createExpandTemplatePath,
+  createFetch,
+  parseParameters,
+  parseResponseBody,
+} from './util';
+import type { MapResponseToUnion } from './declaration';
+import type { SERVERS } from '@/openapi';
+import contentTypeParser from 'fast-content-type-parse';
+// import { LinksSchema } from '@/openapi/components/schemas';
+//
+type DefaultOperations = typeof openApiOperations.operations;
 
-const getMethodArgKind = (method: Path): 'body' | 'query' | null =>
-  'query' in method.parameters
-    ? 'query'
-    : method.body != null && 'content' in method.body
-      ? 'body'
-      : null;
+export interface ApiOptions<TOperations extends Record<string, Operation>> {
+  baseUrl?: (typeof SERVERS)[number]['url'];
+  requestInit?: RequestInit;
+  accessToken?: string;
+  // useHateoas?: boolean;
+  operations?: TOperations;
+  ignoreValidation?: boolean;
+}
+
+type OperationFn<TOperation extends Operation> = (
+  ...args: MakeTrailingOptional<
+    PrettifyTuple<
+      MapUniqueUnion<
+        MapSchemaTupleToInput<ObjectValuesToTuple<TOperation['parameters']>>
+      >
+    >
+  >
+) => Promise<Prettify<MapResponseToUnion<TOperation['response']>>>;
+
+type GroupedOperationFn<
+  TParams extends Record<string, ValiSchema>,
+  TOps extends Record<string, TransformedOperation>,
+> = (
+  ...args: MakeTrailingOptional<
+    PrettifyTuple<
+      MapUniqueUnion<MapSchemaTupleToInput<ObjectValuesToTuple<TParams>>>
+    >
+  >
+) => {
+  [K in keyof TOps]: OperationFn<TOps[K]>;
+};
+
+type CreateApiReturn<TOperations extends Record<string, Operation>> = {
+  [K in keyof TransformOperations<TOperations>]: TransformOperations<TOperations>[K] extends GroupedOperation<
+    infer TParams,
+    infer TOps
+  >
+    ? TOps extends Record<string, TransformedOperation>
+      ? GroupedOperationFn<TParams, TOps>
+      : never
+    : TransformOperations<TOperations>[K] extends TransformedOperation
+      ? OperationFn<TransformOperations<TOperations>[K]>
+      : never;
+};
 
 export const createApi = <
-  O extends any,
-  C extends {
-    accessToken?: string;
-    baseUrl?: (typeof o.SERVERS)[number]['url'];
-    openApi?: O;
-  } & RequestInit = {},
-  P extends GroupedPaths = typeof import('../openapi/paths'),
->(
-  options?: C,
-): C['openApi'] extends {} ? Promise<Api<P>> : Api<P> => {
-  const {
-    accessToken,
-    baseUrl = 'https://api.are.na',
-    openApi,
-    ...init
-  } = options ?? {};
-
-  const createFetch =
-    (baseUrl: URL, baseInit?: RequestInit) =>
-    (
-      url: string | URL,
-      init: RequestInit = {},
-      modifyUrl: (url: URL) => URL = (u) => u,
-    ) =>
-      global.fetch(
-        modifyUrl(new URL(url.toString(), baseUrl)),
-        Object.assign({}, baseInit, init),
-      );
-
-  if (accessToken && 'headers' in init) {
-    init.headers ??= {};
-    init.headers = new Headers(init.headers);
-    init.headers.set('Authorization', `Bearer ${accessToken}`);
+  const TOperations extends Record<string, Operation> = DefaultOperations,
+>({
+  baseUrl = 'https://api.are.na',
+  requestInit = {},
+  accessToken,
+  // useHateoas = false,
+  operations = openApiOperations.operations as unknown as TOperations,
+  ignoreValidation = false,
+}: ApiOptions<TOperations> = {}): CreateApiReturn<TOperations> => {
+  if (accessToken) {
+    requestInit.headers ??= {};
+    requestInit.headers = new Headers(requestInit.headers);
+    requestInit.headers.set('Authorization', `Bearer ${accessToken}`);
   }
 
-  const fetch = createFetch(new URL(baseUrl!), init);
+  const f = createFetch(new URL(baseUrl), requestInit);
 
-  const groupedPaths =
-    openApi != null ? getPathsFromOpenApi(openApi) : defaultGroupedPaths;
+  const pathnameCache = new Map<string, string>();
+  const expandTemplatePath = createExpandTemplatePath(pathnameCache);
+
+  const routedOperations = routeOperations(
+    operations,
+    (data, params) => {
+      const pathname = expandTemplatePath(
+        data.path,
+        typeof params.path === 'object' ? params.path : {},
+      );
+
+      const searchParams = Object.assign(
+        {},
+        params.query ?? {},
+        params.formData ?? {},
+      );
+
+      return f(
+        pathname,
+        {
+          method: data.method,
+          body: 'body' in params ? JSON.stringify(params.body) : undefined,
+        },
+        searchParams
+          ? (url) => {
+              if (typeof searchParams === 'object') {
+                for (const key in searchParams) {
+                  const value = (searchParams as Record<string, unknown>)[key];
+                  url.searchParams.set(
+                    key,
+                    typeof value !== 'string' ? String(value) : value,
+                  );
+                }
+              }
+
+              return url;
+            }
+          : undefined,
+      );
+    },
+    async (operation, response) => {
+      const statusCode = response.status.toString();
+      const rawContentType = response.headers.get('content-type');
+      const mimeType =
+        typeof rawContentType === 'string'
+          ? contentTypeParser.safeParse(rawContentType).type
+          : '';
+
+      const body = await parseResponseBody(response, mimeType);
+
+      const result = !ignoreValidation
+        ? (async () => {
+            const statusSchemas =
+              operation.response[statusCode] ?? operation.response['default'];
+
+            if (!statusSchemas) {
+              throw new Error(
+                `No response schema defined for status ${statusCode} in operation ${operation.method.toUpperCase()} ${operation.path}`,
+              );
+            }
+
+            const schema = statusSchemas[mimeType];
+
+            if (!schema) {
+              throw new Error(
+                `No response schema found for media "${mimeType}" in operation ${operation.method.toUpperCase()} ${operation.path}`,
+              );
+            }
+
+            return v
+              .parseAsync(schema, body, {
+                abortEarly: true,
+              })
+              .catch((e) => (v.isValiError(e) ? v.summarize(e.issues) : e));
+          })()
+        : body;
+
+      // if (useHateoas && result != null && typeof result === "object" && "_links" in result && v.is(LinksSchema, result._links)) {
+      //   const hateos = result._links;
+      // }
+
+      return result;
+    },
+  );
+  const transformedOperations = transformOperations(operations);
 
   return Object.fromEntries(
-    Object.entries(groupedPaths).map(([group, value]) => {
-      const singleKey = findKeyWithSingleOccurrence(value, '$parameters');
+    Object.entries(transformedOperations).map(([k, v]) => [
+      k,
+      (...args: any[]) => {
+        const parameters = !ignoreValidation
+          ? parseParameters(v.parameters, args)
+          : args;
 
-      const makeMethod = (method: Path) => {
-        const argKind = getMethodArgKind(method);
-        const localFetch = (
-          init: RequestInit = {},
-          modifyUrl: (url: URL) => URL = (u) => u,
-        ) =>
-          fetch(
-            method.path,
-            Object.assign(
-              {},
-              {
-                method: method.method,
-              },
-              init ?? {},
-            ),
-            modifyUrl ?? ((u) => u),
-          );
-
-        return async (arg: Record<string, any> | undefined) => {
-          const res = await localFetch(
-            argKind === 'body' && arg != null
-              ? (() => {
-                  const content = method.body?.content;
-
-                  let contentType: string | undefined;
-                  let body: any;
-
-                  for (const media in content) {
-                    const schema = content[media];
-                    if (schema == null) continue;
-                    const maybeBody = v.safeParse(schema, arg);
-                    if (maybeBody.success) {
-                      contentType = media;
-                      body = maybeBody.output;
-                    }
-                  }
-
-                  if (!contentType) return {};
-
-                  return {
-                    headers: {
-                      'Content-Type': contentType,
-                    },
-                    body: contentType.endsWith('x-www-form-urlencoded')
-                      ? formUrlencoded(body)
-                      : body,
-                  };
-                })()
-              : undefined,
-            argKind === 'query' && arg != null
-              ? (() => {
-                  const nextQuery = Object.fromEntries(
-                    Object.entries(arg).map(([key, value]) => [
-                      key,
-                      method.parameters['query']?.[key]
-                        ? v.parse(method.parameters['query']?.[key], value)
-                        : value,
-                    ]),
-                  );
-
-                  return (u) => {
-                    for (const key in nextQuery) {
-                      const value = nextQuery[key];
-                      if (value == null) continue;
-                      u.searchParams.set(key, value);
-                    }
-                    return u;
-                  };
-                })()
-              : undefined,
-          );
-
-          const statusCodeResponseData = method.responses[res.status] ?? {};
-          const contentTypeResponseData = res.headers.has('content-type')
-            ? statusCodeResponseData?.[
-                res.headers.get('content-type')?.split(';').at(0)!
-              ]
-            : null;
-
-          const media = Object.keys(statusCodeResponseData);
-          const result = await (media.includes('application/json')
-            ? res.json()
-            : res.text());
-
-          return contentTypeResponseData != null
-            ? v.parse(contentTypeResponseData, result)
-            : result;
-        };
-      };
-      const makeMethods = (
-        value: object,
-        parameters: {
-          path?: Record<string, string>;
-          query?: Record<string, string>;
-        } = {
-          path: {},
-          query: {},
-        },
-      ) => {
-        const replacePathPart = Object.fromEntries(
-          Object.entries(parameters.path ?? {}).map(([key, value]) => [
-            `{${key}}`,
-            value,
-          ]),
-        );
-
-        return Object.fromEntries(
-          Object.entries(
-            Object.keys(value).length > 1
-              ? removeCommonPrefix(value, 'self')
-              : value,
-          ).map(([key, value]) => [
-            key,
-            makeMethod(
-              Object.assign({}, value, {
-                path: value.path
-                  .split('/')
-                  .map((p) => replacePathPart[p] ?? p)
-                  .join('/'),
-              }),
-            ),
-          ]),
-        );
-      };
-
-      return [
-        group.toLowerCase(),
-        singleKey
-          ? Object.assign(
-              (param: any) => {
-                const { $parameters, ...methods } =
-                  groupedPaths[group as keyof typeof groupedPaths][singleKey];
-
-                return makeMethods(methods, {
-                  path: {
-                    [`${Object.keys($parameters).at(0)}`]: `${param}`,
-                  },
-                });
-              },
-              makeMethods(
-                Object.fromEntries(
-                  Object.entries(value).filter(([key]) => key !== singleKey),
-                ),
-              ),
+        return 'operations' in v
+          ? Object.fromEntries(
+              Object.entries(v.operations).map(([opk, opv]) => [
+                opk,
+                (...args1: any[]) =>
+                  routedOperations[opv.id](
+                    ...parameters.concat(
+                      !ignoreValidation
+                        ? parseParameters(opv.parameters, args1)
+                        : args,
+                    ),
+                  ),
+              ]),
             )
-          : (() => {
-                const keys = Object.keys(value);
-                return (
-                  keys.length === 1 &&
-                  keys.map((k) => k.toLowerCase()).includes(group.toLowerCase())
-                );
-              })()
-            ? makeMethod(value[group.toLowerCase()])
-            : makeMethods(value),
-      ];
-    }),
-  ) as unknown as Api<P>;
+          : routedOperations[v.id]!(...parameters);
+      },
+    ]),
+  ) as CreateApiReturn<TOperations>;
 };

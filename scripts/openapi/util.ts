@@ -57,7 +57,7 @@ export function getAllRefs(
  */
 export function extractRefName(ref: string): string {
   const parts = ref.split('/');
-  return parts[parts.length - 1];
+  return parts[parts.length - 1]!;
 }
 
 /**
@@ -221,3 +221,11 @@ export function sortSchemas<T>(
 ): Record<string, T> {
   return sortObjectByRefDependencies(schemasObject).schemas;
 }
+
+export const defaultRenderRef = (ref: string, useSuffix = true) => {
+  const parts = ref.replace(/^#/, '').split('/').filter(Boolean);
+
+  const suffix = !useSuffix ? '' : 'Schema';
+
+  return `${parts.at(-1)}${suffix}`;
+};
