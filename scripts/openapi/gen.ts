@@ -6,7 +6,7 @@ import { Operation } from 'oas/operation';
 import { dataToEsm } from '@rollup/pluginutils';
 import { fileURLToPath } from 'bun';
 import { getParametersAsJSONSchema } from 'oas/operation/get-parameters-as-json-schema';
-import { jsonSchemaToValibot } from 'json-schema-to-valibot';
+import { jsonSchemaToValibot } from '@repo/json-schema-to-valibot';
 import path from 'node:path';
 
 const cwd = path.join(path.dirname(fileURLToPath(import.meta.url)), '..', '..');
@@ -21,6 +21,14 @@ const input = Bun.argv
   .slice(2)
   .find((arg) => arg.startsWith('--input='))
   ?.split('=')[1];
+
+const outDir = path.join(
+  cwd,
+  Bun.argv
+    .slice(2)
+    .find((arg) => arg.startsWith('--outDir='))
+    ?.split('=')[1]!,
+);
 
 const skipExistingArg = Bun.argv
   .slice(2)
@@ -142,16 +150,18 @@ const jsonToVali = (
   renderRef?: ReturnType<typeof createRenderRef>,
   constraints?: (c: string[]) => string[],
 ) => {
-  // @ts-expect-error
   const code = jsonSchemaToValibot(schema, {
     module: 'esm',
     exportDefinitions: false,
     withTypes: true,
     maxDepth: 999999,
-    nameRef: (ref: string, types: boolean) => renderRef?.(ref, types, false),
-    importRef: (ref: string) => renderRef?.(ref, false, true),
-    resolveRef: ($ref: string) => resolveRef({ $ref }),
+    renameRef: (ref, types) => renderRef?.(ref, types, false),
+    importRef: (ref) => renderRef?.(ref, false, true),
+    resolveRef: ($ref) => resolveRef({ $ref }),
     constraints,
+    definitions: {
+      'components/schemas': '#/components/schemas/',
+    },
   });
 
   const jsDefinition = 'export const schema =';
@@ -431,7 +441,7 @@ const arr = only != null ? only : Object.keys(contents);
 
 for (const key of arr) {
   if (!(key in contents)) continue;
-  const file = Bun.file(path.join(cwd, `src/openapi/${key}.ts`));
+  const file = Bun.file(path.join(outDir, `${key}.ts`));
   if (skipExisting && (await file.exists())) continue;
   await file.write(contents[key]!().toString());
   console.log(key);
