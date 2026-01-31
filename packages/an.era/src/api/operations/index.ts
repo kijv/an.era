@@ -70,8 +70,3 @@ export const routeOperations = <TOperations extends Record<string, Operation>>(
     [K in keyof typeof operations]: OperationFunction<(typeof operations)[K]>;
   };
 };
-
-// const b = await o.getBlock({
-//   id: 10,
-// });
-// console.log(b);
