@@ -35,4 +35,4 @@ jobs:
           publish: bun run release
           version: bun run version
         env:
-          GITHUB_TOKEN: ${{ secrets.PERSONAL_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.BOT_TOKEN }}
