@@ -28,5 +28,4 @@ export default defineConfig({
   //   },
   // },
   publint: true,
-  attw: true,
 });
