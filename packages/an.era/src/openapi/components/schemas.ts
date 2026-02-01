@@ -629,7 +629,7 @@ type ChannelList = { data: Channel[] };
 export const FollowableListSchema = v.object({
   data: v.array(v.union([UserSchema, ChannelSchema, GroupSchema])),
 });
-type FollowableList = { data: User | Channel | Group[] };
+type FollowableList = { data: (User | Channel | Group)[] };
 export const TextBlockSchema = v.intersect([
   BaseBlockPropertiesSchema,
   v.object({ type: v.literal('Text'), content: MarkdownContentSchema }),
@@ -720,13 +720,14 @@ export const ConnectableListSchema = v.object({
   ),
 });
 type ConnectableList = {
-  data:
+  data: (
     | TextBlock
     | ImageBlock
     | LinkBlock
     | AttachmentBlock
     | EmbedBlock
-    | Channel[];
+    | Channel
+  )[];
 };
 export const EverythingListSchema = v.object({
   data: v.array(
@@ -743,7 +744,7 @@ export const EverythingListSchema = v.object({
   ),
 });
 type EverythingList = {
-  data:
+  data: (
     | TextBlock
     | ImageBlock
     | LinkBlock
@@ -751,7 +752,8 @@ type EverythingList = {
     | EmbedBlock
     | Channel
     | User
-    | Group[];
+    | Group
+  )[];
 };
 export const BlockSchema = v.union([
   TextBlockSchema,

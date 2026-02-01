@@ -1074,7 +1074,7 @@ export const operations = {
           q?: string;
           type?: s.SearchTypeFilter[];
           scope?: string;
-          in?: 'name' | 'description' | 'content' | 'domain' | 'url'[];
+          in?: ('name' | 'description' | 'content' | 'domain' | 'url')[];
           ext?: s.FileExtension[];
           sort?:
             | 'score_desc'

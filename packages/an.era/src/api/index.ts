@@ -10,10 +10,10 @@ import type {
   MakeTrailingOptional,
   MapSchemaTupleToInput,
   MapUniqueUnion,
+  MaybeValiSchema,
   ObjectValuesToTuple,
   Prettify,
   PrettifyTuple,
-  ValiSchema,
 } from '@/declaration';
 import { type Operation, routeOperations } from './operations';
 import {
@@ -49,7 +49,7 @@ type OperationFn<TOperation extends Operation> = (
 ) => Promise<Prettify<MapResponseToUnion<TOperation['response']>>>;
 
 type GroupedOperationFn<
-  TParams extends Record<string, ValiSchema>,
+  TParams extends Record<string, MaybeValiSchema>,
   TOps extends Record<string, TransformedOperation>,
 > = (
   ...args: MakeTrailingOptional<
@@ -190,11 +190,11 @@ export const createApi = <
           ? Object.fromEntries(
               Object.entries(v.operations).map(([opk, opv]) => [
                 opk,
-                (...args1: any[]) =>
+                (...args: any[]) =>
                   routedOperations[opv.id](
                     ...parameters.concat(
                       !ignoreValidation
-                        ? parseParameters(opv.parameters, args1)
+                        ? parseParameters(opv.parameters, args)
                         : args,
                     ),
                   ),

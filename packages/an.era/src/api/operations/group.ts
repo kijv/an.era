@@ -1,11 +1,14 @@
-import type { ObjectValuesToTuple, ValiSchema } from '../../declaration';
+import type { MaybeValiSchema, ObjectValuesToTuple } from '../../declaration';
 import type { HttpMethods } from 'oas/types';
 import type { Operation } from '.';
 
 export type TransformedOperation = Operation & { id: string };
 
 export type GroupedOperation<
-  TParams extends Record<string, ValiSchema> = Record<string, ValiSchema>,
+  TParams extends Record<string, MaybeValiSchema> = Record<
+    string,
+    MaybeValiSchema
+  >,
   TOps extends Record<string, Operation> = Record<string, Operation>,
 > = {
   parameters: TParams;
@@ -83,7 +86,7 @@ type AllTerms<O extends Record<string, Operation>> = {
 }[keyof O];
 
 type HasNonEmptyParameters<Op extends Operation> =
-  Op['parameters'] extends Record<string, ValiSchema>
+  Op['parameters'] extends Record<string, MaybeValiSchema>
     ? keyof Op['parameters'] extends never
       ? false
       : true
@@ -580,9 +583,9 @@ export const getCommonParamTypes = (ops: Operation[]): string[] => {
 
 export const buildGroupParameters = (
   ops: Operation[],
-): Record<string, ValiSchema> => {
+): Record<string, MaybeValiSchema> => {
   const paramTypes = getCommonParamTypes(ops);
-  const result: Record<string, ValiSchema> = {};
+  const result: Record<string, MaybeValiSchema> = {};
 
   for (const paramType of paramTypes) {
     for (const op of ops) {
@@ -602,7 +605,7 @@ export const removeCommonParams = (
   commonParamTypes: string[],
   id: string,
 ): TransformedOperation => {
-  const filteredParams: Record<string, ValiSchema> = {};
+  const filteredParams: Record<string, MaybeValiSchema> = {};
 
   for (const [key, value] of Object.entries(op.parameters)) {
     if (!commonParamTypes.includes(key)) {
@@ -618,7 +621,7 @@ export const removeCommonParams = (
 };
 
 export const isGroupedOperation = <
-  TParams extends Record<string, ValiSchema>,
+  TParams extends Record<string, MaybeValiSchema>,
   TOps extends Record<string, Operation>,
 >(
   value: Operation | GroupedOperation<TParams, TOps>,

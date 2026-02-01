@@ -709,7 +709,7 @@ export function parseArray(
   return {
     schema: schemaStr,
     imports: allImports,
-    types: `${itemsType}[]`,
+    types: `(${itemsType})[]`,
   };
 }
 
