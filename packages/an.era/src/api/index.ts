@@ -197,7 +197,10 @@ export const createApi = <
     },
   );
 
-  if (plain) return routeOperations as unknown as Return;
+  if (plain)
+    return routedOperations satisfies {
+      [K in keyof TOperations]: OperationFunction<TOperations[K]>;
+    } as Return;
 
   const transformedOperations = transformOperations(operations);
 
