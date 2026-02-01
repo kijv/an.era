@@ -19,13 +19,12 @@
     },
     "packages/an.era": {
       "name": "an.era",
-      "version": "0.3.0-beta.0",
+      "version": "0.3.0-beta.2",
       "dependencies": {
         "valibot": "^1.2.0",
       },
       "devDependencies": {
         "fast-content-type-parse": "^3.0.0",
-        "publint": "^0.3.17",
         "stable-hash": "^0.0.6",
         "url-template": "^3.1.1",
       },
