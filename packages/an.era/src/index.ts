@@ -1,66 +1,5 @@
 export { createApi as createArena } from './api';
 
-namespace Arena {
-  export type {
-    Error,
-    RateLimitError,
-    Link,
-    MarkdownContent,
-    EmbeddedUser,
-    ConnectionAbilities,
-    EmbeddedGroup,
-    UserCounts,
-    GroupCounts,
-    ContentTypeFilter,
-    SearchTypeFilter,
-    FileExtension,
-    ConnectionSort,
-    ChannelContentSort,
-    ContentSort,
-    ChannelVisibility,
-    BlockAbilities,
-    BlockProvider,
-    ImageVersion,
-    BlockEmbed,
-    BlockAttachment,
-    ChannelAbilities,
-    ChannelCounts,
-    PaginationMeta,
-    PingResponse,
-    Links,
-    EmbeddedConnection,
-    ChannelOwner,
-    BlockSource,
-    BlockImage,
-    PaginatedResponse,
-    User,
-    Group,
-    Comment,
-    Connection,
-    Channel,
-    BaseBlockProperties,
-    UserList,
-    CommentList,
-    ChannelList,
-    FollowableList,
-    TextBlock,
-    ImageBlock,
-    LinkBlock,
-    AttachmentBlock,
-    EmbedBlock,
-    PendingBlock,
-    UserListResponse,
-    CommentListResponse,
-    ChannelListResponse,
-    FollowableListResponse,
-    ConnectableList,
-    EverythingList,
-    Block,
-    ConnectableListResponse,
-    EverythingListResponse,
-  } from '@/openapi/components/schemas';
-}
-
 export type {
   Error,
   RateLimitError,
@@ -119,5 +58,4 @@ export type {
   ConnectableListResponse,
   EverythingListResponse,
 } from '@/openapi/components/schemas';
-
-export default Arena;
+export * from './schema';

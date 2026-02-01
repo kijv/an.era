@@ -156,5 +156,8 @@
     "builtin": true
   },
   "globals": {},
-  "ignorePatterns": ["src/openapi/**"]
+  "ignorePatterns": [
+    "packages/an.era/src/openapi/**",
+    "packages/an.era/src/schema.ts"
+  ]
 }
