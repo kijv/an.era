@@ -119,5 +119,6 @@ export type {
   ConnectableListResponse,
   EverythingListResponse,
 } from '@/openapi/components/schemas';
+export * from './schema';
 
 export default Arena;
