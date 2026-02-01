@@ -1,3 +1,4 @@
+import * as v from 'valibot';
 import {
   ErrorSchema,
   RateLimitErrorSchema,
@@ -57,7 +58,6 @@ import {
   EverythingListResponseSchema,
 } from '@/openapi/components/schemas';
 import type Arena from '.';
-import * as v from 'valibot';
 
 export const isError = (input: unknown): input is Arena.Error =>
   v.is(ErrorSchema, input);
