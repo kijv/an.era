@@ -12,7 +12,7 @@
     "fmt": "oxfmt",
     "fmt:check": "oxfmt --check",
     "version": "changeset version && bun install --lockfile-only",
-    "release": "turbo run build --filter=./packages/* && changeset publish && bun -r run postpublish"
+    "release": "turbo run build --filter=./packages/* && changeset publish"
   },
   "dependencies": {
     "@arethetypeswrong/core": "^0.18.2",
