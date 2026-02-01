@@ -27,7 +27,7 @@ export type Operation = {
   response: Record<string, Record<string, MaybeValiSchema>>;
 };
 
-type OperationFunction<TOperation extends Operation> = (
+export type OperationFunction<TOperation extends Operation> = (
   ...args: MakeTrailingOptional<
     PrettifyTuple<
       MapUniqueUnion<

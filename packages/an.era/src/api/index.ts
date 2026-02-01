@@ -15,7 +15,11 @@ import type {
   Prettify,
   PrettifyTuple,
 } from '@/declaration';
-import { type Operation, routeOperations } from './operations';
+import {
+  type Operation,
+  type OperationFunction,
+  routeOperations,
+} from './operations';
 import {
   createExpandTemplatePath,
   createFetch,
@@ -29,13 +33,17 @@ import contentTypeParser from 'fast-content-type-parse';
 //
 type DefaultOperations = typeof openApiOperations.operations;
 
-export interface ApiOptions<TOperations extends Record<string, Operation>> {
+export interface ApiOptions<
+  TOperations extends Record<string, Operation>,
+  TPlain extends boolean,
+> {
   baseUrl?: (typeof SERVERS)[number]['url'];
   requestInit?: RequestInit;
   accessToken?: string;
   // useHateoas?: boolean;
   operations?: TOperations;
   ignoreValidation?: boolean;
+  plain?: TPlain;
 }
 
 type OperationFn<TOperation extends Operation> = (
@@ -76,6 +84,7 @@ type CreateApiReturn<TOperations extends Record<string, Operation>> = {
 
 export const createApi = <
   const TOperations extends Record<string, Operation> = DefaultOperations,
+  const TPlain extends boolean = false,
 >({
   baseUrl = 'https://api.are.na',
   requestInit = {},
@@ -83,7 +92,18 @@ export const createApi = <
   // useHateoas = false,
   operations = openApiOperations.operations as unknown as TOperations,
   ignoreValidation = false,
-}: ApiOptions<TOperations> = {}): CreateApiReturn<TOperations> => {
+  plain,
+}: ApiOptions<TOperations, TPlain> = {}): TPlain extends true
+  ? {
+      [K in keyof TOperations]: OperationFunction<TOperations[K]>;
+    }
+  : CreateApiReturn<TOperations> => {
+  type Return = TPlain extends true
+    ? {
+        [K in keyof TOperations]: OperationFunction<TOperations[K]>;
+      }
+    : CreateApiReturn<TOperations>;
+
   if (accessToken) {
     requestInit.headers ??= {};
     requestInit.headers = new Headers(requestInit.headers);
@@ -176,6 +196,9 @@ export const createApi = <
       return result;
     },
   );
+
+  if (plain) return routeOperations as unknown as Return;
+
   const transformedOperations = transformOperations(operations);
 
   return Object.fromEntries(
@@ -203,5 +226,5 @@ export const createApi = <
           : routedOperations[v.id]!(...parameters);
       },
     ]),
-  ) as CreateApiReturn<TOperations>;
+  ) as Return;
 };
