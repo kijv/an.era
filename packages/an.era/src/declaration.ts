@@ -1,6 +1,6 @@
 import type * as v from 'valibot';
 
-type ValiSchema = v.BaseSchema<unknown, unknown, v.BaseIssue<unknown>>;
+export type ValiSchema = v.BaseSchema<unknown, unknown, v.BaseIssue<unknown>>;
 
 export type FakeValiSchema = {
   __TYPE__: {};

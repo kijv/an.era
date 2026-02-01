@@ -2,7 +2,7 @@ import { defineConfig } from 'tsdown';
 
 export default defineConfig({
   platform: 'neutral',
-  entry: 'src/index.ts',
+  entry: ['src/index.ts'],
   minify: true,
   dts: {
     // oxc: true,

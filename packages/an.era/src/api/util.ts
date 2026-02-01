@@ -1,5 +1,5 @@
 import * as v from 'valibot';
-import type { ValiSchema } from '@/declaration';
+import type { MaybeValiSchema, ValiSchema } from '@/declaration';
 import hash from 'stable-hash';
 import { parseTemplate } from 'url-template';
 
@@ -62,7 +62,7 @@ export const createExpandTemplatePath = (cache = new Map<string, string>()) => {
 };
 
 export const parseParameters = (
-  params: Record<string, ValiSchema>,
+  params: Record<string, MaybeValiSchema>,
   args: unknown[],
 ) => {
   const paramKeys = Object.keys(params);
@@ -80,7 +80,7 @@ export const parseParameters = (
   return paramKeys.map((key, i) => {
     const schema = params[key];
     if (schema) {
-      const result = v.safeParse(schema, args[i], {
+      const result = v.safeParse(schema as ValiSchema, args[i], {
         abortEarly: true,
       });
       if (result.success) {
