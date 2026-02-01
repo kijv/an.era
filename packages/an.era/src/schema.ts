@@ -57,7 +57,7 @@ import {
   ConnectableListResponseSchema,
   EverythingListResponseSchema,
 } from '@/openapi/components/schemas';
-import type Arena from '.';
+import type * as Arena from '.';
 
 export const isError = (input: unknown): input is Arena.Error =>
   v.is(ErrorSchema, input);
