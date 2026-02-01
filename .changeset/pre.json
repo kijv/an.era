@@ -1,0 +1,10 @@
+{
+  "mode": "pre",
+  "tag": "beta",
+  "initialVersions": {
+    "an.era": "0.3.0-beta.0"
+  },
+  "changesets": [
+    "clean-streets-post"
+  ]
+}
