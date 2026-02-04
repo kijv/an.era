@@ -12,7 +12,19 @@ export const createFetch =
   ): Promise<Response> =>
     global.fetch(
       modifyUrl(new URL(url.toString(), baseUrl)),
-      Object.assign({}, baseInit, init),
+      Object.assign(
+        {},
+        baseInit,
+        init,
+        init?.headers && baseInit?.headers
+          ? {
+              headers: mergeHeaders(
+                baseInit?.headers ?? {},
+                init?.headers ?? {},
+              ),
+            }
+          : {},
+      ),
     );
 
 export const parseResponseBody = (
@@ -94,4 +106,30 @@ export const parseParameters = (
       );
     }
   });
+};
+
+export const mergeHeaders = (...sources: HeadersInit[]) => {
+  function isObject(value: any) {
+    return value !== null && typeof value === 'object';
+  }
+
+  const result = {};
+
+  for (const source of sources) {
+    if (!isObject(source)) {
+      throw new TypeError('All arguments must be of type object');
+    }
+
+    const headers: Headers = new Headers(source);
+
+    for (const [key, value] of headers.entries()) {
+      if (value === undefined || value === 'undefined') {
+        delete result[key];
+      } else {
+        result[key] = value;
+      }
+    }
+  }
+
+  return new Headers(result);
 };

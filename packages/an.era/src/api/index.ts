@@ -135,6 +135,12 @@ export const createApi = <
         {
           method: data.method,
           body: 'body' in params ? JSON.stringify(params.body) : undefined,
+          headers:
+            data.method === 'post' || data.method === 'put'
+              ? {
+                  'Content-Type': 'application/json',
+                }
+              : undefined,
         },
         searchParams
           ? (url) => {
