@@ -5,54 +5,6 @@ export const ErrorSchema = v.object({
   details: v.optional(v.object({ message: v.optional(v.string()) })),
 });
 type Error = { error: string; code: number; details?: { message?: string } };
-export const RateLimitErrorSchema = v.object({
-  error: v.object({
-    type: v.string(),
-    message: v.string(),
-    tier: v.picklist(['guest', 'free', 'premium', 'supporter']),
-    limit: v.pipe(v.number(), v.integer()),
-    limit_window: v.optional(v.string()),
-    retry_after: v.pipe(v.number(), v.integer()),
-    current_status: v.optional(
-      v.object({
-        tier: v.optional(v.string()),
-        limits: v.optional(v.object({})),
-        upgrade_path: v.optional(
-          v.object({
-            current: v.optional(v.string()),
-            recommended: v.optional(v.string()),
-            benefits: v.optional(v.array(v.string())),
-            action: v.optional(v.string()),
-          }),
-        ),
-      }),
-    ),
-    suggestions: v.array(v.string()),
-    headers_note: v.optional(v.string()),
-  }),
-});
-type RateLimitError = {
-  error: {
-    type: string;
-    message: string;
-    tier: 'guest' | 'free' | 'premium' | 'supporter';
-    limit: number;
-    limit_window?: string;
-    retry_after: number;
-    current_status?: {
-      tier?: string;
-      limits?: {};
-      upgrade_path?: {
-        current?: string;
-        recommended?: string;
-        benefits?: string[];
-        action?: string;
-      };
-    };
-    suggestions: string[];
-    headers_note?: string;
-  };
-};
 export const LinkSchema = v.object({ href: v.pipe(v.string(), v.url()) });
 type Link = { href: string };
 export const MarkdownContentSchema = v.object({
@@ -106,6 +58,33 @@ export const GroupCountsSchema = v.object({
   users: v.pipe(v.number(), v.integer()),
 });
 type GroupCounts = { channels: number; users: number };
+export const UserTierSchema = v.picklist([
+  'guest',
+  'free',
+  'premium',
+  'supporter',
+]);
+type UserTier = 'guest' | 'free' | 'premium' | 'supporter';
+export const BlockStateSchema = v.picklist([
+  'processing',
+  'available',
+  'failed',
+]);
+type BlockState = 'processing' | 'available' | 'failed';
+export const BlockVisibilitySchema = v.picklist([
+  'public',
+  'private',
+  'orphan',
+]);
+type BlockVisibility = 'public' | 'private' | 'orphan';
+export const ChannelStateSchema = v.picklist(['available', 'deleted']);
+type ChannelState = 'available' | 'deleted';
+export const ConnectionFilterSchema = v.picklist(['ALL', 'OWN', 'EXCLUDE_OWN']);
+type ConnectionFilter = 'ALL' | 'OWN' | 'EXCLUDE_OWN';
+export const FollowableTypeSchema = v.picklist(['User', 'Channel', 'Group']);
+type FollowableType = 'User' | 'Channel' | 'Group';
+export const ConnectableTypeSchema = v.picklist(['Block', 'Channel']);
+type ConnectableType = 'Block' | 'Channel';
 export const ContentTypeFilterSchema = v.picklist([
   'Text',
   'Image',
@@ -316,12 +295,48 @@ type ContentSort =
   | 'created_at_desc'
   | 'updated_at_asc'
   | 'updated_at_desc';
+export const SearchScopeSchema = v.picklist(['all', 'my', 'following']);
+type SearchScope = 'all' | 'my' | 'following';
+export const SearchSortSchema = v.picklist([
+  'score_desc',
+  'created_at_desc',
+  'created_at_asc',
+  'updated_at_desc',
+  'updated_at_asc',
+  'name_asc',
+  'name_desc',
+  'connections_count_desc',
+  'random',
+]);
+type SearchSort =
+  | 'score_desc'
+  | 'created_at_desc'
+  | 'created_at_asc'
+  | 'updated_at_desc'
+  | 'updated_at_asc'
+  | 'name_asc'
+  | 'name_desc'
+  | 'connections_count_desc'
+  | 'random';
 export const ChannelVisibilitySchema = v.picklist([
   'public',
   'private',
   'closed',
 ]);
 type ChannelVisibility = 'public' | 'private' | 'closed';
+export const MovementSchema = v.picklist([
+  'insert_at',
+  'move_to_top',
+  'move_to_bottom',
+  'move_up',
+  'move_down',
+]);
+type Movement =
+  | 'insert_at'
+  | 'move_to_top'
+  | 'move_to_bottom'
+  | 'move_up'
+  | 'move_down';
 export const BlockAbilitiesSchema = v.object({
   manage: v.boolean(),
   comment: v.boolean(),
@@ -452,6 +467,54 @@ export const ChannelOwnerSchema = v.union([
   EmbeddedGroupSchema,
 ]);
 type ChannelOwner = EmbeddedUser | EmbeddedGroup;
+export const RateLimitErrorSchema = v.object({
+  error: v.object({
+    type: v.string(),
+    message: v.string(),
+    tier: UserTierSchema,
+    limit: v.pipe(v.number(), v.integer()),
+    limit_window: v.optional(v.string()),
+    retry_after: v.pipe(v.number(), v.integer()),
+    current_status: v.optional(
+      v.object({
+        tier: v.optional(v.string()),
+        limits: v.optional(v.object({})),
+        upgrade_path: v.optional(
+          v.object({
+            current: v.optional(v.string()),
+            recommended: v.optional(v.string()),
+            benefits: v.optional(v.array(v.string())),
+            action: v.optional(v.string()),
+          }),
+        ),
+      }),
+    ),
+    suggestions: v.array(v.string()),
+    headers_note: v.optional(v.string()),
+  }),
+});
+type RateLimitError = {
+  error: {
+    type: string;
+    message: string;
+    tier: UserTier;
+    limit: number;
+    limit_window?: string;
+    retry_after: number;
+    current_status?: {
+      tier?: string;
+      limits?: {};
+      upgrade_path?: {
+        current?: string;
+        recommended?: string;
+        benefits?: string[];
+        action?: string;
+      };
+    };
+    suggestions: string[];
+    headers_note?: string;
+  };
+};
 export const BlockSourceSchema = v.object({
   url: v.pipe(v.string(), v.url()),
   title: v.optional(v.union([v.string(), v.null_()])),
@@ -562,7 +625,7 @@ export const ChannelSchema = v.object({
   slug: v.string(),
   title: v.string(),
   description: v.optional(v.union([MarkdownContentSchema, v.null_()])),
-  state: v.picklist(['available', 'deleted']),
+  state: ChannelStateSchema,
   visibility: ChannelVisibilitySchema,
   created_at: v.pipe(v.string(), v.isoTimestamp()),
   updated_at: v.pipe(v.string(), v.isoTimestamp()),
@@ -578,7 +641,7 @@ type Channel = {
   slug: string;
   title: string;
   description?: MarkdownContent | null;
-  state: 'available' | 'deleted';
+  state: ChannelState;
   visibility: ChannelVisibility;
   created_at: string;
   updated_at: string;
@@ -593,8 +656,8 @@ export const BaseBlockPropertiesSchema = v.object({
   base_type: v.literal('Block'),
   title: v.optional(v.union([v.string(), v.null_()])),
   description: v.optional(v.union([MarkdownContentSchema, v.null_()])),
-  state: v.picklist(['processing', 'available', 'failed']),
-  visibility: v.picklist(['public', 'private', 'orphan']),
+  state: BlockStateSchema,
+  visibility: BlockVisibilitySchema,
   comment_count: v.pipe(v.number(), v.integer()),
   created_at: v.pipe(v.string(), v.isoTimestamp()),
   updated_at: v.pipe(v.string(), v.isoTimestamp()),
@@ -609,8 +672,8 @@ type BaseBlockProperties = {
   base_type: 'Block';
   title?: string | null;
   description?: MarkdownContent | null;
-  state: 'processing' | 'available' | 'failed';
-  visibility: 'public' | 'private' | 'orphan';
+  state: BlockState;
+  visibility: BlockVisibility;
   comment_count: number;
   created_at: string;
   updated_at: string;
@@ -782,7 +845,6 @@ export const EverythingListResponseSchema = v.intersect([
 type EverythingListResponse = EverythingList & PaginatedResponse;
 export default {
   ErrorSchema,
-  RateLimitErrorSchema,
   LinkSchema,
   MarkdownContentSchema,
   EmbeddedUserSchema,
@@ -790,13 +852,23 @@ export default {
   EmbeddedGroupSchema,
   UserCountsSchema,
   GroupCountsSchema,
+  UserTierSchema,
+  BlockStateSchema,
+  BlockVisibilitySchema,
+  ChannelStateSchema,
+  ConnectionFilterSchema,
+  FollowableTypeSchema,
+  ConnectableTypeSchema,
   ContentTypeFilterSchema,
   SearchTypeFilterSchema,
   FileExtensionSchema,
   ConnectionSortSchema,
   ChannelContentSortSchema,
   ContentSortSchema,
+  SearchScopeSchema,
+  SearchSortSchema,
   ChannelVisibilitySchema,
+  MovementSchema,
   BlockAbilitiesSchema,
   BlockProviderSchema,
   ImageVersionSchema,
@@ -809,6 +881,7 @@ export default {
   LinksSchema,
   EmbeddedConnectionSchema,
   ChannelOwnerSchema,
+  RateLimitErrorSchema,
   BlockSourceSchema,
   BlockImageSchema,
   PaginatedResponseSchema,
@@ -840,7 +913,6 @@ export default {
 };
 export type {
   Error,
-  RateLimitError,
   Link,
   MarkdownContent,
   EmbeddedUser,
@@ -848,13 +920,23 @@ export type {
   EmbeddedGroup,
   UserCounts,
   GroupCounts,
+  UserTier,
+  BlockState,
+  BlockVisibility,
+  ChannelState,
+  ConnectionFilter,
+  FollowableType,
+  ConnectableType,
   ContentTypeFilter,
   SearchTypeFilter,
   FileExtension,
   ConnectionSort,
   ChannelContentSort,
   ContentSort,
+  SearchScope,
+  SearchSort,
   ChannelVisibility,
+  Movement,
   BlockAbilities,
   BlockProvider,
   ImageVersion,
@@ -867,6 +949,7 @@ export type {
   Links,
   EmbeddedConnection,
   ChannelOwner,
+  RateLimitError,
   BlockSource,
   BlockImage,
   PaginatedResponse,
