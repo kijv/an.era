@@ -14,6 +14,7 @@ import type {
   ObjectValuesToTuple,
   Prettify,
   PrettifyTuple,
+  ValiSchema,
 } from '@/declaration';
 import {
   type Operation,
@@ -173,7 +174,7 @@ export const createApi = <
               );
             }
 
-            const schema = statusSchemas[mimeType];
+            const schema = statusSchemas[mimeType] as ValiSchema | undefined;
 
             if (!schema) {
               throw new Error(
@@ -217,7 +218,7 @@ export const createApi = <
               Object.entries(v.operations).map(([opk, opv]) => [
                 opk,
                 (...args: any[]) =>
-                  routedOperations[opv.id](
+                  routedOperations[opv.id]!(
                     ...parameters.concat(
                       !ignoreValidation
                         ? parseParameters(opv.parameters, args)

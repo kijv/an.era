@@ -64,7 +64,7 @@ export const createExpandTemplatePath = (cache = new Map<string, string>()) => {
 export const parseParameters = (
   params: Record<string, MaybeValiSchema>,
   args: unknown[],
-) => {
+): unknown[] => {
   const paramKeys = Object.keys(params);
 
   // Skip validation if no parameters are defined
@@ -74,7 +74,7 @@ export const parseParameters = (
     // if (options.disableParsing && args.length > 0) {
     //   return args[0] as Record<string, unknown>;
     // }
-    return {};
+    return [];
   }
 
   return paramKeys.map((key, i) => {
