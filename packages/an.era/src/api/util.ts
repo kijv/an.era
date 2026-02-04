@@ -108,6 +108,7 @@ export const parseParameters = (
   });
 };
 
+// https://github.com/whitecrownclown/merge-headers/blob/61a691334bc85a4d0320706db24c2b3c9eed2450/index.ts
 export const mergeHeaders = (...sources: HeadersInit[]) => {
   function isObject(value: any) {
     return value !== null && typeof value === 'object';
