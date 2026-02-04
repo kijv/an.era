@@ -8,8 +8,7 @@ on:
 concurrency: ${{ github.workflow }}-${{ github.ref }}
 permissions:
   id-token: write
-  contents: write
-  pull-requests: write
+  contents: read
 
 jobs:
   release:
@@ -36,4 +35,4 @@ jobs:
           publish: bun run release
           version: bun run version
         env:
-          GITHUB_TOKEN: ${{ secrets.BOT_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.PERSONAL_TOKEN }}
