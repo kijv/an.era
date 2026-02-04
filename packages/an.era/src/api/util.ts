@@ -12,7 +12,19 @@ export const createFetch =
   ): Promise<Response> =>
     global.fetch(
       modifyUrl(new URL(url.toString(), baseUrl)),
-      Object.assign({}, baseInit, init),
+      Object.assign(
+        {},
+        baseInit,
+        init,
+        init?.headers && baseInit?.headers
+          ? {
+              headers: mergeHeaders(
+                baseInit?.headers ?? {},
+                init?.headers ?? {},
+              ),
+            }
+          : {},
+      ),
     );
 
 export const parseResponseBody = (
@@ -64,7 +76,7 @@ export const createExpandTemplatePath = (cache = new Map<string, string>()) => {
 export const parseParameters = (
   params: Record<string, MaybeValiSchema>,
   args: unknown[],
-) => {
+): unknown[] => {
   const paramKeys = Object.keys(params);
 
   // Skip validation if no parameters are defined
@@ -74,7 +86,7 @@ export const parseParameters = (
     // if (options.disableParsing && args.length > 0) {
     //   return args[0] as Record<string, unknown>;
     // }
-    return {};
+    return [];
   }
 
   return paramKeys.map((key, i) => {
@@ -94,4 +106,31 @@ export const parseParameters = (
       );
     }
   });
+};
+
+// https://github.com/whitecrownclown/merge-headers/blob/61a691334bc85a4d0320706db24c2b3c9eed2450/index.ts
+export const mergeHeaders = (...sources: HeadersInit[]) => {
+  function isObject(value: any) {
+    return value !== null && typeof value === 'object';
+  }
+
+  const result = {};
+
+  for (const source of sources) {
+    if (!isObject(source)) {
+      throw new TypeError('All arguments must be of type object');
+    }
+
+    const headers: Headers = new Headers(source);
+
+    for (const [key, value] of headers.entries()) {
+      if (value === undefined || value === 'undefined') {
+        delete result[key];
+      } else {
+        result[key] = value;
+      }
+    }
+  }
+
+  return new Headers(result);
 };

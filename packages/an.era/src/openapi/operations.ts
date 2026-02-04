@@ -337,6 +337,73 @@ export const operations = {
       },
     },
   },
+  createBlockComment: {
+    path: '/v3/blocks/{id}/comments',
+    method: 'post',
+    tags: ['Blocks'],
+    parameters: {
+      path: v.object({ id: v.pipe(v.number(), v.integer()) }) as unknown as {
+        __TYPE__: { id: number };
+      },
+      body: v.object({ body: v.string() }) as unknown as {
+        __TYPE__: { body: string };
+      },
+    },
+    response: {
+      '201': {
+        'application/json': s.CommentSchema as unknown as {
+          __TYPE__: s.Comment;
+        },
+      },
+      '400': {
+        'application/json': s.ErrorSchema as unknown as { __TYPE__: s.Error },
+      },
+      '401': {
+        'application/json': s.ErrorSchema as unknown as { __TYPE__: s.Error },
+      },
+      '403': {
+        'application/json': s.ErrorSchema as unknown as { __TYPE__: s.Error },
+      },
+      '404': {
+        'application/json': s.ErrorSchema as unknown as { __TYPE__: s.Error },
+      },
+      '422': {
+        'application/json': s.ErrorSchema as unknown as { __TYPE__: s.Error },
+      },
+      '429': {
+        'application/json': s.RateLimitErrorSchema as unknown as {
+          __TYPE__: s.RateLimitError;
+        },
+      },
+    },
+  },
+  deleteComment: {
+    path: '/v3/comments/{id}',
+    method: 'delete',
+    tags: ['Comments'],
+    parameters: {
+      path: v.object({ id: v.pipe(v.number(), v.integer()) }) as unknown as {
+        __TYPE__: { id: number };
+      },
+    },
+    response: {
+      '204': {},
+      '401': {
+        'application/json': s.ErrorSchema as unknown as { __TYPE__: s.Error },
+      },
+      '403': {
+        'application/json': s.ErrorSchema as unknown as { __TYPE__: s.Error },
+      },
+      '404': {
+        'application/json': s.ErrorSchema as unknown as { __TYPE__: s.Error },
+      },
+      '429': {
+        'application/json': s.RateLimitErrorSchema as unknown as {
+          __TYPE__: s.RateLimitError;
+        },
+      },
+    },
+  },
   createChannel: {
     path: '/v3/channels',
     method: 'post',
@@ -487,6 +554,56 @@ export const operations = {
       },
     },
   },
+  createConnection: {
+    path: '/v3/connections',
+    method: 'post',
+    tags: ['Connections'],
+    parameters: {
+      body: v.object({
+        connectable_id: v.pipe(v.number(), v.integer()),
+        connectable_type: v.picklist(['Block', 'Channel']),
+        channel_ids: v.pipe(
+          v.array(v.union([v.pipe(v.number(), v.integer()), v.string()])),
+          v.minLength(1),
+        ),
+        position: v.optional(v.pipe(v.number(), v.integer())),
+      }) as unknown as {
+        __TYPE__: {
+          connectable_id: number;
+          connectable_type: 'Block' | 'Channel';
+          channel_ids: (number | string)[];
+          position?: number;
+        };
+      },
+    },
+    response: {
+      '201': {
+        'application/json': v.object({
+          data: v.optional(v.array(s.ConnectionSchema)),
+        }) as unknown as { __TYPE__: { data?: s.Connection[] } },
+      },
+      '400': {
+        'application/json': s.ErrorSchema as unknown as { __TYPE__: s.Error },
+      },
+      '401': {
+        'application/json': s.ErrorSchema as unknown as { __TYPE__: s.Error },
+      },
+      '403': {
+        'application/json': s.ErrorSchema as unknown as { __TYPE__: s.Error },
+      },
+      '404': {
+        'application/json': s.ErrorSchema as unknown as { __TYPE__: s.Error },
+      },
+      '422': {
+        'application/json': s.ErrorSchema as unknown as { __TYPE__: s.Error },
+      },
+      '429': {
+        'application/json': s.RateLimitErrorSchema as unknown as {
+          __TYPE__: s.RateLimitError;
+        },
+      },
+    },
+  },
   getConnection: {
     path: '/v3/connections/{id}',
     method: 'get',
@@ -536,6 +653,65 @@ export const operations = {
         'application/json': s.ErrorSchema as unknown as { __TYPE__: s.Error },
       },
       '404': {
+        'application/json': s.ErrorSchema as unknown as { __TYPE__: s.Error },
+      },
+      '429': {
+        'application/json': s.RateLimitErrorSchema as unknown as {
+          __TYPE__: s.RateLimitError;
+        },
+      },
+    },
+  },
+  moveConnection: {
+    path: '/v3/connections/{id}/move',
+    method: 'post',
+    tags: ['Connections'],
+    parameters: {
+      path: v.object({ id: v.pipe(v.number(), v.integer()) }) as unknown as {
+        __TYPE__: { id: number };
+      },
+      body: v.object({
+        movement: v.optional(
+          v.picklist([
+            'insert_at',
+            'move_to_top',
+            'move_to_bottom',
+            'move_up',
+            'move_down',
+          ]),
+        ),
+        position: v.optional(v.pipe(v.number(), v.integer())),
+      }) as unknown as {
+        __TYPE__: {
+          movement?:
+            | 'insert_at'
+            | 'move_to_top'
+            | 'move_to_bottom'
+            | 'move_up'
+            | 'move_down';
+          position?: number;
+        };
+      },
+    },
+    response: {
+      '200': {
+        'application/json': s.ConnectionSchema as unknown as {
+          __TYPE__: s.Connection;
+        },
+      },
+      '400': {
+        'application/json': s.ErrorSchema as unknown as { __TYPE__: s.Error },
+      },
+      '401': {
+        'application/json': s.ErrorSchema as unknown as { __TYPE__: s.Error },
+      },
+      '403': {
+        'application/json': s.ErrorSchema as unknown as { __TYPE__: s.Error },
+      },
+      '404': {
+        'application/json': s.ErrorSchema as unknown as { __TYPE__: s.Error },
+      },
+      '422': {
         'application/json': s.ErrorSchema as unknown as { __TYPE__: s.Error },
       },
       '429': {
@@ -1043,14 +1219,12 @@ export const operations = {
     tags: ['Search'],
     parameters: {
       query: v.object({
-        q: v.optional(v.string()),
+        query: v.optional(v.string()),
         type: v.optional(v.array(s.SearchTypeFilterSchema)),
-        scope: v.optional(v.string()),
-        in: v.optional(
-          v.array(
-            v.picklist(['name', 'description', 'content', 'domain', 'url']),
-          ),
-        ),
+        scope: v.optional(v.picklist(['all', 'my', 'following'])),
+        user_id: v.optional(v.pipe(v.number(), v.integer())),
+        group_id: v.optional(v.pipe(v.number(), v.integer())),
+        channel_id: v.optional(v.pipe(v.number(), v.integer())),
         ext: v.optional(v.array(s.FileExtensionSchema)),
         sort: v.optional(
           v.picklist([
@@ -1071,10 +1245,12 @@ export const operations = {
         per: v.optional(v.pipe(v.number(), v.minValue(1), v.maxValue(100))),
       }) as unknown as {
         __TYPE__: {
-          q?: string;
+          query?: string;
           type?: s.SearchTypeFilter[];
-          scope?: string;
-          in?: ('name' | 'description' | 'content' | 'domain' | 'url')[];
+          scope?: 'all' | 'my' | 'following';
+          user_id?: number;
+          group_id?: number;
+          channel_id?: number;
           ext?: s.FileExtension[];
           sort?:
             | 'score_desc'
