@@ -106,6 +106,18 @@ const createCode = ({
   body,
   toString() {
     return this.imports
+      .sort((a, b) =>
+        a.variable
+          .split(' ')
+          .filter((c) => /^[a-zA-Z_][a-zA-Z0-9_]*$/.test(c))
+          .join('')
+          .localeCompare(
+            b.variable
+              .split(' ')
+              .filter((c) => /^[a-zA-Z_][a-zA-Z0-9_]*$/.test(c))
+              .join(''),
+          ),
+      )
       .map((i) => `import ${i.variable} from "${i.require}";`)
       .concat([this.body.trim()])
       .concat(
