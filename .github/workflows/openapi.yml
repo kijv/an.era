@@ -1,4 +1,4 @@
-name: OpenAPI sync
+name: OpenAPI
 
 on:
   schedule:
@@ -7,11 +7,10 @@ on:
 
 permissions:
   contents: write
-  pull-requests: write
 
 jobs:
   openapi:
-    name: Fetch OpenAPI and open PR if generated files changed
+    name: Sync
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -22,13 +21,16 @@ jobs:
       - name: Install dependencies
         run: bun install --frozen-lockfile
 
-      - name: Fetch OpenAPI spec
+      - name: Fetch
         run: curl -fsSL "https://api.are.na/v3/openapi.json" -o openapi.json
 
-      - name: Run gen script
+      - name: Generate
         run: bun run gen -- --input=./openapi.json --outDir=packages/an.era/src/openapi
 
-      - name: Check for changes in generated openapi files
+      - name: Format
+        run: bun run fmt packages/an.era/src/openapi
+
+      - name: Check for changes
         id: changes
         run: |
           if git diff --name-only -- "packages/an.era/src/openapi" | grep -q .; then
@@ -40,10 +42,10 @@ jobs:
       - name: Create Pull Request
         if: steps.changes.outputs.changed == 'true'
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.PERSONAL_TOKEN }}
         run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git config user.name "vvv"
+          git config user.email "vvv@vvvn.org"
           BRANCH="openapi-sync-$(date +%Y%m%d-%H%M%S)"
           git checkout -b "$BRANCH"
           git add packages/an.era/src/openapi/
