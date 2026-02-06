@@ -1,7 +1,7 @@
 {
   "name": "an.era",
-  "version": "0.3.0-beta.4",
-  "description": "Interfacing for Are.na API",
+  "version": "0.3.0-beta.5",
+  "description": "Wrapper for Are.na API",
   "keywords": [
     "are.na"
   ],
