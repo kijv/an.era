@@ -30,7 +30,8 @@ import type { MapResponseToUnion } from './declaration';
 import type { SERVERS } from '@/openapi';
 import contentTypeParser from 'fast-content-type-parse';
 //
-type DefaultOperations = typeof import('@/openapi/operations').operations;
+type DefaultOperations =
+  /* oxlint-disable consistent-type-imports */ typeof import('@/openapi/operations').operations;
 
 export interface ApiOptions<
   TOperations extends Record<string, Operation>,

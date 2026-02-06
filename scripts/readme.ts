@@ -6,9 +6,9 @@
  * - Schema refs that appear more than once: first appearance is full section, later ones are linkable refs
  */
 import args from 'args';
+import { buildReadme } from './readme/doc';
 import { fileURLToPath } from 'bun';
 import path from 'node:path';
-import { buildReadme } from './readme/doc';
 
 const cwd = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
 

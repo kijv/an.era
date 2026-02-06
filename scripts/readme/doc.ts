@@ -2,9 +2,8 @@
  * Document model, TOC, referenced schemas section, and main readme build flow.
  * Builds the full doc (TOC + API reference blocks + schema reference) and renders to markdown.
  */
-import type { ApiReference } from './api';
-import { loadApiReference } from './api';
 import type { Block, Doc, TocEntry } from './types';
+import { loadApiReference } from './api';
 
 /** GitHub-style anchor slug for heading text (TOC links). */
 export function slugForToc(headingText: string): string {

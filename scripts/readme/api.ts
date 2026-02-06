@@ -2,11 +2,11 @@
  * API reference section: loads OpenAPI, collects operations/sections,
  * schema usages, and builds operation blocks (parameters, request body, responses).
  */
+import type { Block, TocEntry } from './types';
+import type { HttpMethods } from 'oas/types';
 import OASNormalize from 'oas-normalize';
 import Oas from 'oas';
-import type { HttpMethods } from 'oas/types';
 import { extractRefName } from '../openapi/util';
-import type { Block, TocEntry } from './types';
 
 const UNION = ' or ';
 const INTERSECTION = ' and ';
