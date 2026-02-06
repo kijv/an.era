@@ -53,5 +53,4 @@ jobs:
           git push origin "$BRANCH"
           gh pr create \
             --title "sync openapi" \
-            --body "Nightly sync: generated OpenAPI client files in \`packages/an.era/src/openapi\` have changed. This PR does not include \`openapi.json\` (used only temporarily during the run)." \
             --base main

@@ -3,6 +3,7 @@ import { defaultRenderRef, sortSchemas } from './util';
 import OASNormalize from 'oas-normalize';
 import Oas from 'oas';
 import { Operation } from 'oas/operation';
+import args from 'args';
 import { dataToEsm } from '@rollup/pluginutils';
 import { fileURLToPath } from 'bun';
 import { getParametersAsJSONSchema } from 'oas/operation/get-parameters-as-json-schema';
@@ -11,34 +12,29 @@ import path from 'node:path';
 
 const cwd = path.join(path.dirname(fileURLToPath(import.meta.url)), '..', '..');
 
-const only = Bun.argv
-  .slice(2)
-  .find((arg) => arg.startsWith('--only='))
-  ?.split('=')[1]
-  ?.split(',');
+args
+  .option('input', 'Path to OpenAPI spec', './openapi.json')
+  .option(
+    'outDir',
+    'Output directory for generated files',
+    'packages/an.era/src/openapi',
+  )
+  .option(
+    'only',
+    'Comma-separated list of files to generate (default: all)',
+    undefined as string | undefined,
+    (v: string) => (v == null || v === '' ? undefined : v.split(',')),
+  )
+  .option('skip-existing', 'Skip writing files that already exist', false);
 
-const input = Bun.argv
-  .slice(2)
-  .find((arg) => arg.startsWith('--input='))
-  ?.split('=')[1];
+const flags = args.parse(process.argv);
 
-const outDir = path.join(
-  cwd,
-  Bun.argv
-    .slice(2)
-    .find((arg) => arg.startsWith('--outDir='))
-    ?.split('=')[1]!,
-);
+const only = flags.only;
+const input = flags.input ?? './openapi.json';
+const outDir = path.join(cwd, flags.outDir ?? 'packages/an.era/src/openapi');
+const skipExisting = flags['skip-existing'] === true;
 
-const skipExistingArg = Bun.argv
-  .slice(2)
-  .find((arg) => arg.startsWith('--skip-existing='))
-  ?.split('=')[1];
-
-const skipExisting =
-  skipExistingArg == null ? false : skipExistingArg === 'true';
-
-const normalizedOas = new OASNormalize(input!, {
+const normalizedOas = new OASNormalize(input, {
   enablePaths: true,
   parser: {
     resolve: {

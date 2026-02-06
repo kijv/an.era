@@ -1,31 +1,27 @@
-import { defineConfig } from 'tsdown';
+import { type UserConfig, defineConfig } from 'tsdown';
 
-export default defineConfig({
-  platform: 'neutral',
-  entry: ['src/index.ts'],
+const baseConfig: UserConfig = {
   minify: true,
   dts: {
-    // oxc: true,
-    // tsgo: true,
+    sideEffects: false,
   },
-  inlineOnly: [
-    // 'form-urlencoded',
-    // 'oas',
-    // 'openapi-types',
-    'fast-content-type-parse',
-    'url-template',
-    'stable-hash',
-  ],
+  inlineOnly: ['fast-content-type-parse', 'url-template', 'stable-hash'],
   external: ['valibot'],
-  // outputOptions: {
-  //   codeSplitting: {
-  //     groups: [
-  //       {
-  //         name: 'openapi',
-  //         test: 'openapi',
-  //       },
-  //     ],
-  //   },
-  // },
+  inputOptions: {
+    experimental: {
+      lazyBarrel: true,
+    },
+    treeshake: {
+      moduleSideEffects: [{ test: /\/.*\.ts$/, sideEffects: false }],
+    },
+  },
   publint: true,
-});
+};
+
+export default defineConfig([
+  {
+    ...baseConfig,
+    platform: 'neutral',
+    entry: ['src/index.ts'],
+  },
+]);

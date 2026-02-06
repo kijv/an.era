@@ -159,5 +159,13 @@
   "ignorePatterns": [
     "packages/an.era/src/openapi/**",
     "packages/an.era/src/schema.ts"
+  ],
+  "overrides": [
+    {
+      "files": ["packages/an.era/src/**"],
+      "rules": {
+        "no-console": "error"
+      }
+    }
   ]
 }
