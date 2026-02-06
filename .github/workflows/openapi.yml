@@ -1,0 +1,55 @@
+name: OpenAPI sync
+
+on:
+  schedule:
+    - cron: '0 6 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  openapi:
+    name: Fetch OpenAPI and open PR if generated files changed
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - uses: oven-sh/setup-bun@v2
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Fetch OpenAPI spec
+        run: curl -fsSL "https://api.are.na/v3/openapi.json" -o openapi.json
+
+      - name: Run gen script
+        run: bun run gen -- --input=./openapi.json --outDir=packages/an.era/src/openapi
+
+      - name: Check for changes in generated openapi files
+        id: changes
+        run: |
+          if git diff --name-only -- "packages/an.era/src/openapi" | grep -q .; then
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Create Pull Request
+        if: steps.changes.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          BRANCH="openapi-sync-$(date +%Y%m%d-%H%M%S)"
+          git checkout -b "$BRANCH"
+          git add packages/an.era/src/openapi/
+          git commit -m "sync openapi"
+          git push origin "$BRANCH"
+          gh pr create \
+            --title "sync openapi" \
+            --body "Nightly sync: generated OpenAPI client files in \`packages/an.era/src/openapi\` have changed. This PR does not include \`openapi.json\` (used only temporarily during the run)." \
+            --base main
