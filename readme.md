@@ -1,3 +1,3 @@
 # an.era
 
-Interfacing for Are.na API
+Wrapper for Are.na API
