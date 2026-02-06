@@ -12,7 +12,8 @@
     "fmt": "oxfmt",
     "fmt:check": "oxfmt --check",
     "version": "changeset version && bun install --lockfile-only",
-    "release": "turbo run build --filter=./packages/* && changeset publish"
+    "release": "turbo run build --filter=./packages/* && changeset publish",
+    "gen": "bun scripts/openapi/gen.ts"
   },
   "dependencies": {
     "@changesets/changelog-github": "^0.5.2",
