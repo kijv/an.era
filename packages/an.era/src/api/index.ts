@@ -1,5 +1,3 @@
-import * as openApiOperations from '@/openapi/operations';
-import * as v from 'valibot';
 import {
   type GroupedOperation,
   type TransformOperations,
@@ -27,12 +25,13 @@ import {
   parseParameters,
   parseResponseBody,
 } from './util';
+import { getDefaultOperations, getValibot } from '@/util';
 import type { MapResponseToUnion } from './declaration';
 import type { SERVERS } from '@/openapi';
 import contentTypeParser from 'fast-content-type-parse';
-// import { LinksSchema } from '@/openapi/components/schemas';
 //
-type DefaultOperations = typeof openApiOperations.operations;
+type DefaultOperations =
+  /* oxlint-disable consistent-type-imports */ typeof import('@/openapi/operations').operations;
 
 export interface ApiOptions<
   TOperations extends Record<string, Operation>,
@@ -41,7 +40,6 @@ export interface ApiOptions<
   baseUrl?: (typeof SERVERS)[number]['url'];
   requestInit?: RequestInit;
   accessToken?: string;
-  // useHateoas?: boolean;
   operations?: TOperations;
   ignoreValidation?: boolean;
   plain?: TPlain;
@@ -83,22 +81,27 @@ type CreateApiReturn<TOperations extends Record<string, Operation>> = {
       : never;
 };
 
-export const createApi = <
+export const createApi = async <
   const TOperations extends Record<string, Operation> = DefaultOperations,
   const TPlain extends boolean = false,
 >({
   baseUrl = 'https://api.are.na',
   requestInit = {},
   accessToken,
-  // useHateoas = false,
-  operations = openApiOperations.operations as unknown as TOperations,
+  operations,
   ignoreValidation = false,
   plain,
-}: ApiOptions<TOperations, TPlain> = {}): TPlain extends true
-  ? {
-      [K in keyof TOperations]: OperationFunction<TOperations[K]>;
-    }
-  : CreateApiReturn<TOperations> => {
+}: ApiOptions<TOperations, TPlain> = {}): Promise<
+  TPlain extends true
+    ? {
+        [K in keyof TOperations]: OperationFunction<TOperations[K]>;
+      }
+    : CreateApiReturn<TOperations>
+> => {
+  const resolvedOperations =
+    (operations as TOperations | undefined) ??
+    ((await getDefaultOperations()) as unknown as TOperations);
+
   type Return = TPlain extends true
     ? {
         [K in keyof TOperations]: OperationFunction<TOperations[K]>;
@@ -117,7 +120,7 @@ export const createApi = <
   const expandTemplatePath = createExpandTemplatePath(pathnameCache);
 
   const routedOperations = routeOperations(
-    operations,
+    resolvedOperations,
     (data, params) => {
       const pathname = expandTemplatePath(
         data.path,
@@ -160,7 +163,6 @@ export const createApi = <
       );
     },
     async (operation, response) => {
-      const statusCode = response.status.toString();
       const rawContentType = response.headers.get('content-type');
       const mimeType =
         typeof rawContentType === 'string'
@@ -169,38 +171,34 @@ export const createApi = <
 
       const body = await parseResponseBody(response, mimeType);
 
-      const result = !ignoreValidation
-        ? (async () => {
-            const statusSchemas =
-              operation.response[statusCode] ?? operation.response['default'];
+      if (!ignoreValidation) return body;
 
-            if (!statusSchemas) {
-              throw new Error(
-                `No response schema defined for status ${statusCode} in operation ${operation.method.toUpperCase()} ${operation.path}`,
-              );
-            }
+      const statusCode = response.status.toString();
 
-            const schema = statusSchemas[mimeType] as ValiSchema | undefined;
+      const statusSchemas =
+        operation.response[statusCode] ?? operation.response['default'];
 
-            if (!schema) {
-              throw new Error(
-                `No response schema found for media "${mimeType}" in operation ${operation.method.toUpperCase()} ${operation.path}`,
-              );
-            }
+      if (!statusSchemas) {
+        throw new Error(
+          `No response schema defined for status ${statusCode} in operation ${operation.method.toUpperCase()} ${operation.path}`,
+        );
+      }
 
-            return v
-              .parseAsync(schema, body, {
-                abortEarly: true,
-              })
-              .catch((e) => (v.isValiError(e) ? v.summarize(e.issues) : e));
-          })()
-        : body;
+      const schema = statusSchemas[mimeType] as ValiSchema | undefined;
 
-      // if (useHateoas && result != null && typeof result === "object" && "_links" in result && v.is(LinksSchema, result._links)) {
-      //   const hateos = result._links;
-      // }
+      if (!schema) {
+        throw new Error(
+          `No response schema found for media "${mimeType}" in operation ${operation.method.toUpperCase()} ${operation.path}`,
+        );
+      }
 
-      return result;
+      const v = await getValibot();
+
+      return v
+        .parseAsync(schema, body, {
+          abortEarly: true,
+        })
+        .catch((e) => (v.isValiError(e) ? v.summarize(e.issues) : e));
     },
   );
 
@@ -209,32 +207,46 @@ export const createApi = <
       [K in keyof TOperations]: OperationFunction<TOperations[K]>;
     } as Return;
 
-  const transformedOperations = transformOperations(operations);
+  const transformedOperations = transformOperations(resolvedOperations);
+
+  type TransformedEntry =
+    | GroupedOperation<
+        Record<string, MaybeValiSchema>,
+        Record<string, TransformedOperation>
+      >
+    | TransformedOperation;
 
   return Object.fromEntries(
-    Object.entries(transformedOperations).map(([k, v]) => [
-      k,
-      (...args: any[]) => {
-        const parameters = !ignoreValidation
-          ? parseParameters(v.parameters, args)
-          : args;
+    (Object.entries(transformedOperations) as [string, TransformedEntry][]).map(
+      ([k, v]) => [
+        k,
+        (...args: any[]) => {
+          const parameters = !ignoreValidation
+            ? parseParameters(v.parameters, args)
+            : args;
 
-        return 'operations' in v
-          ? Object.fromEntries(
-              Object.entries(v.operations).map(([opk, opv]) => [
-                opk,
-                (...args: any[]) =>
-                  routedOperations[opv.id]!(
-                    ...parameters.concat(
-                      !ignoreValidation
-                        ? parseParameters(opv.parameters, args)
-                        : args,
+          return 'operations' in v
+            ? Object.fromEntries(
+                (
+                  Object.entries(v.operations) as [
+                    string,
+                    TransformedOperation,
+                  ][]
+                ).map(([opk, opv]) => [
+                  opk,
+                  (...args: any[]) =>
+                    routedOperations[opv.id]!(
+                      ...(parameters.concat(
+                        !ignoreValidation
+                          ? parseParameters(opv.parameters, args)
+                          : args,
+                      ) as any),
                     ),
-                  ),
-              ]),
-            )
-          : routedOperations[v.id]!(...parameters);
-      },
-    ]),
+                ]),
+              )
+            : routedOperations[v.id]!(...(parameters as any));
+        },
+      ],
+    ),
   ) as Return;
 };

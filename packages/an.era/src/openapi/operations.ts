@@ -127,27 +127,19 @@ export const operations = {
     parameters: {
       body: v.object({
         value: v.string(),
-        channel_ids: v.pipe(
-          v.array(v.pipe(v.number(), v.integer())),
-          v.minLength(1),
-          v.maxLength(6),
-        ),
         title: v.optional(v.string()),
         description: v.optional(v.string()),
         original_source_url: v.optional(v.pipe(v.string(), v.url())),
         original_source_title: v.optional(v.string()),
         alt_text: v.optional(v.string()),
-        insert_at: v.optional(v.pipe(v.number(), v.integer())),
       }) as unknown as {
         __TYPE__: {
           value: string;
-          channel_ids: number[];
           title?: string;
           description?: string;
           original_source_url?: string;
           original_source_title?: string;
           alt_text?: string;
-          insert_at?: number;
         };
       },
     },
@@ -165,6 +157,59 @@ export const operations = {
         'application/json': s.ErrorSchema as unknown as { __TYPE__: s.Error },
       },
       '404': {
+        'application/json': s.ErrorSchema as unknown as { __TYPE__: s.Error },
+      },
+      '429': {
+        'application/json': s.RateLimitErrorSchema as unknown as {
+          __TYPE__: s.RateLimitError;
+        },
+      },
+    },
+  },
+  bulkCreateBlocks: {
+    path: '/v3/blocks/bulk',
+    method: 'post',
+    tags: ['Blocks'],
+    parameters: {
+      body: v.object({
+        channel_ids: v.pipe(
+          v.array(v.union([v.pipe(v.number(), v.integer()), v.string()])),
+          v.minLength(1),
+          v.maxLength(20),
+        ),
+        blocks: v.pipe(
+          v.array(s.BlockInputSchema),
+          v.minLength(1),
+          v.maxLength(50),
+        ),
+      }) as unknown as {
+        __TYPE__: { channel_ids: (number | string)[]; blocks: s.BlockInput[] };
+      },
+    },
+    response: {
+      '201': {
+        'application/json': s.BulkBlockResponseSchema as unknown as {
+          __TYPE__: s.BulkBlockResponse;
+        },
+      },
+      '207': {
+        'application/json': s.BulkBlockResponseSchema as unknown as {
+          __TYPE__: s.BulkBlockResponse;
+        },
+      },
+      '400': {
+        'application/json': s.ErrorSchema as unknown as { __TYPE__: s.Error },
+      },
+      '401': {
+        'application/json': s.ErrorSchema as unknown as { __TYPE__: s.Error },
+      },
+      '403': {
+        'application/json': s.ErrorSchema as unknown as { __TYPE__: s.Error },
+      },
+      '404': {
+        'application/json': s.ErrorSchema as unknown as { __TYPE__: s.Error },
+      },
+      '422': {
         'application/json': s.ErrorSchema as unknown as { __TYPE__: s.Error },
       },
       '429': {
@@ -565,6 +610,7 @@ export const operations = {
         channel_ids: v.pipe(
           v.array(v.union([v.pipe(v.number(), v.integer()), v.string()])),
           v.minLength(1),
+          v.maxLength(20),
         ),
         position: v.optional(v.pipe(v.number(), v.integer())),
       }) as unknown as {

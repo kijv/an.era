@@ -34,5 +34,7 @@ jobs:
         with:
           publish: bun run release
           version: bun run version
+          title: release packages
+          commit: release packages
         env:
           GITHUB_TOKEN: ${{ secrets.PERSONAL_TOKEN }}

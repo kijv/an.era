@@ -337,6 +337,28 @@ type Movement =
   | 'move_to_bottom'
   | 'move_up'
   | 'move_down';
+export const ChannelIdsSchema = v.pipe(
+  v.array(v.union([v.pipe(v.number(), v.integer()), v.string()])),
+  v.minLength(1),
+  v.maxLength(20),
+);
+type ChannelIds = (number | string)[];
+export const BlockInputSchema = v.object({
+  value: v.string(),
+  title: v.optional(v.string()),
+  description: v.optional(v.string()),
+  original_source_url: v.optional(v.pipe(v.string(), v.url())),
+  original_source_title: v.optional(v.string()),
+  alt_text: v.optional(v.string()),
+});
+type BlockInput = {
+  value: string;
+  title?: string;
+  description?: string;
+  original_source_url?: string;
+  original_source_title?: string;
+  alt_text?: string;
+};
 export const BlockAbilitiesSchema = v.object({
   manage: v.boolean(),
   comment: v.boolean(),
@@ -530,6 +552,7 @@ export const BlockImageSchema = v.object({
   blurhash: v.optional(v.union([v.string(), v.null_()])),
   width: v.optional(v.union([v.pipe(v.number(), v.integer()), v.null_()])),
   height: v.optional(v.union([v.pipe(v.number(), v.integer()), v.null_()])),
+  src: v.optional(v.pipe(v.string(), v.url())),
   aspect_ratio: v.optional(v.union([v.number(), v.null_()])),
   content_type: v.optional(v.string()),
   filename: v.optional(v.string()),
@@ -545,6 +568,7 @@ type BlockImage = {
   blurhash?: string | null;
   width?: number | null;
   height?: number | null;
+  src?: string;
   aspect_ratio?: number | null;
   content_type?: string;
   filename?: string;
@@ -843,6 +867,28 @@ export const EverythingListResponseSchema = v.intersect([
   PaginatedResponseSchema,
 ]);
 type EverythingListResponse = EverythingList & PaginatedResponse;
+export const BulkBlockResponseSchema = v.object({
+  data: v.object({
+    successful: v.array(
+      v.object({ index: v.pipe(v.number(), v.integer()), block: BlockSchema }),
+    ),
+    failed: v.array(
+      v.object({ index: v.pipe(v.number(), v.integer()), error: v.string() }),
+    ),
+  }),
+  meta: v.object({
+    total: v.pipe(v.number(), v.integer()),
+    successful_count: v.pipe(v.number(), v.integer()),
+    failed_count: v.pipe(v.number(), v.integer()),
+  }),
+});
+type BulkBlockResponse = {
+  data: {
+    successful: { index: number; block: Block }[];
+    failed: { index: number; error: string }[];
+  };
+  meta: { total: number; successful_count: number; failed_count: number };
+};
 export default {
   ErrorSchema,
   LinkSchema,
@@ -869,6 +915,8 @@ export default {
   SearchSortSchema,
   ChannelVisibilitySchema,
   MovementSchema,
+  ChannelIdsSchema,
+  BlockInputSchema,
   BlockAbilitiesSchema,
   BlockProviderSchema,
   ImageVersionSchema,
@@ -910,6 +958,7 @@ export default {
   BlockSchema,
   ConnectableListResponseSchema,
   EverythingListResponseSchema,
+  BulkBlockResponseSchema,
 };
 export type {
   Error,
@@ -937,6 +986,8 @@ export type {
   SearchSort,
   ChannelVisibility,
   Movement,
+  ChannelIds,
+  BlockInput,
   BlockAbilities,
   BlockProvider,
   ImageVersion,
@@ -978,4 +1029,5 @@ export type {
   Block,
   ConnectableListResponse,
   EverythingListResponse,
+  BulkBlockResponse,
 };
