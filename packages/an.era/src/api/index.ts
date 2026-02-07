@@ -25,11 +25,11 @@ import {
   parseParameters,
   parseResponseBody,
 } from './util';
-import { operations as defaultOperations } from '@/openapi/operations';
-import { getValibot } from '@/util';
 import type { MapResponseToUnion } from './declaration';
 import type { SERVERS } from '@/openapi';
 import contentTypeParser from 'fast-content-type-parse';
+import { operations as defaultOperations } from '@/openapi/operations';
+import { getValibot } from '@/util';
 
 type DefaultOperations = typeof defaultOperations;
 
@@ -87,8 +87,7 @@ function caseInsensitiveTagProxy<T extends Record<string, unknown>>(
         if (Reflect.has(target, prop))
           return Reflect.get(target, prop, receiver);
         const key = getKeyIgnoreCase(target, prop);
-        if (key !== undefined)
-          return Reflect.get(target, key, receiver);
+        if (key !== undefined) return Reflect.get(target, key, receiver);
       }
       return Reflect.get(target, prop, receiver);
     },
@@ -142,8 +141,8 @@ export const createApi = <
 }: ApiOptions<TOperations, TPlain> = {}): TPlain extends true
   ? { [K in keyof TOperations]: OperationFunction<TOperations[K]> }
   : CreateApiReturn<TOperations> => {
-  const resolvedOperations: TOperations =
-    (operations ?? defaultOperations) as TOperations;
+  const resolvedOperations: TOperations = (operations ??
+    defaultOperations) as TOperations;
 
   type Return = TPlain extends true
     ? {
@@ -259,7 +258,8 @@ export const createApi = <
       >
     | TransformedOperation;
 
-  const mapEntryToFn = (v: TransformedEntry) =>
+  const mapEntryToFn =
+    (v: TransformedEntry) =>
     (...args: any[]) => {
       const parameters = !ignoreValidation
         ? parseParameters(v.parameters, args)
@@ -268,10 +268,7 @@ export const createApi = <
       return 'operations' in v
         ? Object.fromEntries(
             (
-              Object.entries(v.operations) as [
-                string,
-                TransformedOperation,
-              ][]
+              Object.entries(v.operations) as [string, TransformedOperation][]
             ).map(([opk, opv]) => [
               opk,
               (...args: any[]) =>

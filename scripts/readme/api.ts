@@ -223,10 +223,7 @@ function hasSharedTagWithSameTermOp(
 function innerKeyWithoutMethod(innerKey: string, method: string): string {
   const methodLower = method.toLowerCase();
   const keyLower = innerKey.toLowerCase();
-  if (
-    keyLower.startsWith(methodLower) &&
-    innerKey.length > method.length
-  ) {
+  if (keyLower.startsWith(methodLower) && innerKey.length > method.length) {
     const rest = innerKey.slice(method.length);
     return rest.charAt(0).toLowerCase() + rest.slice(1);
   }
@@ -324,16 +321,12 @@ export function getGroupedForm(
       const innerKey = innerKeyWithoutMethod(strippedKey, op.method);
       const groupParams = getGroupParamNames(op, operationsByKey, termLower);
       const groupParamList =
-        groupParams.length > 0
-          ? `({ ${groupParams.join(', ')} })`
-          : '';
+        groupParams.length > 0 ? `({ ${groupParams.join(', ')} })` : '';
       const opParamNames = op.parameters
         .map((p) => p.name)
         .filter((n) => !groupParams.includes(n));
       const opParamList =
-        opParamNames.length > 0
-          ? `({ ${opParamNames.join(', ')} })`
-          : '()';
+        opParamNames.length > 0 ? `({ ${opParamNames.join(', ')} })` : '()';
       return `${displayTag}.${termLower}${groupParamList}.${innerKey}${opParamList}`;
     }
     return `${displayTag}.${scopedName}()`;
@@ -350,16 +343,12 @@ export function getGroupedForm(
       if (op.parameters.length > 0) {
         const groupParams = getGroupParamNames(op, operationsByKey, termLower);
         const groupParamList =
-          groupParams.length > 0
-            ? `({ ${groupParams.join(', ')} })`
-            : '';
+          groupParams.length > 0 ? `({ ${groupParams.join(', ')} })` : '';
         const opParamNames = op.parameters
           .map((p) => p.name)
           .filter((n) => !groupParams.includes(n));
         const opParamList =
-          opParamNames.length > 0
-            ? `({ ${opParamNames.join(', ')} })`
-            : '()';
+          opParamNames.length > 0 ? `({ ${opParamNames.join(', ')} })` : '()';
         return `${displayTag}.${termLower}${groupParamList}.${innerKey}${opParamList}`;
       }
       return `${displayTag}.${innerKey.charAt(0).toUpperCase() + innerKey.slice(1)}()`;
@@ -1099,8 +1088,7 @@ export async function loadApiReference(
     getScopedName,
     getUngroupedOpDisplayName: (op) =>
       getUngroupedOpDisplayName(op, operationsByKey),
-    getGroupedForm: (op, tag) =>
-      getGroupedForm(op, operationsByKey, tag),
+    getGroupedForm: (op, tag) => getGroupedForm(op, operationsByKey, tag),
     buildOperationBlocks: (
       op,
       subNum,
