@@ -53,4 +53,4 @@ This is intended to allow passing a different set of operations to the API insta
 
 ## API Reference
 
-View the full API reference at [here]().
+View the (latest) API reference [here](https://github.com/kijv/an.era#api-reference).
