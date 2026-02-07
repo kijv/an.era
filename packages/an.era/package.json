@@ -26,11 +26,11 @@
   },
   "scripts": {
     "build": "tsdown",
+    "test": "vitest run",
     "lint": "oxlint",
     "lint:fix": "oxlint --fix",
     "fmt": "oxfmt",
-    "fmt:check": "oxfmt --check",
-    "test": "vitest"
+    "fmt:check": "oxfmt --check"
   },
   "dependencies": {
     "valibot": "^1.2.0"
