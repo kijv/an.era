@@ -1,5 +1,7 @@
 import type * as v from 'valibot';
 
+export type Awaitable<T> = Promise<T> | T;
+
 export type ValiSchema = v.BaseSchema<unknown, unknown, v.BaseIssue<unknown>>;
 
 export type FakeValiSchema = {

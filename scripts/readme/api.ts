@@ -57,12 +57,14 @@ export type ApiReference = {
   componentsSchemas: Record<string, unknown> | undefined;
   getScopedName: (operationId: string, tag: string) => string;
   getUngroupedOpDisplayName: (op: OpInfo) => string;
+  getGroupedForm: (op: OpInfo, tag?: string) => string | null;
   buildOperationBlocks: (
     op: OpInfo,
     subNum: string,
     headingLevel: 4 | 5,
     title: string,
     tocEntries: TocEntry[],
+    groupedForm?: string | null,
   ) => Block[];
   describeSchema: (
     schema: unknown,
@@ -98,6 +100,12 @@ function tagMatchesTerm(tag: string, term: string): boolean {
     tagLower === termLower + 's' ||
     tagLower + 's' === termLower
   );
+}
+
+/** Term from operationId that matches the tag (e.g. "Block" for tag "Blocks"); used as group key (lowercase). */
+function getTermMatchingTag(operationId: string, tag: string): string | null {
+  const terms = splitCamelCase(operationId);
+  return terms.find((t) => tagMatchesTerm(tag, t)) ?? null;
 }
 
 function getScopedName(operationId: string, tag: string): string {
@@ -211,37 +219,42 @@ function hasSharedTagWithSameTermOp(
   return true;
 }
 
+/** If the inner key starts with the HTTP method and the remainder is non-empty, return the remainder (e.g. getContents → contents); else return the key as-is (e.g. get → get). */
+function innerKeyWithoutMethod(innerKey: string, method: string): string {
+  const methodLower = method.toLowerCase();
+  const keyLower = innerKey.toLowerCase();
+  if (
+    keyLower.startsWith(methodLower) &&
+    innerKey.length > method.length
+  ) {
+    const rest = innerKey.slice(method.length);
+    return rest.charAt(0).toLowerCase() + rest.slice(1);
+  }
+  return innerKey;
+}
+
+/** Inner operation key with term removed: before + after in camelCase (e.g. getBlockConnections → getConnections). */
 function getStrippedKey(
   processedKey: string,
   term: string,
   method: string,
 ): string {
   const terms = splitCamelCase(processedKey);
-  const termIndex = terms.findIndex((t) => t.toLowerCase() === term);
+  const termLower = term.toLowerCase();
+  const termIndex = terms.findIndex((t) => t.toLowerCase() === termLower);
   if (termIndex === -1) return method;
   const before = terms.slice(0, termIndex);
   const after = terms.slice(termIndex + 1);
-  const firstBefore = before[0];
-  if (firstBefore) {
-    return (
-      firstBefore.toLowerCase() +
-      before
-        .slice(1)
-        .map((t) => t.charAt(0).toUpperCase() + t.slice(1))
-        .join('')
-    );
-  }
-  const firstAfter = after[0];
-  if (firstAfter) {
-    return (
-      firstAfter.toLowerCase() +
-      after
-        .slice(1)
-        .map((t) => t.charAt(0).toUpperCase() + t.slice(1))
-        .join('')
-    );
-  }
-  return method;
+  const combined = [...before, ...after];
+  if (combined.length === 0) return method;
+  const first = combined[0]!;
+  return (
+    first.toLowerCase() +
+    combined
+      .slice(1)
+      .map((t) => t.charAt(0).toUpperCase() + t.slice(1))
+      .join('')
+  );
 }
 
 export function getUngroupedOpDisplayName(
@@ -261,6 +274,98 @@ export function getUngroupedOpDisplayName(
     }
   }
   return op.operationId;
+}
+
+/** Parameter names that are common to all ops in the same group (shared group params). */
+function getGroupParamNames(
+  op: OpInfo,
+  operationsByKey: Record<string, OpInfo>,
+  term: string,
+): string[] {
+  const groupOps = getOpsWithTermAndSharedTag(
+    operationsByKey,
+    op.operationId,
+    term,
+  );
+  if (groupOps.length === 0) return [];
+  const first = groupOps[0]!;
+  let common = new Set(getParamNames(first));
+  for (let i = 1; i < groupOps.length; i++) {
+    const names = new Set(getParamNames(groupOps[i]!));
+    common = new Set([...common].filter((n) => names.has(n)));
+  }
+  return [...common];
+}
+
+/**
+ * Returns the grouped form for the block quote, or null if no grouped form.
+ * Matches runtime grouping: tag.term({ groupParams }).strippedKey (e.g. Blocks.block({ id }).getConnections)
+ * or tag.scopedName when the op has no parameters (e.g. Blocks.create).
+ */
+export function getGroupedForm(
+  op: OpInfo,
+  operationsByKey: Record<string, OpInfo>,
+  tag?: string,
+): string | null {
+  const processedKey = getProcessedKey(op.operationId, op.method);
+
+  if (tag != null) {
+    const displayTag = tag.toLowerCase();
+    const scopedName = getScopedName(op.operationId, tag);
+    if (scopedName === op.operationId) return null;
+    if (op.parameters.length > 0) {
+      const term = getTermMatchingTag(op.operationId, tag);
+      if (!term) {
+        const paramList = `({ ${op.parameters.map((p) => p.name).join(', ')} })`;
+        return `${displayTag}.${scopedName}${paramList}`;
+      }
+      const termLower = term.toLowerCase();
+      const strippedKey = getStrippedKey(op.operationId, term, op.method);
+      const innerKey = innerKeyWithoutMethod(strippedKey, op.method);
+      const groupParams = getGroupParamNames(op, operationsByKey, termLower);
+      const groupParamList =
+        groupParams.length > 0
+          ? `({ ${groupParams.join(', ')} })`
+          : '';
+      const opParamNames = op.parameters
+        .map((p) => p.name)
+        .filter((n) => !groupParams.includes(n));
+      const opParamList =
+        opParamNames.length > 0
+          ? `({ ${opParamNames.join(', ')} })`
+          : '()';
+      return `${displayTag}.${termLower}${groupParamList}.${innerKey}${opParamList}`;
+    }
+    return `${displayTag}.${scopedName}()`;
+  }
+
+  if (!hasNonEmptyParameters(op)) return null;
+  const terms = getAllTerms(processedKey);
+  for (const term of terms) {
+    if (hasSharedTagWithSameTermOp(operationsByKey, op.operationId, term)) {
+      const strippedKey = getStrippedKey(op.operationId, term, op.method);
+      const innerKey = innerKeyWithoutMethod(strippedKey, op.method);
+      const displayTag = (op.tags[0] ?? term).toLowerCase();
+      const termLower = term.toLowerCase();
+      if (op.parameters.length > 0) {
+        const groupParams = getGroupParamNames(op, operationsByKey, termLower);
+        const groupParamList =
+          groupParams.length > 0
+            ? `({ ${groupParams.join(', ')} })`
+            : '';
+        const opParamNames = op.parameters
+          .map((p) => p.name)
+          .filter((n) => !groupParams.includes(n));
+        const opParamList =
+          opParamNames.length > 0
+            ? `({ ${opParamNames.join(', ')} })`
+            : '()';
+        return `${displayTag}.${termLower}${groupParamList}.${innerKey}${opParamList}`;
+      }
+      return `${displayTag}.${innerKey.charAt(0).toUpperCase() + innerKey.slice(1)}()`;
+    }
+  }
+  return null;
 }
 
 function slugForAnchor(sectionId: string, schemaName: string): string {
@@ -670,12 +775,24 @@ function buildOperationBlocks(
   tocEntries: TocEntry[],
   linkableSchemaNames: Set<string>,
   nonUniqueSchemaNames: Set<string>,
+  groupedForm?: string | null,
 ): Block[] {
   const blocks: Block[] = [];
   const headingText = `${subNum} ${title}`;
   addHeading(blocks, tocEntries, headingLevel, headingText);
   const desc = op.description ?? op.summary ?? '';
   if (desc) addContent(blocks, [desc]);
+  const plainExample =
+    op.parameters.length > 0
+      ? `arena.${op.operationId}({ ${op.parameters.map((p) => p.name).join(', ')} })`
+      : `arena.${op.operationId}()`;
+  addHeading(blocks, tocEntries, headingLevel + 1, 'Example');
+  if (groupedForm != null && groupedForm !== '') {
+    addContent(blocks, ['```js', `arena.${groupedForm}`, '```']);
+  }
+  addCollapsible(blocks, 'Plain Example', [
+    { type: 'content', lines: ['```js', plainExample, '```'] },
+  ]);
   let schemaNth = 0;
   const nextSchemaId = () => `${subNum}.${++schemaNth}`;
   const { paramLines, requestBodyLines, responseLines } =
@@ -982,7 +1099,16 @@ export async function loadApiReference(
     getScopedName,
     getUngroupedOpDisplayName: (op) =>
       getUngroupedOpDisplayName(op, operationsByKey),
-    buildOperationBlocks: (op, subNum, headingLevel, title, tocEntries) =>
+    getGroupedForm: (op, tag) =>
+      getGroupedForm(op, operationsByKey, tag),
+    buildOperationBlocks: (
+      op,
+      subNum,
+      headingLevel,
+      title,
+      tocEntries,
+      groupedForm,
+    ) =>
       buildOperationBlocks(
         op,
         subNum,
@@ -991,6 +1117,7 @@ export async function loadApiReference(
         tocEntries,
         linkableSchemaNames,
         nonUniqueSchemaNames,
+        groupedForm,
       ),
     describeSchema: (
       schema,
