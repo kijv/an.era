@@ -25,13 +25,13 @@ import {
   parseParameters,
   parseResponseBody,
 } from './util';
-import { getDefaultOperations, getValibot } from '@/util';
 import type { MapResponseToUnion } from './declaration';
 import type { SERVERS } from '@/openapi';
 import contentTypeParser from 'fast-content-type-parse';
-//
-type DefaultOperations =
-  /* oxlint-disable consistent-type-imports */ typeof import('@/openapi/operations').operations;
+import { operations as defaultOperations } from '@/openapi/operations';
+import { getValibot } from '@/util';
+
+type DefaultOperations = typeof defaultOperations;
 
 export interface ApiOptions<
   TOperations extends Record<string, Operation>,
@@ -68,20 +68,67 @@ type GroupedOperationFn<
   [K in keyof TOps]: OperationFn<TOps[K]>;
 };
 
+/** Find a key in obj that matches prop when compared case-insensitively. */
+function getKeyIgnoreCase(obj: object, prop: string): string | undefined {
+  const lower = prop.toLowerCase();
+  for (const k of Reflect.ownKeys(obj)) {
+    if (typeof k === 'string' && k.toLowerCase() === lower) return k;
+  }
+  return undefined;
+}
+
+/** Proxy that makes tag-level access case-insensitive using Reflect. */
+function caseInsensitiveTagProxy<T extends Record<string, unknown>>(
+  target: T,
+): T {
+  return new Proxy(target, {
+    get(target, prop, receiver) {
+      if (typeof prop === 'string') {
+        if (Reflect.has(target, prop))
+          return Reflect.get(target, prop, receiver);
+        const key = getKeyIgnoreCase(target, prop);
+        if (key !== undefined) return Reflect.get(target, key, receiver);
+      }
+      return Reflect.get(target, prop, receiver);
+    },
+    has(target, prop) {
+      if (typeof prop === 'string') {
+        const key = getKeyIgnoreCase(target, prop);
+        if (key !== undefined) return true;
+      }
+      return Reflect.has(target, prop);
+    },
+    getOwnPropertyDescriptor(target, prop) {
+      if (typeof prop === 'string') {
+        const key = getKeyIgnoreCase(target, prop);
+        if (key !== undefined)
+          return Reflect.getOwnPropertyDescriptor(target, key);
+      }
+      return Reflect.getOwnPropertyDescriptor(target, prop);
+    },
+    ownKeys(target) {
+      return Reflect.ownKeys(target);
+    },
+  }) as T;
+}
+
+/** Per-tag group: each key is either a term (GroupedOperation) or processed key (TransformedOperation) */
 type CreateApiReturn<TOperations extends Record<string, Operation>> = {
-  [K in keyof TransformOperations<TOperations>]: TransformOperations<TOperations>[K] extends GroupedOperation<
-    infer TParams,
-    infer TOps
-  >
-    ? TOps extends Record<string, TransformedOperation>
-      ? GroupedOperationFn<TParams, TOps>
-      : never
-    : TransformOperations<TOperations>[K] extends TransformedOperation
-      ? OperationFn<TransformOperations<TOperations>[K]>
-      : never;
+  [Tag in keyof TransformOperations<TOperations>]: {
+    [K in keyof TransformOperations<TOperations>[Tag]]: TransformOperations<TOperations>[Tag][K] extends GroupedOperation<
+      infer TParams,
+      infer TOps
+    >
+      ? TOps extends Record<string, TransformedOperation>
+        ? GroupedOperationFn<TParams, TOps>
+        : never
+      : TransformOperations<TOperations>[Tag][K] extends TransformedOperation
+        ? OperationFn<TransformOperations<TOperations>[Tag][K]>
+        : never;
+  };
 };
 
-export const createApi = async <
+export const createApi = <
   const TOperations extends Record<string, Operation> = DefaultOperations,
   const TPlain extends boolean = false,
 >({
@@ -91,16 +138,11 @@ export const createApi = async <
   operations,
   ignoreValidation = false,
   plain,
-}: ApiOptions<TOperations, TPlain> = {}): Promise<
-  TPlain extends true
-    ? {
-        [K in keyof TOperations]: OperationFunction<TOperations[K]>;
-      }
-    : CreateApiReturn<TOperations>
-> => {
-  const resolvedOperations =
-    (operations as TOperations | undefined) ??
-    ((await getDefaultOperations()) as unknown as TOperations);
+}: ApiOptions<TOperations, TPlain> = {}): TPlain extends true
+  ? { [K in keyof TOperations]: OperationFunction<TOperations[K]> }
+  : CreateApiReturn<TOperations> => {
+  const resolvedOperations: TOperations = (operations ??
+    defaultOperations) as TOperations;
 
   type Return = TPlain extends true
     ? {
@@ -216,37 +258,46 @@ export const createApi = async <
       >
     | TransformedOperation;
 
-  return Object.fromEntries(
-    (Object.entries(transformedOperations) as [string, TransformedEntry][]).map(
-      ([k, v]) => [
-        k,
-        (...args: any[]) => {
-          const parameters = !ignoreValidation
-            ? parseParameters(v.parameters, args)
-            : args;
+  const mapEntryToFn =
+    (v: TransformedEntry) =>
+    (...args: any[]) => {
+      const parameters = !ignoreValidation
+        ? parseParameters(v.parameters, args)
+        : args;
 
-          return 'operations' in v
-            ? Object.fromEntries(
-                (
-                  Object.entries(v.operations) as [
-                    string,
-                    TransformedOperation,
-                  ][]
-                ).map(([opk, opv]) => [
-                  opk,
-                  (...args: any[]) =>
-                    routedOperations[opv.id]!(
-                      ...(parameters.concat(
-                        !ignoreValidation
-                          ? parseParameters(opv.parameters, args)
-                          : args,
-                      ) as any),
-                    ),
-                ]),
-              )
-            : routedOperations[v.id]!(...(parameters as any));
-        },
-      ],
-    ),
-  ) as Return;
+      return 'operations' in v
+        ? Object.fromEntries(
+            (
+              Object.entries(v.operations) as [string, TransformedOperation][]
+            ).map(([opk, opv]) => [
+              opk,
+              (...args: any[]) =>
+                routedOperations[opv.id]!(
+                  ...(parameters.concat(
+                    !ignoreValidation
+                      ? parseParameters(opv.parameters, args)
+                      : args,
+                  ) as any),
+                ),
+            ]),
+          )
+        : routedOperations[v.id]!(...(parameters as any));
+    };
+
+  const tagGrouped = Object.fromEntries(
+    (
+      Object.entries(transformedOperations) as [
+        string,
+        Record<string, TransformedEntry>,
+      ][]
+    ).map(([tag, tagGroup]) => [
+      tag,
+      Object.fromEntries(
+        (Object.entries(tagGroup) as [string, TransformedEntry][]).map(
+          ([k, v]) => [k, mapEntryToFn(v)],
+        ),
+      ),
+    ]),
+  );
+  return caseInsensitiveTagProxy(tagGrouped) as Return;
 };

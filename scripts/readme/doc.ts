@@ -92,7 +92,7 @@ export async function buildReadme(inputPath: string): Promise<string> {
   const tocEntries: TocEntry[] = [];
 
   if (api.sections.length > 0) {
-    addHeading(doc, tocEntries, 2, 'API Reference');
+    addHeading(doc, [], 2, 'API Reference');
   }
 
   for (const section of api.sections) {
@@ -103,22 +103,30 @@ export async function buildReadme(inputPath: string): Promise<string> {
       addContent(doc, ['']);
       section.ops.forEach((op, i) => {
         const subNum = `${groupNum}.${i + 1}`;
-        const scopedName = api.getScopedName(op.operationId, section.tag);
-        const title =
-          scopedName !== op.operationId
-            ? `${scopedName} (plain: \`${op.operationId}\`)`
-            : scopedName;
         addBlocks(
           doc,
-          api.buildOperationBlocks(op, subNum, 5, title, tocEntries),
+          api.buildOperationBlocks(
+            op,
+            subNum,
+            5,
+            op.operationId,
+            tocEntries,
+            api.getGroupedForm(op, section.tag),
+          ),
         );
       });
     } else {
       const op = section.op;
-      const title = api.getUngroupedOpDisplayName(op);
       addBlocks(
         doc,
-        api.buildOperationBlocks(op, groupNum, 4, title, tocEntries),
+        api.buildOperationBlocks(
+          op,
+          groupNum,
+          4,
+          op.operationId,
+          tocEntries,
+          api.getGroupedForm(op),
+        ),
       );
     }
   }
@@ -158,30 +166,10 @@ export async function buildReadme(inputPath: string): Promise<string> {
 
   addContent(before, [
     '# an.era',
+    '',
     'an.era is a API wrapper for the Are.na API',
-    '## API Instance',
-    'The API instance is, by default, designed to group related functions together. These functions can be accessed via the property of their "group" name, for example `arena.channels` or `arena.blocks`, with their respective methods (shorthanded operation names). You can disable this behavior by setting the `plain` option to `true`.',
-    '#### Example',
-    '```js',
-    'import { createArena } from "an.era"',
     '',
-    'const arena = createArena({ /* configuration options... */ })',
-    '',
-    '```',
-    '## Configuration',
-    '> All configuration options are optional.',
-    '#### `accessToken` (String)',
-    'Bearer token authentication.\n\nAccepts two token types:\n- OAuth2 access tokens (obtained via OAuth2 flow with Doorkeeper)\n- Personal access tokens (from your account settings at are.na/settings)\n\nExample: `Authorization: Bearer YOUR_TOKEN`\n',
-    '#### `plain` (Boolean)',
-    'Returned API Instance contains ungrouped functions with the names of the OpenAPI specification names. Default: `false`',
-    '#### `ignoreValidation` (Boolean)',
-    'Ignore validation errors. Meaningful if using a different <a href="#configuration-baseurl">baseUrl</a> or testing. Default: `false`',
-    '#### `baseUrl` (String)',
-    'Base URL for the Are.na API. Defaults to `https://api.are.na/v3`.',
-    '#### `requestInit` (RequestInit)',
-    'Pass additional request options to the underlying fetch API. Default: `{}`',
-    '#### `operations` ⚠️',
-    'This is intended to allow passing a different set of operations to the API instance, while still being typed. This property is subject to change and should not be relied upon.',
+    'Find package specific information [here](https://github.com/kijv/an.era/tree/main/packages/an.era/readme.md)',
   ]);
 
   const fullDoc: Doc = [

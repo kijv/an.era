@@ -359,6 +359,34 @@ type GroupedOperations<O extends Record<string, Operation>> = {
     : never;
 };
 
+/** First tag of an operation, or '__untagged' if none */
+type FirstTag<
+  O extends Record<string, Operation>,
+  K extends keyof O,
+> = O[K]['tags'] extends readonly [infer F, ...unknown[]]
+  ? F extends string
+    ? F
+    : '__untagged'
+  : '__untagged';
+
+/** Union of all first tags used by operations */
+type AllFirstTags<O extends Record<string, Operation>> = Exclude<
+  { [K in keyof O]: FirstTag<O, K> }[keyof O],
+  never
+>;
+
+/** Operations whose first tag is T */
+type OpsWithFirstTag<O extends Record<string, Operation>, T extends string> = {
+  [K in keyof O as FirstTag<O, K> extends T ? K : never]: O[K];
+};
+
+/** Within a tag: term-based groups + ungrouped ops (same shape as before) */
+type TagGroup<
+  O extends Record<string, Operation>,
+  T extends string,
+> = GroupedOperations<OpsWithFirstTag<O, T>> &
+  UngroupedOperations<OpsWithFirstTag<O, T>>;
+
 type IsOperationGrouped<
   O extends Record<string, Operation>,
   K extends keyof O,
@@ -383,8 +411,10 @@ type UngroupedOperations<O extends Record<string, Operation>> = {
     : ProcessedKey<O, K> & string]: OperationWithId<O[K], K & string>;
 };
 
-export type TransformOperations<O extends Record<string, Operation>> =
-  GroupedOperations<O> & UngroupedOperations<O>;
+/** Top-level: groups by tag; within each tag, by term (similar name) then ungrouped */
+export type TransformOperations<O extends Record<string, Operation>> = {
+  [T in AllFirstTags<O> as Lowercase<T> | T]: TagGroup<O, T>;
+};
 
 export const splitCamelCase = (str: string): string[] => {
   const terms: string[] = [];
@@ -628,9 +658,12 @@ export const isGroupedOperation = <
 ): value is GroupedOperation<TParams, TOps> =>
   'operations' in value && 'parameters' in value && !('method' in value);
 
-export const transformOperations = <O extends Record<string, Operation>>(
-  operations: O,
-): TransformOperations<O> => {
+const UNTAGGED = '__untagged';
+
+/** Group a subset of operations by term (similar name); leaves others ungrouped. */
+function groupOperationsByTerm(
+  operations: Record<string, Operation>,
+): Record<string, TransformedOperation | GroupedOperation> {
   const result: Record<string, TransformedOperation | GroupedOperation> = {};
   const groupedOperationKeys = new Set<string>();
 
@@ -691,6 +724,28 @@ export const transformOperations = <O extends Record<string, Operation>>(
 
     const processedKey = getProcessedKey(key, op.method);
     result[processedKey] = { ...op, id: key };
+  }
+
+  return result;
+}
+
+export const transformOperations = <O extends Record<string, Operation>>(
+  operations: O,
+): TransformOperations<O> => {
+  const byTag: Record<string, Record<string, Operation>> = {};
+
+  for (const [key, op] of Object.entries(operations)) {
+    const tag = (op.tags[0] ?? UNTAGGED).toLowerCase();
+    if (!byTag[tag]) byTag[tag] = {};
+    byTag[tag][key] = op as Operation;
+  }
+
+  const result: Record<
+    string,
+    Record<string, TransformedOperation | GroupedOperation>
+  > = {};
+  for (const [tag, tagOps] of Object.entries(byTag)) {
+    result[tag] = groupOperationsByTerm(tagOps);
   }
 
   return result as TransformOperations<O>;
