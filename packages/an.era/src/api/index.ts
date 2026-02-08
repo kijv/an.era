@@ -220,13 +220,18 @@ export const createApi = <
       const statusSchemas =
         operation.response[statusCode] ?? operation.response['default'];
 
+      if (statusSchemas != null && Object.keys(statusSchemas).length === 0)
+        return body;
+
       if (!statusSchemas) {
         throw new Error(
           `No response schema defined for status ${statusCode} in operation ${operation.method.toUpperCase()} ${operation.path}`,
         );
       }
 
-      const schema = statusSchemas[mimeType] as ValiSchema | undefined;
+      const schema =
+        (statusSchemas[mimeType] as ValiSchema | undefined) ??
+        (statusSchemas['application/json'] as ValiSchema | undefined);
 
       if (!schema) {
         throw new Error(

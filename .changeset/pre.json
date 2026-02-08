@@ -4,9 +4,5 @@
   "initialVersions": {
     "an.era": "0.3.0-beta.0"
   },
-  "changesets": [
-    "crisp-adults-read",
-    "many-singers-lay",
-    "witty-brooms-start"
-  ]
+  "changesets": []
 }

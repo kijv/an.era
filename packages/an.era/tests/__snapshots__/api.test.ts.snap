@@ -1,0 +1,2203 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`Mocked > bulkCreateBlocks > 201 1`] = `
+{
+  "data": {
+    "failed": [],
+    "successful": [
+      {
+        "block": {
+          "_links": {
+            "self": {
+              "href": "https://api.are.na/v3/",
+            },
+          },
+          "base_type": "Block",
+          "comment_count": 0,
+          "content": {
+            "html": "<p>x</p>",
+            "markdown": "x",
+            "plain": "x",
+          },
+          "created_at": "2020-01-01T00:00:00.000Z",
+          "id": 1,
+          "state": "available",
+          "type": "Text",
+          "updated_at": "2020-01-01T00:00:00.000Z",
+          "user": {
+            "avatar": null,
+            "id": 1,
+            "initials": "MU",
+            "name": "Mock User",
+            "slug": "mock-user",
+            "type": "User",
+          },
+          "visibility": "public",
+        },
+        "index": 0,
+      },
+      {
+        "block": {
+          "_links": {
+            "self": {
+              "href": "https://api.are.na/v3/",
+            },
+          },
+          "base_type": "Block",
+          "comment_count": 0,
+          "created_at": "2020-01-01T00:00:00.000Z",
+          "id": 2,
+          "image": {
+            "large": {
+              "src": "https://api.are.na/v3/",
+              "src_2x": "https://api.are.na/v3/",
+            },
+            "medium": {
+              "src": "https://api.are.na/v3/",
+              "src_2x": "https://api.are.na/v3/",
+            },
+            "small": {
+              "src": "https://api.are.na/v3/",
+              "src_2x": "https://api.are.na/v3/",
+            },
+            "square": {
+              "src": "https://api.are.na/v3/",
+              "src_2x": "https://api.are.na/v3/",
+            },
+          },
+          "state": "available",
+          "type": "Image",
+          "updated_at": "2020-01-01T00:00:00.000Z",
+          "user": {
+            "avatar": null,
+            "id": 1,
+            "initials": "MU",
+            "name": "Mock User",
+            "slug": "mock-user",
+            "type": "User",
+          },
+          "visibility": "public",
+        },
+        "index": 1,
+      },
+      {
+        "block": {
+          "_links": {
+            "self": {
+              "href": "https://api.are.na/v3/",
+            },
+          },
+          "base_type": "Block",
+          "comment_count": 0,
+          "created_at": "2020-01-01T00:00:00.000Z",
+          "id": 3,
+          "state": "available",
+          "type": "Link",
+          "updated_at": "2020-01-01T00:00:00.000Z",
+          "user": {
+            "avatar": null,
+            "id": 1,
+            "initials": "MU",
+            "name": "Mock User",
+            "slug": "mock-user",
+            "type": "User",
+          },
+          "visibility": "public",
+        },
+        "index": 2,
+      },
+      {
+        "block": {
+          "_links": {
+            "self": {
+              "href": "https://api.are.na/v3/",
+            },
+          },
+          "attachment": {
+            "url": "https://api.are.na/v3/",
+          },
+          "base_type": "Block",
+          "comment_count": 0,
+          "created_at": "2020-01-01T00:00:00.000Z",
+          "id": 4,
+          "state": "available",
+          "type": "Attachment",
+          "updated_at": "2020-01-01T00:00:00.000Z",
+          "user": {
+            "avatar": null,
+            "id": 1,
+            "initials": "MU",
+            "name": "Mock User",
+            "slug": "mock-user",
+            "type": "User",
+          },
+          "visibility": "public",
+        },
+        "index": 3,
+      },
+      {
+        "block": {
+          "_links": {
+            "self": {
+              "href": "https://api.are.na/v3/",
+            },
+          },
+          "base_type": "Block",
+          "comment_count": 0,
+          "created_at": "2020-01-01T00:00:00.000Z",
+          "embed": {},
+          "id": 5,
+          "state": "available",
+          "type": "Embed",
+          "updated_at": "2020-01-01T00:00:00.000Z",
+          "user": {
+            "avatar": null,
+            "id": 1,
+            "initials": "MU",
+            "name": "Mock User",
+            "slug": "mock-user",
+            "type": "User",
+          },
+          "visibility": "public",
+        },
+        "index": 4,
+      },
+      {
+        "block": {
+          "_links": {
+            "self": {
+              "href": "https://api.are.na/v3/",
+            },
+          },
+          "base_type": "Block",
+          "comment_count": 0,
+          "created_at": "2020-01-01T00:00:00.000Z",
+          "id": 6,
+          "state": "available",
+          "type": "PendingBlock",
+          "updated_at": "2020-01-01T00:00:00.000Z",
+          "user": {
+            "avatar": null,
+            "id": 1,
+            "initials": "MU",
+            "name": "Mock User",
+            "slug": "mock-user",
+            "type": "User",
+          },
+          "visibility": "public",
+        },
+        "index": 5,
+      },
+    ],
+  },
+  "meta": {
+    "failed_count": 0,
+    "successful_count": 6,
+    "total": 6,
+  },
+}
+`;
+
+exports[`Mocked > bulkCreateBlocks > 207 1`] = `
+{
+  "data": {
+    "failed": [],
+    "successful": [
+      {
+        "block": {
+          "_links": {
+            "self": {
+              "href": "https://api.are.na/v3/",
+            },
+          },
+          "base_type": "Block",
+          "comment_count": 0,
+          "content": {
+            "html": "<p>x</p>",
+            "markdown": "x",
+            "plain": "x",
+          },
+          "created_at": "2020-01-01T00:00:00.000Z",
+          "id": 1,
+          "state": "available",
+          "type": "Text",
+          "updated_at": "2020-01-01T00:00:00.000Z",
+          "user": {
+            "avatar": null,
+            "id": 1,
+            "initials": "MU",
+            "name": "Mock User",
+            "slug": "mock-user",
+            "type": "User",
+          },
+          "visibility": "public",
+        },
+        "index": 0,
+      },
+      {
+        "block": {
+          "_links": {
+            "self": {
+              "href": "https://api.are.na/v3/",
+            },
+          },
+          "base_type": "Block",
+          "comment_count": 0,
+          "created_at": "2020-01-01T00:00:00.000Z",
+          "id": 2,
+          "image": {
+            "large": {
+              "src": "https://api.are.na/v3/",
+              "src_2x": "https://api.are.na/v3/",
+            },
+            "medium": {
+              "src": "https://api.are.na/v3/",
+              "src_2x": "https://api.are.na/v3/",
+            },
+            "small": {
+              "src": "https://api.are.na/v3/",
+              "src_2x": "https://api.are.na/v3/",
+            },
+            "square": {
+              "src": "https://api.are.na/v3/",
+              "src_2x": "https://api.are.na/v3/",
+            },
+          },
+          "state": "available",
+          "type": "Image",
+          "updated_at": "2020-01-01T00:00:00.000Z",
+          "user": {
+            "avatar": null,
+            "id": 1,
+            "initials": "MU",
+            "name": "Mock User",
+            "slug": "mock-user",
+            "type": "User",
+          },
+          "visibility": "public",
+        },
+        "index": 1,
+      },
+      {
+        "block": {
+          "_links": {
+            "self": {
+              "href": "https://api.are.na/v3/",
+            },
+          },
+          "base_type": "Block",
+          "comment_count": 0,
+          "created_at": "2020-01-01T00:00:00.000Z",
+          "id": 3,
+          "state": "available",
+          "type": "Link",
+          "updated_at": "2020-01-01T00:00:00.000Z",
+          "user": {
+            "avatar": null,
+            "id": 1,
+            "initials": "MU",
+            "name": "Mock User",
+            "slug": "mock-user",
+            "type": "User",
+          },
+          "visibility": "public",
+        },
+        "index": 2,
+      },
+      {
+        "block": {
+          "_links": {
+            "self": {
+              "href": "https://api.are.na/v3/",
+            },
+          },
+          "attachment": {
+            "url": "https://api.are.na/v3/",
+          },
+          "base_type": "Block",
+          "comment_count": 0,
+          "created_at": "2020-01-01T00:00:00.000Z",
+          "id": 4,
+          "state": "available",
+          "type": "Attachment",
+          "updated_at": "2020-01-01T00:00:00.000Z",
+          "user": {
+            "avatar": null,
+            "id": 1,
+            "initials": "MU",
+            "name": "Mock User",
+            "slug": "mock-user",
+            "type": "User",
+          },
+          "visibility": "public",
+        },
+        "index": 3,
+      },
+      {
+        "block": {
+          "_links": {
+            "self": {
+              "href": "https://api.are.na/v3/",
+            },
+          },
+          "base_type": "Block",
+          "comment_count": 0,
+          "created_at": "2020-01-01T00:00:00.000Z",
+          "embed": {},
+          "id": 5,
+          "state": "available",
+          "type": "Embed",
+          "updated_at": "2020-01-01T00:00:00.000Z",
+          "user": {
+            "avatar": null,
+            "id": 1,
+            "initials": "MU",
+            "name": "Mock User",
+            "slug": "mock-user",
+            "type": "User",
+          },
+          "visibility": "public",
+        },
+        "index": 4,
+      },
+      {
+        "block": {
+          "_links": {
+            "self": {
+              "href": "https://api.are.na/v3/",
+            },
+          },
+          "base_type": "Block",
+          "comment_count": 0,
+          "created_at": "2020-01-01T00:00:00.000Z",
+          "id": 6,
+          "state": "available",
+          "type": "PendingBlock",
+          "updated_at": "2020-01-01T00:00:00.000Z",
+          "user": {
+            "avatar": null,
+            "id": 1,
+            "initials": "MU",
+            "name": "Mock User",
+            "slug": "mock-user",
+            "type": "User",
+          },
+          "visibility": "public",
+        },
+        "index": 5,
+      },
+    ],
+  },
+  "meta": {
+    "failed_count": 0,
+    "successful_count": 6,
+    "total": 6,
+  },
+}
+`;
+
+exports[`Mocked > bulkCreateBlocks > 400 1`] = `
+{
+  "code": 400,
+  "error": "mock_error",
+}
+`;
+
+exports[`Mocked > bulkCreateBlocks > 401 1`] = `
+{
+  "code": 400,
+  "error": "mock_error",
+}
+`;
+
+exports[`Mocked > bulkCreateBlocks > 403 1`] = `
+{
+  "code": 400,
+  "error": "mock_error",
+}
+`;
+
+exports[`Mocked > bulkCreateBlocks > 404 1`] = `
+{
+  "code": 400,
+  "error": "mock_error",
+}
+`;
+
+exports[`Mocked > bulkCreateBlocks > 422 1`] = `
+{
+  "code": 400,
+  "error": "mock_error",
+}
+`;
+
+exports[`Mocked > bulkCreateBlocks > 429 1`] = `
+{
+  "error": {
+    "limit": 60,
+    "message": "Too many requests",
+    "retry_after": 42,
+    "suggestions": [
+      "Upgrade your plan",
+    ],
+    "tier": "free",
+    "type": "rate_limit",
+  },
+}
+`;
+
+exports[`Mocked > createBlock > 201 1`] = `
+{
+  "_links": {
+    "self": {
+      "href": "https://api.are.na/v3/",
+    },
+  },
+  "base_type": "Block",
+  "comment_count": 0,
+  "content": {
+    "html": "<p>x</p>",
+    "markdown": "x",
+    "plain": "x",
+  },
+  "created_at": "2020-01-01T00:00:00.000Z",
+  "id": 1,
+  "state": "available",
+  "type": "Text",
+  "updated_at": "2020-01-01T00:00:00.000Z",
+  "user": {
+    "avatar": null,
+    "id": 1,
+    "initials": "MU",
+    "name": "Mock User",
+    "slug": "mock-user",
+    "type": "User",
+  },
+  "visibility": "public",
+}
+`;
+
+exports[`Mocked > createBlock > 400 1`] = `
+{
+  "code": 400,
+  "error": "mock_error",
+}
+`;
+
+exports[`Mocked > createBlock > 401 1`] = `
+{
+  "code": 400,
+  "error": "mock_error",
+}
+`;
+
+exports[`Mocked > createBlock > 403 1`] = `
+{
+  "code": 400,
+  "error": "mock_error",
+}
+`;
+
+exports[`Mocked > createBlock > 404 1`] = `
+{
+  "code": 400,
+  "error": "mock_error",
+}
+`;
+
+exports[`Mocked > createBlock > 429 1`] = `
+{
+  "error": {
+    "limit": 60,
+    "message": "Too many requests",
+    "retry_after": 42,
+    "suggestions": [
+      "Upgrade your plan",
+    ],
+    "tier": "free",
+    "type": "rate_limit",
+  },
+}
+`;
+
+exports[`Mocked > createBlockComment > 201 1`] = `
+{
+  "_links": {
+    "self": {
+      "href": "https://api.are.na/v3/",
+    },
+  },
+  "created_at": "2020-01-01T00:00:00.000Z",
+  "id": 1,
+  "type": "Comment",
+  "updated_at": "2020-01-01T00:00:00.000Z",
+  "user": {
+    "avatar": null,
+    "id": 1,
+    "initials": "MU",
+    "name": "Mock User",
+    "slug": "mock-user",
+    "type": "User",
+  },
+}
+`;
+
+exports[`Mocked > createBlockComment > 400 1`] = `
+{
+  "code": 400,
+  "error": "mock_error",
+}
+`;
+
+exports[`Mocked > createBlockComment > 401 1`] = `
+{
+  "code": 400,
+  "error": "mock_error",
+}
+`;
+
+exports[`Mocked > createBlockComment > 403 1`] = `
+{
+  "code": 400,
+  "error": "mock_error",
+}
+`;
+
+exports[`Mocked > createBlockComment > 404 1`] = `
+{
+  "code": 400,
+  "error": "mock_error",
+}
+`;
+
+exports[`Mocked > createBlockComment > 422 1`] = `
+{
+  "code": 400,
+  "error": "mock_error",
+}
+`;
+
+exports[`Mocked > createBlockComment > 429 1`] = `
+{
+  "error": {
+    "limit": 60,
+    "message": "Too many requests",
+    "retry_after": 42,
+    "suggestions": [
+      "Upgrade your plan",
+    ],
+    "tier": "free",
+    "type": "rate_limit",
+  },
+}
+`;
+
+exports[`Mocked > createChannel > 201 1`] = `
+{
+  "_links": {
+    "self": {
+      "href": "https://api.are.na/v3/",
+    },
+  },
+  "counts": {
+    "blocks": 0,
+    "channels": 0,
+    "collaborators": 0,
+    "contents": 0,
+  },
+  "created_at": "2020-01-01T00:00:00.000Z",
+  "id": 1,
+  "owner": {
+    "avatar": null,
+    "id": 1,
+    "initials": "MU",
+    "name": "Mock User",
+    "slug": "mock-user",
+    "type": "User",
+  },
+  "slug": "mock-channel",
+  "state": "available",
+  "title": "Mock Channel",
+  "type": "Channel",
+  "updated_at": "2020-01-01T00:00:00.000Z",
+  "visibility": "public",
+}
+`;
+
+exports[`Mocked > createChannel > 400 1`] = `
+{
+  "code": 400,
+  "error": "mock_error",
+}
+`;
+
+exports[`Mocked > createChannel > 401 1`] = `
+{
+  "code": 400,
+  "error": "mock_error",
+}
+`;
+
+exports[`Mocked > createChannel > 403 1`] = `
+{
+  "code": 400,
+  "error": "mock_error",
+}
+`;
+
+exports[`Mocked > createChannel > 422 1`] = `
+{
+  "code": 400,
+  "error": "mock_error",
+}
+`;
+
+exports[`Mocked > createChannel > 429 1`] = `
+{
+  "error": {
+    "limit": 60,
+    "message": "Too many requests",
+    "retry_after": 42,
+    "suggestions": [
+      "Upgrade your plan",
+    ],
+    "tier": "free",
+    "type": "rate_limit",
+  },
+}
+`;
+
+exports[`Mocked > createConnection > 201 1`] = `
+{
+  "data": [
+    {
+      "_links": {
+        "self": {
+          "href": "https://api.are.na/v3/",
+        },
+      },
+      "can": {
+        "remove": true,
+      },
+      "connected_at": "2020-01-01T00:00:00.000Z",
+      "connected_by": {
+        "avatar": null,
+        "id": 1,
+        "initials": "MU",
+        "name": "Mock User",
+        "slug": "mock-user",
+        "type": "User",
+      },
+      "id": 1,
+      "pinned": false,
+      "position": 0,
+    },
+  ],
+}
+`;
+
+exports[`Mocked > createConnection > 400 1`] = `
+{
+  "code": 400,
+  "error": "mock_error",
+}
+`;
+
+exports[`Mocked > createConnection > 401 1`] = `
+{
+  "code": 400,
+  "error": "mock_error",
+}
+`;
+
+exports[`Mocked > createConnection > 403 1`] = `
+{
+  "code": 400,
+  "error": "mock_error",
+}
+`;
+
+exports[`Mocked > createConnection > 404 1`] = `
+{
+  "code": 400,
+  "error": "mock_error",
+}
+`;
+
+exports[`Mocked > createConnection > 422 1`] = `
+{
+  "code": 400,
+  "error": "mock_error",
+}
+`;
+
+exports[`Mocked > createConnection > 429 1`] = `
+{
+  "error": {
+    "limit": 60,
+    "message": "Too many requests",
+    "retry_after": 42,
+    "suggestions": [
+      "Upgrade your plan",
+    ],
+    "tier": "free",
+    "type": "rate_limit",
+  },
+}
+`;
+
+exports[`Mocked > createOAuthToken > 200 1`] = `
+{
+  "access_token": "mock-token",
+  "created_at": 0,
+  "scope": "public",
+  "token_type": "Bearer",
+}
+`;
+
+exports[`Mocked > createOAuthToken > 400 1`] = `
+{
+  "error": "invalid_request",
+  "error_description": "Bad request",
+}
+`;
+
+exports[`Mocked > createOAuthToken > 401 1`] = `
+{
+  "error": "unauthorized",
+  "error_description": "Invalid credentials",
+}
+`;
+
+exports[`Mocked > deleteChannel > 204 1`] = `""`;
+
+exports[`Mocked > deleteChannel > 401 1`] = `
+{
+  "code": 400,
+  "error": "mock_error",
+}
+`;
+
+exports[`Mocked > deleteChannel > 403 1`] = `
+{
+  "code": 400,
+  "error": "mock_error",
+}
+`;
+
+exports[`Mocked > deleteChannel > 404 1`] = `
+{
+  "code": 400,
+  "error": "mock_error",
+}
+`;
+
+exports[`Mocked > deleteChannel > 429 1`] = `
+{
+  "error": {
+    "limit": 60,
+    "message": "Too many requests",
+    "retry_after": 42,
+    "suggestions": [
+      "Upgrade your plan",
+    ],
+    "tier": "free",
+    "type": "rate_limit",
+  },
+}
+`;
+
+exports[`Mocked > deleteComment > 204 1`] = `""`;
+
+exports[`Mocked > deleteComment > 401 1`] = `
+{
+  "code": 400,
+  "error": "mock_error",
+}
+`;
+
+exports[`Mocked > deleteComment > 403 1`] = `
+{
+  "code": 400,
+  "error": "mock_error",
+}
+`;
+
+exports[`Mocked > deleteComment > 404 1`] = `
+{
+  "code": 400,
+  "error": "mock_error",
+}
+`;
+
+exports[`Mocked > deleteComment > 429 1`] = `
+{
+  "error": {
+    "limit": 60,
+    "message": "Too many requests",
+    "retry_after": 42,
+    "suggestions": [
+      "Upgrade your plan",
+    ],
+    "tier": "free",
+    "type": "rate_limit",
+  },
+}
+`;
+
+exports[`Mocked > deleteConnection > 204 1`] = `""`;
+
+exports[`Mocked > deleteConnection > 401 1`] = `
+{
+  "code": 400,
+  "error": "mock_error",
+}
+`;
+
+exports[`Mocked > deleteConnection > 403 1`] = `
+{
+  "code": 400,
+  "error": "mock_error",
+}
+`;
+
+exports[`Mocked > deleteConnection > 404 1`] = `
+{
+  "code": 400,
+  "error": "mock_error",
+}
+`;
+
+exports[`Mocked > deleteConnection > 429 1`] = `
+{
+  "error": {
+    "limit": 60,
+    "message": "Too many requests",
+    "retry_after": 42,
+    "suggestions": [
+      "Upgrade your plan",
+    ],
+    "tier": "free",
+    "type": "rate_limit",
+  },
+}
+`;
+
+exports[`Mocked > getBlock > 200 1`] = `
+{
+  "_links": {
+    "self": {
+      "href": "https://api.are.na/v3/",
+    },
+  },
+  "base_type": "Block",
+  "comment_count": 0,
+  "content": {
+    "html": "<p>x</p>",
+    "markdown": "x",
+    "plain": "x",
+  },
+  "created_at": "2020-01-01T00:00:00.000Z",
+  "id": 1,
+  "state": "available",
+  "type": "Text",
+  "updated_at": "2020-01-01T00:00:00.000Z",
+  "user": {
+    "avatar": null,
+    "id": 1,
+    "initials": "MU",
+    "name": "Mock User",
+    "slug": "mock-user",
+    "type": "User",
+  },
+  "visibility": "public",
+}
+`;
+
+exports[`Mocked > getBlock > 401 1`] = `
+{
+  "code": 400,
+  "error": "mock_error",
+}
+`;
+
+exports[`Mocked > getBlock > 403 1`] = `
+{
+  "code": 400,
+  "error": "mock_error",
+}
+`;
+
+exports[`Mocked > getBlock > 404 1`] = `
+{
+  "code": 400,
+  "error": "mock_error",
+}
+`;
+
+exports[`Mocked > getBlock > 429 1`] = `
+{
+  "error": {
+    "limit": 60,
+    "message": "Too many requests",
+    "retry_after": 42,
+    "suggestions": [
+      "Upgrade your plan",
+    ],
+    "tier": "free",
+    "type": "rate_limit",
+  },
+}
+`;
+
+exports[`Mocked > getBlockComments > 200 1`] = `
+{
+  "data": [
+    {
+      "_links": {
+        "self": {
+          "href": "https://api.are.na/v3/",
+        },
+      },
+      "created_at": "2020-01-01T00:00:00.000Z",
+      "id": 1,
+      "type": "Comment",
+      "updated_at": "2020-01-01T00:00:00.000Z",
+      "user": {
+        "avatar": null,
+        "id": 1,
+        "initials": "MU",
+        "name": "Mock User",
+        "slug": "mock-user",
+        "type": "User",
+      },
+    },
+  ],
+  "meta": {
+    "current_page": 1,
+    "has_more_pages": false,
+    "per_page": 10,
+    "total_count": 0,
+    "total_pages": 1,
+  },
+}
+`;
+
+exports[`Mocked > getBlockComments > 401 1`] = `
+{
+  "code": 400,
+  "error": "mock_error",
+}
+`;
+
+exports[`Mocked > getBlockComments > 403 1`] = `
+{
+  "code": 400,
+  "error": "mock_error",
+}
+`;
+
+exports[`Mocked > getBlockComments > 404 1`] = `
+{
+  "code": 400,
+  "error": "mock_error",
+}
+`;
+
+exports[`Mocked > getBlockComments > 429 1`] = `
+{
+  "error": {
+    "limit": 60,
+    "message": "Too many requests",
+    "retry_after": 42,
+    "suggestions": [
+      "Upgrade your plan",
+    ],
+    "tier": "free",
+    "type": "rate_limit",
+  },
+}
+`;
+
+exports[`Mocked > getBlockConnections > 200 1`] = `
+{
+  "data": [
+    {
+      "_links": {
+        "self": {
+          "href": "https://api.are.na/v3/",
+        },
+      },
+      "counts": {
+        "blocks": 0,
+        "channels": 0,
+        "collaborators": 0,
+        "contents": 0,
+      },
+      "created_at": "2020-01-01T00:00:00.000Z",
+      "id": 1,
+      "owner": {
+        "avatar": null,
+        "id": 1,
+        "initials": "MU",
+        "name": "Mock User",
+        "slug": "mock-user",
+        "type": "User",
+      },
+      "slug": "mock-channel",
+      "state": "available",
+      "title": "Mock Channel",
+      "type": "Channel",
+      "updated_at": "2020-01-01T00:00:00.000Z",
+      "visibility": "public",
+    },
+  ],
+  "meta": {
+    "current_page": 1,
+    "has_more_pages": false,
+    "per_page": 10,
+    "total_count": 0,
+    "total_pages": 1,
+  },
+}
+`;
+
+exports[`Mocked > getBlockConnections > 401 1`] = `
+{
+  "code": 400,
+  "error": "mock_error",
+}
+`;
+
+exports[`Mocked > getBlockConnections > 403 1`] = `
+{
+  "code": 400,
+  "error": "mock_error",
+}
+`;
+
+exports[`Mocked > getBlockConnections > 404 1`] = `
+{
+  "code": 400,
+  "error": "mock_error",
+}
+`;
+
+exports[`Mocked > getBlockConnections > 429 1`] = `
+{
+  "error": {
+    "limit": 60,
+    "message": "Too many requests",
+    "retry_after": 42,
+    "suggestions": [
+      "Upgrade your plan",
+    ],
+    "tier": "free",
+    "type": "rate_limit",
+  },
+}
+`;
+
+exports[`Mocked > getChannel > 200 1`] = `
+{
+  "_links": {
+    "self": {
+      "href": "https://api.are.na/v3/",
+    },
+  },
+  "counts": {
+    "blocks": 0,
+    "channels": 0,
+    "collaborators": 0,
+    "contents": 0,
+  },
+  "created_at": "2020-01-01T00:00:00.000Z",
+  "id": 1,
+  "owner": {
+    "avatar": null,
+    "id": 1,
+    "initials": "MU",
+    "name": "Mock User",
+    "slug": "mock-user",
+    "type": "User",
+  },
+  "slug": "mock-channel",
+  "state": "available",
+  "title": "Mock Channel",
+  "type": "Channel",
+  "updated_at": "2020-01-01T00:00:00.000Z",
+  "visibility": "public",
+}
+`;
+
+exports[`Mocked > getChannel > 401 1`] = `
+{
+  "code": 400,
+  "error": "mock_error",
+}
+`;
+
+exports[`Mocked > getChannel > 403 1`] = `
+{
+  "code": 400,
+  "error": "mock_error",
+}
+`;
+
+exports[`Mocked > getChannel > 404 1`] = `
+{
+  "code": 400,
+  "error": "mock_error",
+}
+`;
+
+exports[`Mocked > getChannel > 429 1`] = `
+{
+  "error": {
+    "limit": 60,
+    "message": "Too many requests",
+    "retry_after": 42,
+    "suggestions": [
+      "Upgrade your plan",
+    ],
+    "tier": "free",
+    "type": "rate_limit",
+  },
+}
+`;
+
+exports[`Mocked > getChannelConnections > 200 1`] = `
+{
+  "data": [
+    {
+      "_links": {
+        "self": {
+          "href": "https://api.are.na/v3/",
+        },
+      },
+      "counts": {
+        "blocks": 0,
+        "channels": 0,
+        "collaborators": 0,
+        "contents": 0,
+      },
+      "created_at": "2020-01-01T00:00:00.000Z",
+      "id": 1,
+      "owner": {
+        "avatar": null,
+        "id": 1,
+        "initials": "MU",
+        "name": "Mock User",
+        "slug": "mock-user",
+        "type": "User",
+      },
+      "slug": "mock-channel",
+      "state": "available",
+      "title": "Mock Channel",
+      "type": "Channel",
+      "updated_at": "2020-01-01T00:00:00.000Z",
+      "visibility": "public",
+    },
+  ],
+  "meta": {
+    "current_page": 1,
+    "has_more_pages": false,
+    "per_page": 10,
+    "total_count": 0,
+    "total_pages": 1,
+  },
+}
+`;
+
+exports[`Mocked > getChannelConnections > 401 1`] = `
+{
+  "code": 400,
+  "error": "mock_error",
+}
+`;
+
+exports[`Mocked > getChannelConnections > 403 1`] = `
+{
+  "code": 400,
+  "error": "mock_error",
+}
+`;
+
+exports[`Mocked > getChannelConnections > 404 1`] = `
+{
+  "code": 400,
+  "error": "mock_error",
+}
+`;
+
+exports[`Mocked > getChannelConnections > 429 1`] = `
+{
+  "error": {
+    "limit": 60,
+    "message": "Too many requests",
+    "retry_after": 42,
+    "suggestions": [
+      "Upgrade your plan",
+    ],
+    "tier": "free",
+    "type": "rate_limit",
+  },
+}
+`;
+
+exports[`Mocked > getChannelContents > 200 1`] = `
+"× Invalid type: Expected Object but received Object
+  → at data.5"
+`;
+
+exports[`Mocked > getChannelContents > 401 1`] = `
+{
+  "code": 400,
+  "error": "mock_error",
+}
+`;
+
+exports[`Mocked > getChannelContents > 403 1`] = `
+{
+  "code": 400,
+  "error": "mock_error",
+}
+`;
+
+exports[`Mocked > getChannelContents > 404 1`] = `
+{
+  "code": 400,
+  "error": "mock_error",
+}
+`;
+
+exports[`Mocked > getChannelContents > 429 1`] = `
+{
+  "error": {
+    "limit": 60,
+    "message": "Too many requests",
+    "retry_after": 42,
+    "suggestions": [
+      "Upgrade your plan",
+    ],
+    "tier": "free",
+    "type": "rate_limit",
+  },
+}
+`;
+
+exports[`Mocked > getChannelFollowers > 200 1`] = `
+{
+  "data": [
+    {
+      "_links": {
+        "self": {
+          "href": "https://api.are.na/v3/",
+        },
+      },
+      "avatar": null,
+      "counts": {
+        "channels": 0,
+        "followers": 0,
+        "following": 0,
+      },
+      "created_at": "2020-01-01T00:00:00.000Z",
+      "id": 1,
+      "initials": "MU",
+      "name": "Mock User",
+      "slug": "mock-user",
+      "type": "User",
+      "updated_at": "2020-01-01T00:00:00.000Z",
+    },
+  ],
+  "meta": {
+    "current_page": 1,
+    "has_more_pages": false,
+    "per_page": 10,
+    "total_count": 0,
+    "total_pages": 1,
+  },
+}
+`;
+
+exports[`Mocked > getChannelFollowers > 401 1`] = `
+{
+  "code": 400,
+  "error": "mock_error",
+}
+`;
+
+exports[`Mocked > getChannelFollowers > 403 1`] = `
+{
+  "code": 400,
+  "error": "mock_error",
+}
+`;
+
+exports[`Mocked > getChannelFollowers > 404 1`] = `
+{
+  "code": 400,
+  "error": "mock_error",
+}
+`;
+
+exports[`Mocked > getChannelFollowers > 429 1`] = `
+{
+  "error": {
+    "limit": 60,
+    "message": "Too many requests",
+    "retry_after": 42,
+    "suggestions": [
+      "Upgrade your plan",
+    ],
+    "tier": "free",
+    "type": "rate_limit",
+  },
+}
+`;
+
+exports[`Mocked > getConnection > 200 1`] = `
+{
+  "_links": {
+    "self": {
+      "href": "https://api.are.na/v3/",
+    },
+  },
+  "can": {
+    "remove": true,
+  },
+  "connected_at": "2020-01-01T00:00:00.000Z",
+  "connected_by": {
+    "avatar": null,
+    "id": 1,
+    "initials": "MU",
+    "name": "Mock User",
+    "slug": "mock-user",
+    "type": "User",
+  },
+  "id": 1,
+  "pinned": false,
+  "position": 0,
+}
+`;
+
+exports[`Mocked > getConnection > 401 1`] = `
+{
+  "code": 400,
+  "error": "mock_error",
+}
+`;
+
+exports[`Mocked > getConnection > 403 1`] = `
+{
+  "code": 400,
+  "error": "mock_error",
+}
+`;
+
+exports[`Mocked > getConnection > 404 1`] = `
+{
+  "code": 400,
+  "error": "mock_error",
+}
+`;
+
+exports[`Mocked > getConnection > 429 1`] = `
+{
+  "error": {
+    "limit": 60,
+    "message": "Too many requests",
+    "retry_after": 42,
+    "suggestions": [
+      "Upgrade your plan",
+    ],
+    "tier": "free",
+    "type": "rate_limit",
+  },
+}
+`;
+
+exports[`Mocked > getCurrentUser > 200 1`] = `
+{
+  "_links": {
+    "self": {
+      "href": "https://api.are.na/v3/",
+    },
+  },
+  "avatar": null,
+  "counts": {
+    "channels": 0,
+    "followers": 0,
+    "following": 0,
+  },
+  "created_at": "2020-01-01T00:00:00.000Z",
+  "id": 1,
+  "initials": "MU",
+  "name": "Mock User",
+  "slug": "mock-user",
+  "type": "User",
+  "updated_at": "2020-01-01T00:00:00.000Z",
+}
+`;
+
+exports[`Mocked > getCurrentUser > 401 1`] = `
+{
+  "code": 400,
+  "error": "mock_error",
+}
+`;
+
+exports[`Mocked > getCurrentUser > 429 1`] = `
+{
+  "error": {
+    "limit": 60,
+    "message": "Too many requests",
+    "retry_after": 42,
+    "suggestions": [
+      "Upgrade your plan",
+    ],
+    "tier": "free",
+    "type": "rate_limit",
+  },
+}
+`;
+
+exports[`Mocked > getGroup > 200 1`] = `
+{
+  "_links": {
+    "self": {
+      "href": "https://api.are.na/v3/",
+    },
+  },
+  "avatar": null,
+  "counts": {
+    "channels": 0,
+    "users": 0,
+  },
+  "created_at": "2020-01-01T00:00:00.000Z",
+  "id": 1,
+  "initials": "MG",
+  "name": "Mock Group",
+  "slug": "mock-group",
+  "type": "Group",
+  "updated_at": "2020-01-01T00:00:00.000Z",
+  "user": {
+    "avatar": null,
+    "id": 1,
+    "initials": "MU",
+    "name": "Mock User",
+    "slug": "mock-user",
+    "type": "User",
+  },
+}
+`;
+
+exports[`Mocked > getGroup > 401 1`] = `
+{
+  "code": 400,
+  "error": "mock_error",
+}
+`;
+
+exports[`Mocked > getGroup > 403 1`] = `
+{
+  "code": 400,
+  "error": "mock_error",
+}
+`;
+
+exports[`Mocked > getGroup > 404 1`] = `
+{
+  "code": 400,
+  "error": "mock_error",
+}
+`;
+
+exports[`Mocked > getGroup > 429 1`] = `
+{
+  "error": {
+    "limit": 60,
+    "message": "Too many requests",
+    "retry_after": 42,
+    "suggestions": [
+      "Upgrade your plan",
+    ],
+    "tier": "free",
+    "type": "rate_limit",
+  },
+}
+`;
+
+exports[`Mocked > getGroupContents > 200 1`] = `
+"× Invalid type: Expected Object but received Object
+  → at data.5"
+`;
+
+exports[`Mocked > getGroupContents > 401 1`] = `
+{
+  "code": 400,
+  "error": "mock_error",
+}
+`;
+
+exports[`Mocked > getGroupContents > 403 1`] = `
+{
+  "code": 400,
+  "error": "mock_error",
+}
+`;
+
+exports[`Mocked > getGroupContents > 404 1`] = `
+{
+  "code": 400,
+  "error": "mock_error",
+}
+`;
+
+exports[`Mocked > getGroupContents > 429 1`] = `
+{
+  "error": {
+    "limit": 60,
+    "message": "Too many requests",
+    "retry_after": 42,
+    "suggestions": [
+      "Upgrade your plan",
+    ],
+    "tier": "free",
+    "type": "rate_limit",
+  },
+}
+`;
+
+exports[`Mocked > getGroupFollowers > 200 1`] = `
+{
+  "data": [
+    {
+      "_links": {
+        "self": {
+          "href": "https://api.are.na/v3/",
+        },
+      },
+      "avatar": null,
+      "counts": {
+        "channels": 0,
+        "followers": 0,
+        "following": 0,
+      },
+      "created_at": "2020-01-01T00:00:00.000Z",
+      "id": 1,
+      "initials": "MU",
+      "name": "Mock User",
+      "slug": "mock-user",
+      "type": "User",
+      "updated_at": "2020-01-01T00:00:00.000Z",
+    },
+  ],
+  "meta": {
+    "current_page": 1,
+    "has_more_pages": false,
+    "per_page": 10,
+    "total_count": 0,
+    "total_pages": 1,
+  },
+}
+`;
+
+exports[`Mocked > getGroupFollowers > 401 1`] = `
+{
+  "code": 400,
+  "error": "mock_error",
+}
+`;
+
+exports[`Mocked > getGroupFollowers > 403 1`] = `
+{
+  "code": 400,
+  "error": "mock_error",
+}
+`;
+
+exports[`Mocked > getGroupFollowers > 404 1`] = `
+{
+  "code": 400,
+  "error": "mock_error",
+}
+`;
+
+exports[`Mocked > getGroupFollowers > 429 1`] = `
+{
+  "error": {
+    "limit": 60,
+    "message": "Too many requests",
+    "retry_after": 42,
+    "suggestions": [
+      "Upgrade your plan",
+    ],
+    "tier": "free",
+    "type": "rate_limit",
+  },
+}
+`;
+
+exports[`Mocked > getOpenapiSpec > 200 1`] = `
+"openapi: "3.0.0"
+info:
+  title: Mock
+"
+`;
+
+exports[`Mocked > getOpenapiSpec > 404 1`] = `
+{
+  "code": 400,
+  "error": "mock_error",
+}
+`;
+
+exports[`Mocked > getOpenapiSpecJson > 200 1`] = `{}`;
+
+exports[`Mocked > getOpenapiSpecJson > 404 1`] = `
+{
+  "code": 400,
+  "error": "mock_error",
+}
+`;
+
+exports[`Mocked > getPing > 200 1`] = `
+{
+  "status": "ok",
+}
+`;
+
+exports[`Mocked > getPing > 429 1`] = `
+{
+  "error": {
+    "limit": 60,
+    "message": "Too many requests",
+    "retry_after": 42,
+    "suggestions": [
+      "Upgrade your plan",
+    ],
+    "tier": "free",
+    "type": "rate_limit",
+  },
+}
+`;
+
+exports[`Mocked > getUser > 200 1`] = `
+{
+  "_links": {
+    "self": {
+      "href": "https://api.are.na/v3/",
+    },
+  },
+  "avatar": null,
+  "counts": {
+    "channels": 0,
+    "followers": 0,
+    "following": 0,
+  },
+  "created_at": "2020-01-01T00:00:00.000Z",
+  "id": 1,
+  "initials": "MU",
+  "name": "Mock User",
+  "slug": "mock-user",
+  "type": "User",
+  "updated_at": "2020-01-01T00:00:00.000Z",
+}
+`;
+
+exports[`Mocked > getUser > 401 1`] = `
+{
+  "code": 400,
+  "error": "mock_error",
+}
+`;
+
+exports[`Mocked > getUser > 403 1`] = `
+{
+  "code": 400,
+  "error": "mock_error",
+}
+`;
+
+exports[`Mocked > getUser > 404 1`] = `
+{
+  "code": 400,
+  "error": "mock_error",
+}
+`;
+
+exports[`Mocked > getUser > 429 1`] = `
+{
+  "error": {
+    "limit": 60,
+    "message": "Too many requests",
+    "retry_after": 42,
+    "suggestions": [
+      "Upgrade your plan",
+    ],
+    "tier": "free",
+    "type": "rate_limit",
+  },
+}
+`;
+
+exports[`Mocked > getUserContents > 200 1`] = `
+"× Invalid type: Expected Object but received Object
+  → at data.5"
+`;
+
+exports[`Mocked > getUserContents > 401 1`] = `
+{
+  "code": 400,
+  "error": "mock_error",
+}
+`;
+
+exports[`Mocked > getUserContents > 403 1`] = `
+{
+  "code": 400,
+  "error": "mock_error",
+}
+`;
+
+exports[`Mocked > getUserContents > 404 1`] = `
+{
+  "code": 400,
+  "error": "mock_error",
+}
+`;
+
+exports[`Mocked > getUserContents > 429 1`] = `
+{
+  "error": {
+    "limit": 60,
+    "message": "Too many requests",
+    "retry_after": 42,
+    "suggestions": [
+      "Upgrade your plan",
+    ],
+    "tier": "free",
+    "type": "rate_limit",
+  },
+}
+`;
+
+exports[`Mocked > getUserFollowers > 200 1`] = `
+{
+  "data": [
+    {
+      "_links": {
+        "self": {
+          "href": "https://api.are.na/v3/",
+        },
+      },
+      "avatar": null,
+      "counts": {
+        "channels": 0,
+        "followers": 0,
+        "following": 0,
+      },
+      "created_at": "2020-01-01T00:00:00.000Z",
+      "id": 1,
+      "initials": "MU",
+      "name": "Mock User",
+      "slug": "mock-user",
+      "type": "User",
+      "updated_at": "2020-01-01T00:00:00.000Z",
+    },
+  ],
+  "meta": {
+    "current_page": 1,
+    "has_more_pages": false,
+    "per_page": 10,
+    "total_count": 0,
+    "total_pages": 1,
+  },
+}
+`;
+
+exports[`Mocked > getUserFollowers > 401 1`] = `
+{
+  "code": 400,
+  "error": "mock_error",
+}
+`;
+
+exports[`Mocked > getUserFollowers > 403 1`] = `
+{
+  "code": 400,
+  "error": "mock_error",
+}
+`;
+
+exports[`Mocked > getUserFollowers > 404 1`] = `
+{
+  "code": 400,
+  "error": "mock_error",
+}
+`;
+
+exports[`Mocked > getUserFollowers > 429 1`] = `
+{
+  "error": {
+    "limit": 60,
+    "message": "Too many requests",
+    "retry_after": 42,
+    "suggestions": [
+      "Upgrade your plan",
+    ],
+    "tier": "free",
+    "type": "rate_limit",
+  },
+}
+`;
+
+exports[`Mocked > getUserFollowing > 200 1`] = `
+{
+  "data": [
+    {
+      "_links": {
+        "self": {
+          "href": "https://api.are.na/v3/",
+        },
+      },
+      "avatar": null,
+      "counts": {
+        "channels": 0,
+        "followers": 0,
+        "following": 0,
+      },
+      "created_at": "2020-01-01T00:00:00.000Z",
+      "id": 1,
+      "initials": "MU",
+      "name": "Mock User",
+      "slug": "mock-user",
+      "type": "User",
+      "updated_at": "2020-01-01T00:00:00.000Z",
+    },
+  ],
+  "meta": {
+    "current_page": 1,
+    "has_more_pages": false,
+    "per_page": 10,
+    "total_count": 0,
+    "total_pages": 1,
+  },
+}
+`;
+
+exports[`Mocked > getUserFollowing > 401 1`] = `
+{
+  "code": 400,
+  "error": "mock_error",
+}
+`;
+
+exports[`Mocked > getUserFollowing > 403 1`] = `
+{
+  "code": 400,
+  "error": "mock_error",
+}
+`;
+
+exports[`Mocked > getUserFollowing > 404 1`] = `
+{
+  "code": 400,
+  "error": "mock_error",
+}
+`;
+
+exports[`Mocked > getUserFollowing > 429 1`] = `
+{
+  "error": {
+    "limit": 60,
+    "message": "Too many requests",
+    "retry_after": 42,
+    "suggestions": [
+      "Upgrade your plan",
+    ],
+    "tier": "free",
+    "type": "rate_limit",
+  },
+}
+`;
+
+exports[`Mocked > moveConnection > 200 1`] = `
+{
+  "_links": {
+    "self": {
+      "href": "https://api.are.na/v3/",
+    },
+  },
+  "can": {
+    "remove": true,
+  },
+  "connected_at": "2020-01-01T00:00:00.000Z",
+  "connected_by": {
+    "avatar": null,
+    "id": 1,
+    "initials": "MU",
+    "name": "Mock User",
+    "slug": "mock-user",
+    "type": "User",
+  },
+  "id": 1,
+  "pinned": false,
+  "position": 0,
+}
+`;
+
+exports[`Mocked > moveConnection > 400 1`] = `
+{
+  "code": 400,
+  "error": "mock_error",
+}
+`;
+
+exports[`Mocked > moveConnection > 401 1`] = `
+{
+  "code": 400,
+  "error": "mock_error",
+}
+`;
+
+exports[`Mocked > moveConnection > 403 1`] = `
+{
+  "code": 400,
+  "error": "mock_error",
+}
+`;
+
+exports[`Mocked > moveConnection > 404 1`] = `
+{
+  "code": 400,
+  "error": "mock_error",
+}
+`;
+
+exports[`Mocked > moveConnection > 422 1`] = `
+{
+  "code": 400,
+  "error": "mock_error",
+}
+`;
+
+exports[`Mocked > moveConnection > 429 1`] = `
+{
+  "error": {
+    "limit": 60,
+    "message": "Too many requests",
+    "retry_after": 42,
+    "suggestions": [
+      "Upgrade your plan",
+    ],
+    "tier": "free",
+    "type": "rate_limit",
+  },
+}
+`;
+
+exports[`Mocked > search > 200 1`] = `
+"× Invalid type: Expected Object but received Object
+  → at data.5"
+`;
+
+exports[`Mocked > search > 400 1`] = `
+{
+  "code": 400,
+  "error": "mock_error",
+}
+`;
+
+exports[`Mocked > search > 401 1`] = `
+{
+  "code": 400,
+  "error": "mock_error",
+}
+`;
+
+exports[`Mocked > search > 403 1`] = `
+{
+  "code": 400,
+  "error": "mock_error",
+}
+`;
+
+exports[`Mocked > search > 429 1`] = `
+{
+  "error": {
+    "limit": 60,
+    "message": "Too many requests",
+    "retry_after": 42,
+    "suggestions": [
+      "Upgrade your plan",
+    ],
+    "tier": "free",
+    "type": "rate_limit",
+  },
+}
+`;
+
+exports[`Mocked > updateBlock > 200 1`] = `
+{
+  "_links": {
+    "self": {
+      "href": "https://api.are.na/v3/",
+    },
+  },
+  "base_type": "Block",
+  "comment_count": 0,
+  "content": {
+    "html": "<p>x</p>",
+    "markdown": "x",
+    "plain": "x",
+  },
+  "created_at": "2020-01-01T00:00:00.000Z",
+  "id": 1,
+  "state": "available",
+  "type": "Text",
+  "updated_at": "2020-01-01T00:00:00.000Z",
+  "user": {
+    "avatar": null,
+    "id": 1,
+    "initials": "MU",
+    "name": "Mock User",
+    "slug": "mock-user",
+    "type": "User",
+  },
+  "visibility": "public",
+}
+`;
+
+exports[`Mocked > updateBlock > 400 1`] = `
+{
+  "code": 400,
+  "error": "mock_error",
+}
+`;
+
+exports[`Mocked > updateBlock > 401 1`] = `
+{
+  "code": 400,
+  "error": "mock_error",
+}
+`;
+
+exports[`Mocked > updateBlock > 403 1`] = `
+{
+  "code": 400,
+  "error": "mock_error",
+}
+`;
+
+exports[`Mocked > updateBlock > 404 1`] = `
+{
+  "code": 400,
+  "error": "mock_error",
+}
+`;
+
+exports[`Mocked > updateBlock > 422 1`] = `
+{
+  "code": 400,
+  "error": "mock_error",
+}
+`;
+
+exports[`Mocked > updateBlock > 429 1`] = `
+{
+  "error": {
+    "limit": 60,
+    "message": "Too many requests",
+    "retry_after": 42,
+    "suggestions": [
+      "Upgrade your plan",
+    ],
+    "tier": "free",
+    "type": "rate_limit",
+  },
+}
+`;
+
+exports[`Mocked > updateChannel > 200 1`] = `
+{
+  "_links": {
+    "self": {
+      "href": "https://api.are.na/v3/",
+    },
+  },
+  "counts": {
+    "blocks": 0,
+    "channels": 0,
+    "collaborators": 0,
+    "contents": 0,
+  },
+  "created_at": "2020-01-01T00:00:00.000Z",
+  "id": 1,
+  "owner": {
+    "avatar": null,
+    "id": 1,
+    "initials": "MU",
+    "name": "Mock User",
+    "slug": "mock-user",
+    "type": "User",
+  },
+  "slug": "mock-channel",
+  "state": "available",
+  "title": "Mock Channel",
+  "type": "Channel",
+  "updated_at": "2020-01-01T00:00:00.000Z",
+  "visibility": "public",
+}
+`;
+
+exports[`Mocked > updateChannel > 400 1`] = `
+{
+  "code": 400,
+  "error": "mock_error",
+}
+`;
+
+exports[`Mocked > updateChannel > 401 1`] = `
+{
+  "code": 400,
+  "error": "mock_error",
+}
+`;
+
+exports[`Mocked > updateChannel > 403 1`] = `
+{
+  "code": 400,
+  "error": "mock_error",
+}
+`;
+
+exports[`Mocked > updateChannel > 404 1`] = `
+{
+  "code": 400,
+  "error": "mock_error",
+}
+`;
+
+exports[`Mocked > updateChannel > 422 1`] = `
+{
+  "code": 400,
+  "error": "mock_error",
+}
+`;
+
+exports[`Mocked > updateChannel > 429 1`] = `
+{
+  "error": {
+    "limit": 60,
+    "message": "Too many requests",
+    "retry_after": 42,
+    "suggestions": [
+      "Upgrade your plan",
+    ],
+    "tier": "free",
+    "type": "rate_limit",
+  },
+}
+`;
