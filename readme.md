@@ -2,8 +2,6 @@
 
 an.era is a API wrapper for the Are.na API
 
-Find package specific information [here](https://github.com/kijv/an.era/tree/main/packages/an.era/readme.md)
-
 ## API Reference
 
 ### Table of contents
