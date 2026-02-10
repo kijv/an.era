@@ -1,4 +1,4 @@
-import * as s from '../src/openapi/components/schemas';
+import type * as s from '../src/openapi/components/schemas';
 
 const ts = '2020-01-01T00:00:00.000Z';
 const url = 'https://api.are.na/v3/';
@@ -68,7 +68,9 @@ export const mockRateLimitError = {
   },
 } satisfies s.RateLimitError;
 
-export const mockPingResponse = { status: 'ok' as const } satisfies s.PingResponse;
+export const mockPingResponse = {
+  status: 'ok' as const,
+} satisfies s.PingResponse;
 
 export const mockOAuth200 = {
   access_token: 'mock-token',

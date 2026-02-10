@@ -51,6 +51,4 @@ jobs:
           git add packages/an.era/src/openapi/
           git commit -m "sync openapi"
           git push origin "$BRANCH"
-          gh pr create \
-            --title "sync openapi" \
-            --base main
+          gh pr create --title "sync openapi" --base main --fill

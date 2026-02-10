@@ -28,9 +28,7 @@ const minimalArgs: Record<string, unknown[]> = {
   ],
   createBlock: [{ value: 'test' }],
   batchCreateBlocks: [{ channel_ids: ['1'], blocks: [{ value: 'test' }] }],
-  getBatchStatus: [
-    { batch_id: '550e8400-e29b-41d4-a716-446655440000' },
-  ],
+  getBatchStatus: [{ batch_id: '550e8400-e29b-41d4-a716-446655440000' }],
   getBlock: [{ id: 1 }],
   updateBlock: [{ id: 1 }, {}],
   getBlockConnections: [{ id: 1 }],
@@ -863,19 +861,17 @@ describe('Mocked', () => {
             );
             const statusNum = Number(statusCode);
             fetchSpy.mockImplementation(() =>
-              Promise.resolve(
-                createMockResponse(statusNum, body, contentType),
-              ),
+              Promise.resolve(createMockResponse(statusNum, body, contentType)),
             );
             const api = createArena({ plain: true, ignoreValidation: true });
             const fn = api[operationId as keyof typeof api] as (
               ...args: unknown[]
             ) => Promise<unknown>;
             const args = minimalArgs[operationId] ?? [];
-              const result = await fn(...args);
-              expect(result).toBeDefined();
-              expect(result).toMatchSnapshot();
-            });
+            const result = await fn(...args);
+            expect(result).toBeDefined();
+            expect(result).toMatchSnapshot();
+          });
         } else {
           for (const [contentType] of mediaEntries) {
             const scenarioName =
