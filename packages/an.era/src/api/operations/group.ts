@@ -268,15 +268,17 @@ type StrippedOperationKey<
     ? Terms extends string[]
       ? TermsBeforeTerm<Terms, Term> extends infer Before
         ? Before extends string[]
-          ? Before extends []
-            ? TermsAfterTerm<Terms, Term> extends infer After
-              ? After extends string[]
+          ? TermsAfterTerm<Terms, Term> extends infer After
+            ? After extends string[]
+              ? Before extends []
                 ? After extends []
                   ? O[K]['method']
                   : JoinTermsAsCamelCase<After>
-                : O[K]['method']
+                : After extends []
+                  ? JoinTermsAsCamelCase<Before>
+                  : `${JoinTermsAsCamelCase<Before>}${JoinTermsCapitalized<After>}`
               : O[K]['method']
-            : JoinTermsAsCamelCase<Before>
+            : O[K]['method']
           : O[K]['method']
         : O[K]['method']
       : O[K]['method']
@@ -471,26 +473,31 @@ export const getStrippedKey = (
   const before = terms.slice(0, termIndex);
   const after = terms.slice(termIndex + 1);
 
-  const firstBefore = before[0];
-  if (firstBefore) {
-    return (
-      firstBefore.toLowerCase() +
-      before
-        .slice(1)
-        .map((t) => t.charAt(0).toUpperCase() + t.slice(1))
-        .join('')
-    );
-  }
+  const joinCamelCase = (arr: string[]) =>
+    arr.length
+      ? arr[0]!.toLowerCase() +
+        arr
+          .slice(1)
+          .map((t) => t.charAt(0).toUpperCase() + t.slice(1))
+          .join('')
+      : '';
+  const joinCapitalized = (arr: string[]) =>
+    arr
+      .map((t) => t.charAt(0).toUpperCase() + t.toLowerCase().slice(1))
+      .join('');
 
-  const firstAfter = after[0];
-  if (firstAfter) {
-    return (
-      firstAfter.toLowerCase() +
-      after
-        .slice(1)
-        .map((t) => t.charAt(0).toUpperCase() + t.slice(1))
-        .join('')
-    );
+  const beforeStr = joinCamelCase(before);
+  const afterCamel = joinCamelCase(after);
+  const afterCapitalized = joinCapitalized(after);
+
+  if (beforeStr && afterCamel) {
+    return beforeStr + afterCapitalized;
+  }
+  if (beforeStr) {
+    return beforeStr;
+  }
+  if (afterCamel) {
+    return afterCamel;
   }
 
   return method;

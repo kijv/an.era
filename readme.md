@@ -192,7 +192,7 @@ at [are.na/oauth/applications](https://www.are.na/oauth/applications) to obtain 
 <summary>Plain Example</summary>
 
 ```js
-arena.createOAuthToken();
+arena.createOAuthToken({ grant_type });
 ```
 
 </details>
@@ -215,14 +215,14 @@ You can connect the block to multiple channels at once (up to 20).
 ###### Example
 
 ```js
-arena.blocks.create();
+arena.blocks.create({ value, channel_ids });
 ```
 
 <details>
 <summary>Plain Example</summary>
 
 ```js
-arena.createBlock();
+arena.createBlock({ value, channel_ids });
 ```
 
 </details>
@@ -266,14 +266,14 @@ created.
 ###### Example
 
 ```js
-arena.blocks.batchCreate();
+arena.blocks.batchCreate({ channel_ids, blocks });
 ```
 
 <details>
 <summary>Plain Example</summary>
 
 ```js
-arena.batchCreateBlocks();
+arena.batchCreateBlocks({ channel_ids, blocks });
 ```
 
 </details>
@@ -371,14 +371,21 @@ Updates a block's metadata. Only the block owner can update it.
 ###### Example
 
 ```js
-arena.blocks.block({ id }).update();
+arena.blocks.block({ id }).update({
+  /* request body */
+});
 ```
 
 <details>
 <summary>Plain Example</summary>
 
 ```js
-arena.updateBlock({ id });
+arena.updateBlock(
+  { id },
+  {
+    /* request body */
+  },
+);
 ```
 
 </details>
@@ -407,14 +414,14 @@ This shows all channels that contain this block, respecting visibility rules and
 ###### Example
 
 ```js
-arena.blocks.block({ id }).connections({ page, per, sort, filter });
+arena.blocks.block({ id }).connections();
 ```
 
 <details>
 <summary>Plain Example</summary>
 
 ```js
-arena.getBlockConnections({ id, page, per, sort, filter });
+arena.getBlockConnections({ id });
 ```
 
 </details>
@@ -468,14 +475,14 @@ Comments are ordered by creation date (ascending by default, oldest first).
 ###### Example
 
 ```js
-arena.blocks.block({ id }).comments({ page, per, sort });
+arena.blocks.block({ id }).comments();
 ```
 
 <details>
 <summary>Plain Example</summary>
 
 ```js
-arena.getBlockComments({ id, page, per, sort });
+arena.getBlockComments({ id });
 ```
 
 </details>
@@ -517,14 +524,14 @@ You can mention users in the comment body using `@username` syntax.
 ###### Example
 
 ```js
-arena.blocks.block({ id }).createComment();
+arena.blocks.block({ id }).createComment({ body });
 ```
 
 <details>
 <summary>Plain Example</summary>
 
 ```js
-arena.createBlockComment({ id });
+arena.createBlockComment({ id }, { body });
 ```
 
 </details>
@@ -556,14 +563,14 @@ Creates a new channel owned by the authenticated user or a group they belong to.
 ###### Example
 
 ```js
-arena.channels.create();
+arena.channels.create({ title });
 ```
 
 <details>
 <summary>Plain Example</summary>
 
 ```js
-arena.createChannel();
+arena.createChannel({ title });
 ```
 
 </details>
@@ -621,14 +628,21 @@ Updates an existing channel. Only provided fields are updated.
 ###### Example
 
 ```js
-arena.channels.channel({ id }).update();
+arena.channels.channel({ id }).update({
+  /* request body */
+});
 ```
 
 <details>
 <summary>Plain Example</summary>
 
 ```js
-arena.updateChannel({ id });
+arena.updateChannel(
+  { id },
+  {
+    /* request body */
+  },
+);
 ```
 
 </details>
@@ -685,14 +699,14 @@ Respects visibility rules and user permissions.
 ###### Example
 
 ```js
-arena.channels.channel({ id }).contents({ page, per, sort, user_id });
+arena.channels.channel({ id }).contents();
 ```
 
 <details>
 <summary>Plain Example</summary>
 
 ```js
-arena.getChannelContents({ id, page, per, sort, user_id });
+arena.getChannelContents({ id });
 ```
 
 </details>
@@ -749,14 +763,14 @@ This shows all channels that contain this channel, respecting visibility rules a
 ###### Example
 
 ```js
-arena.channels.channel({ id }).connections({ page, per, sort });
+arena.channels.channel({ id }).connections();
 ```
 
 <details>
 <summary>Plain Example</summary>
 
 ```js
-arena.getChannelConnections({ id, page, per, sort });
+arena.getChannelConnections({ id });
 ```
 
 </details>
@@ -795,14 +809,14 @@ All followers are users.
 ###### Example
 
 ```js
-arena.channels.channel({ id }).followers({ page, per, sort });
+arena.channels.channel({ id }).followers();
 ```
 
 <details>
 <summary>Plain Example</summary>
 
 ```js
-arena.getChannelFollowers({ id, page, per, sort });
+arena.getChannelFollowers({ id });
 ```
 
 </details>
@@ -875,14 +889,14 @@ Returns the created connection(s).
 ###### Example
 
 ```js
-arena.connections.create();
+arena.connections.create({ connectable_id, connectable_type, channel_ids });
 ```
 
 <details>
 <summary>Plain Example</summary>
 
 ```js
-arena.createConnection();
+arena.createConnection({ connectable_id, connectable_type, channel_ids });
 ```
 
 </details>
@@ -965,14 +979,21 @@ Requires sort permission on the channel.
 ###### Example
 
 ```js
-arena.connections.connection({ id }).move();
+arena.connections.connection({ id }).move({
+  /* request body */
+});
 ```
 
 <details>
 <summary>Plain Example</summary>
 
 ```js
-arena.moveConnection({ id });
+arena.moveConnection(
+  { id },
+  {
+    /* request body */
+  },
+);
 ```
 
 </details>
@@ -1039,14 +1060,14 @@ Respects visibility rules and user permissions.
 ###### Example
 
 ```js
-arena.groups.group({ id }).contents({ page, per, sort, type });
+arena.groups.group({ id }).contents();
 ```
 
 <details>
 <summary>Plain Example</summary>
 
 ```js
-arena.getGroupContents({ id, page, per, sort, type });
+arena.getGroupContents({ id });
 ```
 
 </details>
@@ -1091,14 +1112,14 @@ All followers are users.
 ###### Example
 
 ```js
-arena.groups.group({ id }).followers({ page, per, sort });
+arena.groups.group({ id }).followers();
 ```
 
 <details>
 <summary>Plain Example</summary>
 
 ```js
-arena.getGroupFollowers({ id, page, per, sort });
+arena.getGroupFollowers({ id });
 ```
 
 </details>
@@ -1152,20 +1173,7 @@ Search across blocks, channels, users, and groups.
 <summary>Plain Example</summary>
 
 ```js
-arena.search({
-  query,
-  type,
-  scope,
-  user_id,
-  group_id,
-  channel_id,
-  ext,
-  sort,
-  after,
-  seed,
-  page,
-  per,
-});
+arena.search();
 ```
 
 </details>
@@ -1340,14 +1348,14 @@ Presigned URLs expire after 1 hour.
 ###### Example
 
 ```js
-arena.uploads.presign();
+arena.uploads.presign({ files });
 ```
 
 <details>
 <summary>Plain Example</summary>
 
 ```js
-arena.presignUpload();
+arena.presignUpload({ files });
 ```
 
 </details>
@@ -1435,14 +1443,14 @@ Respects visibility rules and user permissions.
 ###### Example
 
 ```js
-arena.users.user({ id }).contents({ page, per, sort, type });
+arena.users.user({ id }).contents();
 ```
 
 <details>
 <summary>Plain Example</summary>
 
 ```js
-arena.getUserContents({ id, page, per, sort, type });
+arena.getUserContents({ id });
 ```
 
 </details>
@@ -1487,14 +1495,14 @@ All followers are users.
 ###### Example
 
 ```js
-arena.users.user({ id }).followers({ page, per, sort });
+arena.users.user({ id }).followers();
 ```
 
 <details>
 <summary>Plain Example</summary>
 
 ```js
-arena.getUserFollowers({ id, page, per, sort });
+arena.getUserFollowers({ id });
 ```
 
 </details>
@@ -1533,14 +1541,14 @@ Can be filtered by type to return only specific followable types.
 ###### Example
 
 ```js
-arena.users.user({ id }).following({ page, per, sort, type });
+arena.users.user({ id }).following();
 ```
 
 <details>
 <summary>Plain Example</summary>
 
 ```js
-arena.getUserFollowing({ id, page, per, sort, type });
+arena.getUserFollowing({ id });
 ```
 
 </details>

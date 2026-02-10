@@ -22,6 +22,7 @@ export type OpInfo = {
   parameters: Array<{
     name: string;
     in: string;
+    required?: boolean;
     description?: string;
     type?: string;
     schemaRef?: string;
@@ -29,6 +30,8 @@ export type OpInfo = {
   }>;
   requestBodyRef?: string;
   requestBodySchema?: unknown;
+  /** Top-level request body property names (from schema, with refs resolved). */
+  requestBodyPropertyNames?: string[];
   responses: Array<{
     status: string;
     description?: string;
@@ -164,6 +167,11 @@ function tagsShareCommon(
 
 function getParamNames(op: OpInfo): string[] {
   return op.parameters.map((p) => p.name);
+}
+
+/** Parameter names that are required (for example display). */
+function getRequiredParamNames(op: OpInfo): string[] {
+  return op.parameters.filter((p) => p.required).map((p) => p.name);
 }
 
 function hasNonEmptyParameters(op: OpInfo): boolean {
@@ -313,18 +321,26 @@ export function getGroupedForm(
     if (op.parameters.length > 0) {
       const term = getTermMatchingTag(op.operationId, tag);
       if (!term) {
-        const paramList = `({ ${op.parameters.map((p) => p.name).join(', ')} })`;
+        const requiredNames = getRequiredParamNames(op);
+        const paramList =
+          requiredNames.length > 0 ? `({ ${requiredNames.join(', ')} })` : '()';
         return `${displayTag}.${scopedName}${paramList}`;
       }
       const termLower = term.toLowerCase();
       const strippedKey = getStrippedKey(op.operationId, term, op.method);
       const innerKey = innerKeyWithoutMethod(strippedKey, op.method);
       const groupParams = getGroupParamNames(op, operationsByKey, termLower);
+      const requiredNames = getRequiredParamNames(op);
+      const requiredGroupParams = groupParams.filter((n) =>
+        requiredNames.includes(n),
+      );
       const groupParamList =
-        groupParams.length > 0 ? `({ ${groupParams.join(', ')} })` : '';
-      const opParamNames = op.parameters
-        .map((p) => p.name)
-        .filter((n) => !groupParams.includes(n));
+        requiredGroupParams.length > 0
+          ? `({ ${requiredGroupParams.join(', ')} })`
+          : '';
+      const opParamNames = requiredNames.filter(
+        (n) => !groupParams.includes(n),
+      );
       const opParamList =
         opParamNames.length > 0 ? `({ ${opParamNames.join(', ')} })` : '()';
       return `${displayTag}.${termLower}${groupParamList}.${innerKey}${opParamList}`;
@@ -342,11 +358,17 @@ export function getGroupedForm(
       const termLower = term.toLowerCase();
       if (op.parameters.length > 0) {
         const groupParams = getGroupParamNames(op, operationsByKey, termLower);
+        const requiredNames = getRequiredParamNames(op);
+        const requiredGroupParams = groupParams.filter((n) =>
+          requiredNames.includes(n),
+        );
         const groupParamList =
-          groupParams.length > 0 ? `({ ${groupParams.join(', ')} })` : '';
-        const opParamNames = op.parameters
-          .map((p) => p.name)
-          .filter((n) => !groupParams.includes(n));
+          requiredGroupParams.length > 0
+            ? `({ ${requiredGroupParams.join(', ')} })`
+            : '';
+        const opParamNames = requiredNames.filter(
+          (n) => !groupParams.includes(n),
+        );
         const opParamList =
           opParamNames.length > 0 ? `({ ${opParamNames.join(', ')} })` : '()';
         return `${displayTag}.${termLower}${groupParamList}.${innerKey}${opParamList}`;
@@ -755,6 +777,127 @@ function addCollapsible(
     blocks.push({ type: 'collapsible', summary, blocks: innerBlocks });
 }
 
+function hasRequestBody(op: OpInfo): boolean {
+  return op.requestBodyRef != null || op.requestBodySchema != null;
+}
+
+/** Top-level property names from a request body schema (object or first composition member with properties). */
+function getRequestBodyPropertyNames(schema: unknown): string[] {
+  if (schema == null) return [];
+  const s = schema as Record<string, unknown>;
+  if (s.properties && typeof s.properties === 'object') {
+    return Object.keys(s.properties as object);
+  }
+  for (const key of ['oneOf', 'allOf', 'anyOf'] as const) {
+    const opts = s[key] as Record<string, unknown>[] | undefined;
+    if (!Array.isArray(opts)) continue;
+    for (const opt of opts) {
+      const o = opt as Record<string, unknown>;
+      if (o?.properties && typeof o.properties === 'object') {
+        return Object.keys(o.properties as object);
+      }
+    }
+  }
+  return [];
+}
+
+/**
+ * Collect top-level required property names from a request body schema, resolving $ref in composition members.
+ * Only properties listed in a schema's "required" array are included.
+ */
+function collectRequestBodyPropertyNames(
+  schema: unknown,
+  resolveRef: (obj: unknown) => unknown,
+): string[] {
+  const seen = new Set<string>();
+  const order: string[] = [];
+  function addRequiredFromSchema(s: Record<string, unknown>): void {
+    const props = s.properties as Record<string, unknown> | undefined;
+    const required = s.required as string[] | undefined;
+    if (!props || typeof props !== 'object') return;
+    const keys =
+      Array.isArray(required) && required.length > 0
+        ? required.filter((k) => Object.prototype.hasOwnProperty.call(props, k))
+        : [];
+    for (const n of keys) {
+      if (seen.has(n)) continue;
+      seen.add(n);
+      order.push(n);
+    }
+  }
+  function collect(s: unknown): void {
+    if (s == null) return;
+    const o = s as Record<string, unknown>;
+    if (o.properties && typeof o.properties === 'object') {
+      addRequiredFromSchema(o);
+      return;
+    }
+    for (const key of ['oneOf', 'allOf', 'anyOf'] as const) {
+      const opts = o[key] as unknown[] | undefined;
+      if (!Array.isArray(opts)) continue;
+      for (const opt of opts) {
+        const refObj = opt as { $ref?: string };
+        if (refObj?.$ref) {
+          collect(resolveRef(refObj));
+        } else if (opt && typeof opt === 'object') {
+          const optRecord = opt as Record<string, unknown>;
+          if (
+            optRecord.properties &&
+            typeof optRecord.properties === 'object'
+          ) {
+            addRequiredFromSchema(optRecord);
+          }
+        }
+      }
+    }
+  }
+  collect(schema);
+  return order;
+}
+
+function formatRequestBodyArg(op: OpInfo): string {
+  const names =
+    op.requestBodyPropertyNames ??
+    getRequestBodyPropertyNames(op.requestBodySchema);
+  return names.length > 0
+    ? `{ ${names.join(', ')} }`
+    : '{ /* request body */ }';
+}
+
+function buildPlainExampleCall(op: OpInfo): string {
+  const args: string[] = [];
+  const requiredParamNames = getRequiredParamNames(op);
+  if (requiredParamNames.length > 0) {
+    args.push(`{ ${requiredParamNames.join(', ')} }`);
+  }
+  if (hasRequestBody(op)) {
+    args.push(formatRequestBodyArg(op));
+  }
+  const joinedArgs = args.join(', ');
+  return joinedArgs
+    ? `arena.${op.operationId}(${joinedArgs})`
+    : `arena.${op.operationId}()`;
+}
+
+function buildGroupedExampleCall(
+  op: OpInfo,
+  groupedForm: string | null | undefined,
+): string | null {
+  if (!groupedForm || groupedForm === '') return null;
+  if (!hasRequestBody(op)) return groupedForm;
+  const bodyArg = formatRequestBodyArg(op);
+  // If there are no arguments: () -> ({ body props })
+  if (groupedForm.endsWith('()')) {
+    return groupedForm.replace(/\(\)$/, `(${bodyArg})`);
+  }
+  // If there is an argument list already, append a second body argument.
+  const match = groupedForm.match(/\(([^()]*)\)$/);
+  if (!match) return groupedForm;
+  const currentArgs = match[1]!.trim();
+  const newArgs = currentArgs ? `${currentArgs}, ${bodyArg}` : bodyArg;
+  return groupedForm.replace(/\([^()]*\)$/, `(${newArgs})`);
+}
+
 /** Build blocks for one operation (heading, description, parameters, request body, responses). */
 function buildOperationBlocks(
   op: OpInfo,
@@ -771,13 +914,11 @@ function buildOperationBlocks(
   addHeading(blocks, tocEntries, headingLevel, headingText);
   const desc = op.description ?? op.summary ?? '';
   if (desc) addContent(blocks, [desc]);
-  const plainExample =
-    op.parameters.length > 0
-      ? `arena.${op.operationId}({ ${op.parameters.map((p) => p.name).join(', ')} })`
-      : `arena.${op.operationId}()`;
+  const plainExample = buildPlainExampleCall(op);
   addHeading(blocks, tocEntries, headingLevel + 1, 'Example');
-  if (groupedForm != null && groupedForm !== '') {
-    addContent(blocks, ['```js', `arena.${groupedForm}`, '```']);
+  const groupedExample = buildGroupedExampleCall(op, groupedForm);
+  if (groupedExample != null && groupedExample !== '') {
+    addContent(blocks, ['```js', `arena.${groupedExample}`, '```']);
   }
   addCollapsible(blocks, 'Plain Example', [
     { type: 'content', lines: ['```js', plainExample, '```'] },
@@ -879,6 +1020,7 @@ export async function loadApiReference(
         if (!resolved) continue;
         const name = (resolved.name as string) ?? (p as { name?: string }).name;
         const in_ = (resolved.in as string) ?? (p as { in?: string }).in;
+        const required = (resolved.required as boolean) ?? in_ === 'path';
         const desc = resolved.description as string | undefined;
         const rawSchema = resolved.schema as
           | { $ref?: string; type?: string | string[] }
@@ -894,6 +1036,7 @@ export async function loadApiReference(
         parameters.push({
           name: name ?? 'unknown',
           in: in_ ?? 'query',
+          required,
           description: desc,
           type: typeStr,
           schemaRef: ref ? extractRefName(ref) : undefined,
@@ -903,6 +1046,7 @@ export async function loadApiReference(
 
       let requestBodyRef: string | undefined;
       let requestBodySchema: unknown;
+      let requestBodyPropertyNames: string[] | undefined;
       const rb = schema?.requestBody;
       if (rb?.content) {
         const firstContent = Object.values(rb.content)[0];
@@ -912,6 +1056,12 @@ export async function loadApiReference(
           requestBodySchema = resolveRef(s);
         } else {
           requestBodySchema = s;
+        }
+        if (requestBodySchema != null) {
+          requestBodyPropertyNames = collectRequestBodyPropertyNames(
+            requestBodySchema,
+            resolveRef,
+          );
         }
       }
 
@@ -956,6 +1106,7 @@ export async function loadApiReference(
         parameters,
         requestBodyRef,
         requestBodySchema,
+        requestBodyPropertyNames,
         responses,
       });
     }

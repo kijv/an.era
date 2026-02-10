@@ -44,8 +44,6 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.PERSONAL_TOKEN }}
         run: |
-          git config user.name "vvv"
-          git config user.email "vvv@vvvn.org"
           BRANCH="openapi-sync-$(date +%Y%m%d-%H%M%S)"
           git checkout -b "$BRANCH"
           git add packages/an.era/src/openapi/
