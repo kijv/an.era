@@ -5,6 +5,7 @@
     "an.era": "0.3.0-beta.0"
   },
   "changesets": [
+    "legal-rats-fly",
     "young-tigers-smile"
   ]
 }
