@@ -2,6 +2,8 @@
 
 an.era is a API wrapper for the Are.na API
 
+Find package specific information [here](https://github.com/kijv/an.era/tree/main/packages/an.era/readme.md)
+
 ## API Reference
 
 ### Table of contents
@@ -12,17 +14,19 @@ an.era is a API wrapper for the Are.na API
 - [2 Blocks](#2-blocks)
   - [2.1 createBlock](#21-createblock)
     - [Example](#example)
-  - [2.2 bulkCreateBlocks](#22-bulkcreateblocks)
+  - [2.2 batchCreateBlocks](#22-batchcreateblocks)
     - [Example](#example)
-  - [2.3 getBlock](#23-getblock)
+  - [2.3 getBatchStatus](#23-getbatchstatus)
     - [Example](#example)
-  - [2.4 updateBlock](#24-updateblock)
+  - [2.4 getBlock](#24-getblock)
     - [Example](#example)
-  - [2.5 getBlockConnections](#25-getblockconnections)
+  - [2.5 updateBlock](#25-updateblock)
     - [Example](#example)
-  - [2.6 getBlockComments](#26-getblockcomments)
+  - [2.6 getBlockConnections](#26-getblockconnections)
     - [Example](#example)
-  - [2.7 createBlockComment](#27-createblockcomment)
+  - [2.7 getBlockComments](#27-getblockcomments)
+    - [Example](#example)
+  - [2.8 createBlockComment](#28-createblockcomment)
     - [Example](#example)
 - [3 Channels](#3-channels)
   - [3.1 createChannel](#31-createchannel)
@@ -68,20 +72,25 @@ an.era is a API wrapper for the Are.na API
     - [Example](#example)
   - [8.3 getPing](#83-getping)
     - [Example](#example)
-- [9 Users](#9-users)
-  - [9.1 getCurrentUser](#91-getcurrentuser)
+- [9 Uploads](#9-uploads)
+  - [9.1 presignUpload](#91-presignupload)
     - [Example](#example)
-  - [9.2 getUser](#92-getuser)
+- [10 Users](#10-users)
+  - [10.1 getCurrentUser](#101-getcurrentuser)
     - [Example](#example)
-  - [9.3 getUserContents](#93-getusercontents)
+  - [10.2 getUser](#102-getuser)
     - [Example](#example)
-  - [9.4 getUserFollowers](#94-getuserfollowers)
+  - [10.3 getUserContents](#103-getusercontents)
     - [Example](#example)
-  - [9.5 getUserFollowing](#95-getuserfollowing)
+  - [10.4 getUserFollowers](#104-getuserfollowers)
+    - [Example](#example)
+  - [10.5 getUserFollowing](#105-getuserfollowing)
     - [Example](#example)
 - [Schema Reference](#schema-reference)
   - [AttachmentBlock](#referenced-schemas-attachmentblock)
   - [BaseBlockProperties](#referenced-schemas-baseblockproperties)
+  - [BatchResponse](#referenced-schemas-batchresponse)
+  - [BatchStatus](#referenced-schemas-batchstatus)
   - [Block](#referenced-schemas-block)
   - [BlockAbilities](#referenced-schemas-blockabilities)
   - [BlockAttachment](#referenced-schemas-blockattachment)
@@ -92,7 +101,6 @@ an.era is a API wrapper for the Are.na API
   - [BlockSource](#referenced-schemas-blocksource)
   - [BlockState](#referenced-schemas-blockstate)
   - [BlockVisibility](#referenced-schemas-blockvisibility)
-  - [BulkBlockResponse](#referenced-schemas-bulkblockresponse)
   - [Channel](#referenced-schemas-channel)
   - [ChannelAbilities](#referenced-schemas-channelabilities)
   - [ChannelContentSort](#referenced-schemas-channelcontentsort)
@@ -139,6 +147,8 @@ an.era is a API wrapper for the Are.na API
   - [PaginationMeta](#referenced-schemas-paginationmeta)
   - [PendingBlock](#referenced-schemas-pendingblock)
   - [PingResponse](#referenced-schemas-pingresponse)
+  - [PresignResponse](#referenced-schemas-presignresponse)
+  - [PresignedFile](#referenced-schemas-presignedfile)
   - [RateLimitError](#referenced-schemas-ratelimiterror)
   - [SearchScope](#referenced-schemas-searchscope)
   - [SearchSort](#referenced-schemas-searchsort)
@@ -230,34 +240,40 @@ arena.createBlock();
 
 </details>
 
-##### 2.2 bulkCreateBlocks
+##### 2.2 batchCreateBlocks
 
-Creates multiple blocks in a single request and connects them to one or more channels.
-Designed for bulk import use cases such as migrating from other services,
+Queues multiple blocks for asynchronous creation and connects them to one
+or more channels. Returns immediately with a `batch_id` that can be used
+to poll for status via `GET /v3/blocks/batch/{batch_id}`.
+
+Designed for import use cases such as migrating from other services
 or re-importing Are.na exports.
 
-Each block in the `blocks` array follows the same format as single block creation.
-Blocks are processed sequentially and partial success is supported - if some blocks
-fail, the successful ones are still created.
+Each block in the `blocks` array follows the same format as single block
+creation. Blocks are processed sequentially in the background and partial
+success is supported — if some blocks fail, the successful ones are still
+created.
 
 **Limits:**
 
 - Maximum 50 blocks per request
 - Maximum 20 channels per request
 
+**Batch results are available for 24 hours after submission.**
+
 **Authentication required.**
 
 ###### Example
 
 ```js
-arena.blocks.bulkCreate();
+arena.blocks.batchCreate();
 ```
 
 <details>
 <summary>Plain Example</summary>
 
 ```js
-arena.bulkCreateBlocks();
+arena.batchCreateBlocks();
 ```
 
 </details>
@@ -265,21 +281,53 @@ arena.bulkCreateBlocks();
 <details>
 <summary>Responses</summary>
 
-<a id="2-2-1-bulkblockresponse"></a>
+<a id="2-2-1-batchresponse"></a>
 
-###### 2.2.1 `201`: [BulkBlockResponse](#referenced-schemas-bulkblockresponse) — All blocks created successfully
+###### 2.2.1 `202`: [BatchResponse](#referenced-schemas-batchresponse) — Batch accepted for processing
 
-<a id="2-2-2-bulkblockresponse"></a>
+<a id="2-2-2-error"></a>
 
-###### 2.2.2 `207`: [BulkBlockResponse](#referenced-schemas-bulkblockresponse) — Partial success - some blocks failed
-
-<a id="2-2-3-error"></a>
-
-###### 2.2.3 `403`: [Error](#referenced-schemas-error) — Cannot add to one or more channels
+###### 2.2.2 `403`: [Error](#referenced-schemas-error) — Cannot add to one or more channels
 
 </details>
 
-##### 2.3 getBlock
+##### 2.3 getBatchStatus
+
+Returns the current status of a batch block creation job.
+Poll this endpoint to track progress and retrieve results.
+
+Batch results are available for 24 hours after submission.
+
+**Authentication required.**
+
+###### Example
+
+<details>
+<summary>Plain Example</summary>
+
+```js
+arena.getBatchStatus({ batch_id });
+```
+
+</details>
+
+<details>
+<summary>Parameters</summary>
+
+- **batch_id** (path): `string` — The batch ID returned from the batch create endpoint
+
+</details>
+
+<details>
+<summary>Responses</summary>
+
+<a id="2-3-1-batchstatus"></a>
+
+###### 2.3.1 `200`: [BatchStatus](#referenced-schemas-batchstatus) — Batch status
+
+</details>
+
+##### 2.4 getBlock
 
 Returns detailed information about a specific block by its ID. Respects visibility rules and user permissions.
 
@@ -308,13 +356,13 @@ arena.getBlock({ id });
 <details>
 <summary>Responses</summary>
 
-<a id="2-3-1-block"></a>
+<a id="2-4-1-block"></a>
 
-###### 2.3.1 `200`: [Block](#referenced-schemas-block) — Block details
+###### 2.4.1 `200`: [Block](#referenced-schemas-block) — Block details
 
 </details>
 
-##### 2.4 updateBlock
+##### 2.5 updateBlock
 
 Updates a block's metadata. Only the block owner can update it.
 
@@ -345,13 +393,13 @@ arena.updateBlock({ id });
 <details>
 <summary>Responses</summary>
 
-<a id="2-4-1-block"></a>
+<a id="2-5-1-block"></a>
 
-###### 2.4.1 `200`: [Block](#referenced-schemas-block) — Block updated successfully
+###### 2.5.1 `200`: [Block](#referenced-schemas-block) — Block updated successfully
 
 </details>
 
-##### 2.5 getBlockConnections
+##### 2.6 getBlockConnections
 
 Returns paginated list of channels where this block appears.
 This shows all channels that contain this block, respecting visibility rules and user permissions.
@@ -384,13 +432,13 @@ arena.getBlockConnections({ id, page, per, sort, filter });
 
 - **filter** (query): [ConnectionFilter](#referenced-schemas-connectionfilter) — Filter connections by ownership.
 
-<a id="2-5-1-connectionsort"></a>
+<a id="2-6-1-connectionsort"></a>
 
-###### 2.5.1 Parameter: sort (query): [ConnectionSort](#referenced-schemas-connectionsort)
+###### 2.6.1 Parameter: sort (query): [ConnectionSort](#referenced-schemas-connectionsort)
 
-<a id="2-5-2-connectionfilter"></a>
+<a id="2-6-2-connectionfilter"></a>
 
-###### 2.5.2 Parameter: filter (query): [ConnectionFilter](#referenced-schemas-connectionfilter)
+###### 2.6.2 Parameter: filter (query): [ConnectionFilter](#referenced-schemas-connectionfilter)
 
 Filter connections by who created them.
 
@@ -406,13 +454,13 @@ Filter connections by who created them.
 <details>
 <summary>Responses</summary>
 
-<a id="2-5-3-channellistresponse"></a>
+<a id="2-6-3-channellistresponse"></a>
 
-###### 2.5.3 `200`: [ChannelListResponse](#referenced-schemas-channellistresponse) — List of channels where this block appears
+###### 2.6.3 `200`: [ChannelListResponse](#referenced-schemas-channellistresponse) — List of channels where this block appears
 
 </details>
 
-##### 2.6 getBlockComments
+##### 2.7 getBlockComments
 
 Returns paginated list of comments on this block.
 Comments are ordered by creation date (ascending by default, oldest first).
@@ -443,22 +491,22 @@ arena.getBlockComments({ id, page, per, sort });
 
 - **sort** (query): [ConnectionSort](#referenced-schemas-connectionsort) — Sort by the date the relationship was created.
 
-<a id="2-6-1-connectionsort"></a>
+<a id="2-7-1-connectionsort"></a>
 
-###### 2.6.1 Parameter: sort (query): [ConnectionSort](#referenced-schemas-connectionsort)
+###### 2.7.1 Parameter: sort (query): [ConnectionSort](#referenced-schemas-connectionsort)
 
 </details>
 
 <details>
 <summary>Responses</summary>
 
-<a id="2-6-2-commentlistresponse"></a>
+<a id="2-7-2-commentlistresponse"></a>
 
-###### 2.6.2 `200`: [CommentListResponse](#referenced-schemas-commentlistresponse) — List of comments on this block
+###### 2.7.2 `200`: [CommentListResponse](#referenced-schemas-commentlistresponse) — List of comments on this block
 
 </details>
 
-##### 2.7 createBlockComment
+##### 2.8 createBlockComment
 
 Creates a new comment on a block.
 
@@ -491,9 +539,9 @@ arena.createBlockComment({ id });
 <details>
 <summary>Responses</summary>
 
-<a id="2-7-1-comment"></a>
+<a id="2-8-1-comment"></a>
 
-###### 2.7.1 `201`: [Comment](#referenced-schemas-comment) — Comment created successfully
+###### 2.8.1 `201`: [Comment](#referenced-schemas-comment) — Comment created successfully
 
 </details>
 
@@ -1270,9 +1318,52 @@ arena.getPing();
 
 </details>
 
-#### 9 Users
+#### 9 Uploads
 
-##### 9.1 getCurrentUser
+##### 9.1 presignUpload
+
+Returns presigned S3 PUT URLs for direct file upload. Use this to upload
+files (images, attachments) without sending them through the API server.
+Supports up to 50 files per request.
+
+**Upload flow:**
+
+1. Call this endpoint with an array of files (filename + content type)
+2. PUT each file's bytes to its returned `upload_url` with the matching `Content-Type` header
+3. Create blocks via `POST /v3/blocks` with `value` set to the S3 URL:
+   `https://s3.amazonaws.com/arena_images-temp/<key>`
+
+Presigned URLs expire after 1 hour.
+
+**Authentication required.**
+
+###### Example
+
+```js
+arena.uploads.presign();
+```
+
+<details>
+<summary>Plain Example</summary>
+
+```js
+arena.presignUpload();
+```
+
+</details>
+
+<details>
+<summary>Responses</summary>
+
+<a id="9-1-1-presignresponse"></a>
+
+###### 9.1.1 `201`: [PresignResponse](#referenced-schemas-presignresponse) — Presigned URLs generated
+
+</details>
+
+#### 10 Users
+
+##### 10.1 getCurrentUser
 
 Returns the currently authenticated user's profile
 
@@ -1294,13 +1385,13 @@ arena.getCurrentUser();
 <details>
 <summary>Responses</summary>
 
-<a id="9-1-1-user"></a>
+<a id="10-1-1-user"></a>
 
-###### 9.1.1 `200`: [User](#referenced-schemas-user) — Current user details
+###### 10.1.1 `200`: [User](#referenced-schemas-user) — Current user details
 
 </details>
 
-##### 9.2 getUser
+##### 10.2 getUser
 
 Returns detailed information about a specific user by their slug. Includes user profile, bio, and counts.
 
@@ -1329,13 +1420,13 @@ arena.getUser({ id });
 <details>
 <summary>Responses</summary>
 
-<a id="9-2-1-user"></a>
+<a id="10-2-1-user"></a>
 
-###### 9.2.1 `200`: [User](#referenced-schemas-user) — User details
+###### 10.2.1 `200`: [User](#referenced-schemas-user) — User details
 
 </details>
 
-##### 9.3 getUserContents
+##### 10.3 getUserContents
 
 Returns paginated contents (blocks and channels) created by a user.
 Uses the search API to find all content added by the specified user.
@@ -1369,26 +1460,26 @@ arena.getUserContents({ id, page, per, sort, type });
 
 - **type** (query): [ContentTypeFilter](#referenced-schemas-contenttypefilter) — Filter to a specific content type.
 
-<a id="9-3-1-contentsort"></a>
+<a id="10-3-1-contentsort"></a>
 
-###### 9.3.1 Parameter: sort (query): [ContentSort](#referenced-schemas-contentsort)
+###### 10.3.1 Parameter: sort (query): [ContentSort](#referenced-schemas-contentsort)
 
-<a id="9-3-2-contenttypefilter"></a>
+<a id="10-3-2-contenttypefilter"></a>
 
-###### 9.3.2 Parameter: type (query): [ContentTypeFilter](#referenced-schemas-contenttypefilter)
+###### 10.3.2 Parameter: type (query): [ContentTypeFilter](#referenced-schemas-contenttypefilter)
 
 </details>
 
 <details>
 <summary>Responses</summary>
 
-<a id="9-3-3-connectablelistresponse"></a>
+<a id="10-3-3-connectablelistresponse"></a>
 
-###### 9.3.3 `200`: [ConnectableListResponse](#referenced-schemas-connectablelistresponse) — User contents with pagination metadata
+###### 10.3.3 `200`: [ConnectableListResponse](#referenced-schemas-connectablelistresponse) — User contents with pagination metadata
 
 </details>
 
-##### 9.4 getUserFollowers
+##### 10.4 getUserFollowers
 
 Returns paginated list of users who follow this user.
 All followers are users.
@@ -1419,22 +1510,22 @@ arena.getUserFollowers({ id, page, per, sort });
 
 - **sort** (query): [ConnectionSort](#referenced-schemas-connectionsort) — Sort by the date the relationship was created.
 
-<a id="9-4-1-connectionsort"></a>
+<a id="10-4-1-connectionsort"></a>
 
-###### 9.4.1 Parameter: sort (query): [ConnectionSort](#referenced-schemas-connectionsort)
+###### 10.4.1 Parameter: sort (query): [ConnectionSort](#referenced-schemas-connectionsort)
 
 </details>
 
 <details>
 <summary>Responses</summary>
 
-<a id="9-4-2-userlistresponse"></a>
+<a id="10-4-2-userlistresponse"></a>
 
-###### 9.4.2 `200`: [UserListResponse](#referenced-schemas-userlistresponse) — List of users who follow this user
+###### 10.4.2 `200`: [UserListResponse](#referenced-schemas-userlistresponse) — List of users who follow this user
 
 </details>
 
-##### 9.5 getUserFollowing
+##### 10.5 getUserFollowing
 
 Returns paginated list of users, channels, and groups that this user follows.
 Can be filtered by type to return only specific followable types.
@@ -1467,13 +1558,13 @@ arena.getUserFollowing({ id, page, per, sort, type });
 
 - **type** (query): [FollowableType](#referenced-schemas-followabletype) — Filter by followable type
 
-<a id="9-5-1-connectionsort"></a>
+<a id="10-5-1-connectionsort"></a>
 
-###### 9.5.1 Parameter: sort (query): [ConnectionSort](#referenced-schemas-connectionsort)
+###### 10.5.1 Parameter: sort (query): [ConnectionSort](#referenced-schemas-connectionsort)
 
-<a id="9-5-2-followabletype"></a>
+<a id="10-5-2-followabletype"></a>
 
-###### 9.5.2 Parameter: type (query): [FollowableType](#referenced-schemas-followabletype)
+###### 10.5.2 Parameter: type (query): [FollowableType](#referenced-schemas-followabletype)
 
 Type of entity that can be followed.
 
@@ -1489,9 +1580,9 @@ Type of entity that can be followed.
 <details>
 <summary>Responses</summary>
 
-<a id="9-5-3-followablelistresponse"></a>
+<a id="10-5-3-followablelistresponse"></a>
 
-###### 9.5.3 `200`: [FollowableListResponse](#referenced-schemas-followablelistresponse) — List of users, channels, and groups that this user follows
+###### 10.5.3 `200`: [FollowableListResponse](#referenced-schemas-followablelistresponse) — List of users, channels, and groups that this user follows
 
 </details>
 
@@ -1532,6 +1623,33 @@ Common properties shared by all block types
 - `can`: [BlockAbilities](#referenced-schemas-blockabilities) or Null — Abilities object (only present for full block responses, not in channel contents).
   Indicates what actions the current user can perform on this block.
 
+##### BatchResponse
+
+<a id="referenced-schemas-batchresponse"></a>
+
+Response returned when a batch is accepted for processing
+
+- `batch_id`: String (uuid) — Unique identifier for this batch (Example: `550e8400-e29b-41d4-a716-446655440000`)
+- `status`: String — Initial status of the batch
+- `total`: Integer — Total number of blocks queued for creation (Example: `10`)
+
+##### BatchStatus
+
+<a id="referenced-schemas-batchstatus"></a>
+
+Current status of a batch processing job
+
+- `batch_id`: String (uuid) — Unique identifier for this batch
+- `status`: String — Current processing status
+- `total`: Integer — Total number of blocks in the batch
+- `successful_count`: Integer — Number of blocks created so far
+- `failed_count`: Integer — Number of blocks that failed
+- `successful`: List of Object — Successfully created blocks
+- `failed`: List of Object — Blocks that failed to create
+- `created_at`: String (date-time) — When the batch was submitted
+- `completed_at`: String (date-time) — When the batch finished processing (present when completed or failed)
+- `error`: String — Top-level error message if the entire batch failed
+
 ##### Block
 
 <a id="referenced-schemas-block"></a>
@@ -1542,7 +1660,7 @@ fields are available.
 
 - [TextBlock](#referenced-schemas-textblock) or [ImageBlock](#referenced-schemas-imageblock) or [LinkBlock](#referenced-schemas-linkblock) or [AttachmentBlock](#referenced-schemas-attachmentblock) or [EmbedBlock](#referenced-schemas-embedblock) or [PendingBlock](#referenced-schemas-pendingblock)
 
-**Used in:** [2.1.1 Response 201 (createBlock)](#2-1-1-block) or [2.3.1 Response 200 (getBlock)](#2-3-1-block) or [2.4.1 Response 200 (updateBlock)](#2-4-1-block)
+**Used in:** [2.1.1 Response 201 (createBlock)](#2-1-1-block) or [2.4.1 Response 200 (getBlock)](#2-4-1-block) or [2.5.1 Response 200 (updateBlock)](#2-5-1-block)
 
 ##### BlockAbilities
 
@@ -1656,22 +1774,6 @@ Visibility of a block.
   - `private`
   - `orphan`
 
-##### BulkBlockResponse
-
-<a id="referenced-schemas-bulkblockresponse"></a>
-
-Response from bulk block creation
-
-- `data`: Object
-  - `successful`: List of Object (block: [Block](#referenced-schemas-block)) — Blocks that were created successfully
-  - `failed`: List of Object — Blocks that failed to create
-- `meta`: Object
-  - `total`: Integer — Total number of blocks in the request
-  - `successful_count`: Integer — Number of blocks created successfully
-  - `failed_count`: Integer — Number of blocks that failed to create
-
-**Used in:** [2.2.1 Response 201 (bulkCreateBlocks)](#2-2-1-bulkblockresponse) or [2.2.2 Response 207 (bulkCreateBlocks)](#2-2-2-bulkblockresponse)
-
 ##### Channel
 
 <a id="referenced-schemas-channel"></a>
@@ -1762,7 +1864,7 @@ Paginated list of channels with total count
 
 - [ChannelList](#referenced-schemas-channellist) and [PaginatedResponse](#referenced-schemas-paginatedresponse)
 
-**Used in:** [2.5.3 Response 200 (getBlockConnections)](#2-5-3-channellistresponse) or [3.6.2 Response 200 (getChannelConnections)](#3-6-2-channellistresponse)
+**Used in:** [2.6.3 Response 200 (getBlockConnections)](#2-6-3-channellistresponse) or [3.6.2 Response 200 (getChannelConnections)](#3-6-2-channellistresponse)
 
 ##### ChannelOwner
 
@@ -1842,7 +1944,7 @@ Paginated list of connectable content (blocks and channels)
 
 - [ConnectableList](#referenced-schemas-connectablelist) and [PaginatedResponse](#referenced-schemas-paginatedresponse)
 
-**Used in:** [3.5.2 Response 200 (getChannelContents)](#3-5-2-connectablelistresponse) or [6.2.3 Response 200 (getGroupContents)](#6-2-3-connectablelistresponse) or [9.3.3 Response 200 (getUserContents)](#9-3-3-connectablelistresponse)
+**Used in:** [3.5.2 Response 200 (getChannelContents)](#3-5-2-connectablelistresponse) or [6.2.3 Response 200 (getGroupContents)](#6-2-3-connectablelistresponse) or [10.3.3 Response 200 (getUserContents)](#10-3-3-connectablelistresponse)
 
 ##### ConnectableType
 
@@ -1900,7 +2002,7 @@ Sort order for relationship lists.
   - `created_at_desc`
   - `created_at_asc`
 
-**Used in:** [2.5.1 Parameter: sort (query) (getBlockConnections)](#2-5-1-connectionsort) or [2.6.1 Parameter: sort (query) (getBlockComments)](#2-6-1-connectionsort) or [3.6.1 Parameter: sort (query) (getChannelConnections)](#3-6-1-connectionsort) or [3.7.1 Parameter: sort (query) (getChannelFollowers)](#3-7-1-connectionsort) or [6.3.1 Parameter: sort (query) (getGroupFollowers)](#6-3-1-connectionsort) or [9.4.1 Parameter: sort (query) (getUserFollowers)](#9-4-1-connectionsort) or [9.5.1 Parameter: sort (query) (getUserFollowing)](#9-5-1-connectionsort)
+**Used in:** [2.6.1 Parameter: sort (query) (getBlockConnections)](#2-6-1-connectionsort) or [2.7.1 Parameter: sort (query) (getBlockComments)](#2-7-1-connectionsort) or [3.6.1 Parameter: sort (query) (getChannelConnections)](#3-6-1-connectionsort) or [3.7.1 Parameter: sort (query) (getChannelFollowers)](#3-7-1-connectionsort) or [6.3.1 Parameter: sort (query) (getGroupFollowers)](#6-3-1-connectionsort) or [10.4.1 Parameter: sort (query) (getUserFollowers)](#10-4-1-connectionsort) or [10.5.1 Parameter: sort (query) (getUserFollowing)](#10-5-1-connectionsort)
 
 ##### ContentSort
 
@@ -1917,7 +2019,7 @@ Sort order for user or group content.
   - `updated_at_asc`
   - `updated_at_desc`
 
-**Used in:** [6.2.1 Parameter: sort (query) (getGroupContents)](#6-2-1-contentsort) or [9.3.1 Parameter: sort (query) (getUserContents)](#9-3-1-contentsort)
+**Used in:** [6.2.1 Parameter: sort (query) (getGroupContents)](#6-2-1-contentsort) or [10.3.1 Parameter: sort (query) (getUserContents)](#10-3-1-contentsort)
 
 ##### ContentTypeFilter
 
@@ -1940,7 +2042,7 @@ Filter by content type.
   - `Channel`
   - `Block`
 
-**Used in:** [6.2.2 Parameter: type (query) (getGroupContents)](#6-2-2-contenttypefilter) or [9.3.2 Parameter: type (query) (getUserContents)](#9-3-2-contenttypefilter)
+**Used in:** [6.2.2 Parameter: type (query) (getGroupContents)](#6-2-2-contenttypefilter) or [10.3.2 Parameter: type (query) (getUserContents)](#10-3-2-contenttypefilter)
 
 ##### EmbedBlock
 
@@ -2000,7 +2102,7 @@ Embedded user representation (used when user is nested in other resources)
 - `details`: Object — Additional error details
   - `message`: String — Detailed error message (Example: `The resource you are looking for does not exist.`)
 
-**Used in:** [2.1.2 Response 403 (createBlock)](#2-1-2-error) or [2.2.3 Response 403 (bulkCreateBlocks)](#2-2-3-error) or [7.1.4 Response 403 (search)](#7-1-4-error)
+**Used in:** [2.1.2 Response 403 (createBlock)](#2-1-2-error) or [2.2.2 Response 403 (batchCreateBlocks)](#2-2-2-error) or [7.1.4 Response 403 (search)](#7-1-4-error)
 
 ##### EverythingList
 
@@ -2266,6 +2368,28 @@ Health check response
 
 - `status`: String (Example: `ok`)
 
+##### PresignResponse
+
+<a id="referenced-schemas-presignresponse"></a>
+
+Response containing presigned S3 upload URLs
+
+- `files`: List of [PresignedFile](#referenced-schemas-presignedfile) — Presigned URLs for each requested file
+- `expires_in`: Integer — Seconds until the presigned URLs expire (Example: `3600`)
+
+##### PresignedFile
+
+<a id="referenced-schemas-presignedfile"></a>
+
+A presigned S3 upload URL for a single file
+
+- `upload_url`: String (uri) — Presigned S3 PUT URL. Upload your file by sending a PUT request
+  to this URL with the file bytes as the body and the `Content-Type`
+  header matching the content_type you specified.
+  (Example: `https://s3.amazonaws.com/arena_images-temp/uploads/550e8400-e29b-41d4-a716-446655440000/photo.jpg?X-Amz-...`)
+- `key`: String — The S3 object key where the file will be stored (Example: `uploads/550e8400-e29b-41d4-a716-446655440000/photo.jpg`)
+- `content_type`: String — The content type that was validated and should be used in the PUT request (Example: `image/jpeg`)
+
 ##### RateLimitError
 
 <a id="referenced-schemas-ratelimiterror"></a>
@@ -2374,7 +2498,7 @@ Full user representation
   - `counts`: [UserCounts](#referenced-schemas-usercounts)
   - `_links`: [Links](#referenced-schemas-links)
 
-**Used in:** [9.1.1 Response 200 (getCurrentUser)](#9-1-1-user) or [9.2.1 Response 200 (getUser)](#9-2-1-user)
+**Used in:** [10.1.1 Response 200 (getCurrentUser)](#10-1-1-user) or [10.2.1 Response 200 (getUser)](#10-2-1-user)
 
 ##### UserCounts
 
@@ -2402,7 +2526,7 @@ Paginated list of users with total count
 
 - [UserList](#referenced-schemas-userlist) and [PaginatedResponse](#referenced-schemas-paginatedresponse)
 
-**Used in:** [3.7.2 Response 200 (getChannelFollowers)](#3-7-2-userlistresponse) or [6.3.2 Response 200 (getGroupFollowers)](#6-3-2-userlistresponse) or [9.4.2 Response 200 (getUserFollowers)](#9-4-2-userlistresponse)
+**Used in:** [3.7.2 Response 200 (getChannelFollowers)](#3-7-2-userlistresponse) or [6.3.2 Response 200 (getGroupFollowers)](#6-3-2-userlistresponse) or [10.4.2 Response 200 (getUserFollowers)](#10-4-2-userlistresponse)
 
 ##### UserTier
 
