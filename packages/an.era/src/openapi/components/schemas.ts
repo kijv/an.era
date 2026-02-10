@@ -343,6 +343,12 @@ export const ChannelIdsSchema = v.pipe(
   v.maxLength(20),
 );
 type ChannelIds = (number | string)[];
+export const PresignedFileSchema = v.object({
+  upload_url: v.pipe(v.string(), v.url()),
+  key: v.string(),
+  content_type: v.string(),
+});
+type PresignedFile = { upload_url: string; key: string; content_type: string };
 export const BlockInputSchema = v.object({
   value: v.string(),
   title: v.optional(v.string()),
@@ -358,6 +364,47 @@ type BlockInput = {
   original_source_url?: string;
   original_source_title?: string;
   alt_text?: string;
+};
+export const BatchResponseSchema = v.object({
+  batch_id: v.pipe(v.string(), v.uuid()),
+  status: v.literal('pending'),
+  total: v.pipe(v.number(), v.integer()),
+});
+type BatchResponse = { batch_id: string; status: 'pending'; total: number };
+export const BatchStatusSchema = v.object({
+  batch_id: v.pipe(v.string(), v.uuid()),
+  status: v.picklist(['pending', 'processing', 'completed', 'failed']),
+  total: v.pipe(v.number(), v.integer()),
+  successful_count: v.pipe(v.number(), v.integer()),
+  failed_count: v.pipe(v.number(), v.integer()),
+  successful: v.optional(
+    v.array(
+      v.object({
+        index: v.pipe(v.number(), v.integer()),
+        block_id: v.pipe(v.number(), v.integer()),
+      }),
+    ),
+  ),
+  failed: v.optional(
+    v.array(
+      v.object({ index: v.pipe(v.number(), v.integer()), error: v.string() }),
+    ),
+  ),
+  created_at: v.optional(v.pipe(v.string(), v.isoTimestamp())),
+  completed_at: v.optional(v.pipe(v.string(), v.isoTimestamp())),
+  error: v.optional(v.string()),
+});
+type BatchStatus = {
+  batch_id: string;
+  status: 'pending' | 'processing' | 'completed' | 'failed';
+  total: number;
+  successful_count: number;
+  failed_count: number;
+  successful?: { index: number; block_id: number }[];
+  failed?: { index: number; error: string }[];
+  created_at?: string;
+  completed_at?: string;
+  error?: string;
 };
 export const BlockAbilitiesSchema = v.object({
   manage: v.boolean(),
@@ -537,6 +584,11 @@ type RateLimitError = {
     headers_note?: string;
   };
 };
+export const PresignResponseSchema = v.object({
+  files: v.array(PresignedFileSchema),
+  expires_in: v.pipe(v.number(), v.integer()),
+});
+type PresignResponse = { files: PresignedFile[]; expires_in: number };
 export const BlockSourceSchema = v.object({
   url: v.pipe(v.string(), v.url()),
   title: v.optional(v.union([v.string(), v.null_()])),
@@ -867,28 +919,6 @@ export const EverythingListResponseSchema = v.intersect([
   PaginatedResponseSchema,
 ]);
 type EverythingListResponse = EverythingList & PaginatedResponse;
-export const BulkBlockResponseSchema = v.object({
-  data: v.object({
-    successful: v.array(
-      v.object({ index: v.pipe(v.number(), v.integer()), block: BlockSchema }),
-    ),
-    failed: v.array(
-      v.object({ index: v.pipe(v.number(), v.integer()), error: v.string() }),
-    ),
-  }),
-  meta: v.object({
-    total: v.pipe(v.number(), v.integer()),
-    successful_count: v.pipe(v.number(), v.integer()),
-    failed_count: v.pipe(v.number(), v.integer()),
-  }),
-});
-type BulkBlockResponse = {
-  data: {
-    successful: { index: number; block: Block }[];
-    failed: { index: number; error: string }[];
-  };
-  meta: { total: number; successful_count: number; failed_count: number };
-};
 export default {
   ErrorSchema,
   LinkSchema,
@@ -916,7 +946,10 @@ export default {
   ChannelVisibilitySchema,
   MovementSchema,
   ChannelIdsSchema,
+  PresignedFileSchema,
   BlockInputSchema,
+  BatchResponseSchema,
+  BatchStatusSchema,
   BlockAbilitiesSchema,
   BlockProviderSchema,
   ImageVersionSchema,
@@ -930,6 +963,7 @@ export default {
   EmbeddedConnectionSchema,
   ChannelOwnerSchema,
   RateLimitErrorSchema,
+  PresignResponseSchema,
   BlockSourceSchema,
   BlockImageSchema,
   PaginatedResponseSchema,
@@ -958,7 +992,6 @@ export default {
   BlockSchema,
   ConnectableListResponseSchema,
   EverythingListResponseSchema,
-  BulkBlockResponseSchema,
 };
 export type {
   Error,
@@ -987,7 +1020,10 @@ export type {
   ChannelVisibility,
   Movement,
   ChannelIds,
+  PresignedFile,
   BlockInput,
+  BatchResponse,
+  BatchStatus,
   BlockAbilities,
   BlockProvider,
   ImageVersion,
@@ -1001,6 +1037,7 @@ export type {
   EmbeddedConnection,
   ChannelOwner,
   RateLimitError,
+  PresignResponse,
   BlockSource,
   BlockImage,
   PaginatedResponse,
@@ -1029,5 +1066,4 @@ export type {
   Block,
   ConnectableListResponse,
   EverythingListResponse,
-  BulkBlockResponse,
 };
