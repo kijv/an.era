@@ -23,8 +23,14 @@ const minimalArgs: Record<string, unknown[]> = {
   getOpenapiSpec: [],
   getOpenapiSpecJson: [],
   getPing: [],
+  presignUpload: [
+    { files: [{ filename: 'test.txt', content_type: 'text/plain' }] },
+  ],
   createBlock: [{ value: 'test' }],
-  bulkCreateBlocks: [{ channel_ids: ['1'], blocks: [{ value: 'test' }] }],
+  batchCreateBlocks: [{ channel_ids: ['1'], blocks: [{ value: 'test' }] }],
+  getBatchStatus: [
+    { batch_id: '550e8400-e29b-41d4-a716-446655440000' },
+  ],
   getBlock: [{ id: 1 }],
   updateBlock: [{ id: 1 }, {}],
   getBlockConnections: [{ id: 1 }],
@@ -196,6 +202,22 @@ function getMockResponse(
       body: m.mockRateLimitError,
       contentType: 'application/json',
     },
+    'presignUpload 201 application/json': {
+      body: m.mockPresignResponse,
+      contentType: 'application/json',
+    },
+    'presignUpload 400 application/json': {
+      body: m.mockError,
+      contentType: 'application/json',
+    },
+    'presignUpload 401 application/json': {
+      body: m.mockError,
+      contentType: 'application/json',
+    },
+    'presignUpload 429 application/json': {
+      body: m.mockRateLimitError,
+      contentType: 'application/json',
+    },
     'createBlock 201 application/json': {
       body: m.mockTextBlock,
       contentType: 'application/json',
@@ -220,35 +242,47 @@ function getMockResponse(
       body: m.mockRateLimitError,
       contentType: 'application/json',
     },
-    'bulkCreateBlocks 201 application/json': {
-      body: m.mockBulkBlockResponse,
+    'batchCreateBlocks 202 application/json': {
+      body: m.mockBatchResponse,
       contentType: 'application/json',
     },
-    'bulkCreateBlocks 207 application/json': {
-      body: m.mockBulkBlockResponse,
-      contentType: 'application/json',
-    },
-    'bulkCreateBlocks 400 application/json': {
+    'batchCreateBlocks 400 application/json': {
       body: m.mockError,
       contentType: 'application/json',
     },
-    'bulkCreateBlocks 401 application/json': {
+    'batchCreateBlocks 401 application/json': {
       body: m.mockError,
       contentType: 'application/json',
     },
-    'bulkCreateBlocks 403 application/json': {
+    'batchCreateBlocks 403 application/json': {
       body: m.mockError,
       contentType: 'application/json',
     },
-    'bulkCreateBlocks 404 application/json': {
+    'batchCreateBlocks 404 application/json': {
       body: m.mockError,
       contentType: 'application/json',
     },
-    'bulkCreateBlocks 422 application/json': {
+    'batchCreateBlocks 422 application/json': {
       body: m.mockError,
       contentType: 'application/json',
     },
-    'bulkCreateBlocks 429 application/json': {
+    'batchCreateBlocks 429 application/json': {
+      body: m.mockRateLimitError,
+      contentType: 'application/json',
+    },
+    'getBatchStatus 200 application/json': {
+      body: m.mockBatchStatus,
+      contentType: 'application/json',
+    },
+    'getBatchStatus 401 application/json': {
+      body: m.mockError,
+      contentType: 'application/json',
+    },
+    'getBatchStatus 404 application/json': {
+      body: m.mockError,
+      contentType: 'application/json',
+    },
+    'getBatchStatus 429 application/json': {
       body: m.mockRateLimitError,
       contentType: 'application/json',
     },
@@ -828,17 +862,20 @@ describe('Mocked', () => {
               undefined,
             );
             const statusNum = Number(statusCode);
-            fetchSpy.mockResolvedValue(
-              createMockResponse(statusNum, body, contentType),
+            fetchSpy.mockImplementation(() =>
+              Promise.resolve(
+                createMockResponse(statusNum, body, contentType),
+              ),
             );
             const api = createArena({ plain: true, ignoreValidation: true });
             const fn = api[operationId as keyof typeof api] as (
               ...args: unknown[]
             ) => Promise<unknown>;
             const args = minimalArgs[operationId] ?? [];
-            const result = await fn(...args);
-            expect(result).toMatchSnapshot();
-          });
+              const result = await fn(...args);
+              expect(result).toBeDefined();
+              expect(result).toMatchSnapshot();
+            });
         } else {
           for (const [contentType] of mediaEntries) {
             const scenarioName =
@@ -853,8 +890,8 @@ describe('Mocked', () => {
                 contentType,
               );
               const statusNum = Number(statusCode);
-              fetchSpy.mockResolvedValue(
-                createMockResponse(statusNum, body, ct),
+              fetchSpy.mockImplementation(() =>
+                Promise.resolve(createMockResponse(statusNum, body, ct)),
               );
               const api = createArena({ plain: true, ignoreValidation: true });
               const fn = api[operationId as keyof typeof api] as (
@@ -862,6 +899,7 @@ describe('Mocked', () => {
               ) => Promise<unknown>;
               const args = minimalArgs[operationId] ?? [];
               const result = await fn(...args);
+              expect(result).toBeDefined();
               expect(result).toMatchSnapshot();
             });
           }

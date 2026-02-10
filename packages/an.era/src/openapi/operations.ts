@@ -120,6 +120,40 @@ export const operations = {
       },
     },
   },
+  presignUpload: {
+    path: '/v3/uploads/presign',
+    method: 'post',
+    tags: ['Uploads'],
+    parameters: {
+      body: v.object({
+        files: v.pipe(
+          v.array(v.object({ filename: v.string(), content_type: v.string() })),
+          v.minLength(1),
+          v.maxLength(50),
+        ),
+      }) as unknown as {
+        __TYPE__: { files: { filename: string; content_type: string }[] };
+      },
+    },
+    response: {
+      '201': {
+        'application/json': s.PresignResponseSchema as unknown as {
+          __TYPE__: s.PresignResponse;
+        },
+      },
+      '400': {
+        'application/json': s.ErrorSchema as unknown as { __TYPE__: s.Error },
+      },
+      '401': {
+        'application/json': s.ErrorSchema as unknown as { __TYPE__: s.Error },
+      },
+      '429': {
+        'application/json': s.RateLimitErrorSchema as unknown as {
+          __TYPE__: s.RateLimitError;
+        },
+      },
+    },
+  },
   createBlock: {
     path: '/v3/blocks',
     method: 'post',
@@ -166,8 +200,8 @@ export const operations = {
       },
     },
   },
-  bulkCreateBlocks: {
-    path: '/v3/blocks/bulk',
+  batchCreateBlocks: {
+    path: '/v3/blocks/batch',
     method: 'post',
     tags: ['Blocks'],
     parameters: {
@@ -187,14 +221,9 @@ export const operations = {
       },
     },
     response: {
-      '201': {
-        'application/json': s.BulkBlockResponseSchema as unknown as {
-          __TYPE__: s.BulkBlockResponse;
-        },
-      },
-      '207': {
-        'application/json': s.BulkBlockResponseSchema as unknown as {
-          __TYPE__: s.BulkBlockResponse;
+      '202': {
+        'application/json': s.BatchResponseSchema as unknown as {
+          __TYPE__: s.BatchResponse;
         },
       },
       '400': {
@@ -210,6 +239,34 @@ export const operations = {
         'application/json': s.ErrorSchema as unknown as { __TYPE__: s.Error },
       },
       '422': {
+        'application/json': s.ErrorSchema as unknown as { __TYPE__: s.Error },
+      },
+      '429': {
+        'application/json': s.RateLimitErrorSchema as unknown as {
+          __TYPE__: s.RateLimitError;
+        },
+      },
+    },
+  },
+  getBatchStatus: {
+    path: '/v3/blocks/batch/{batch_id}',
+    method: 'get',
+    tags: ['Blocks'],
+    parameters: {
+      path: v.object({ batch_id: v.pipe(v.string(), v.uuid()) }) as unknown as {
+        __TYPE__: { batch_id: string };
+      },
+    },
+    response: {
+      '200': {
+        'application/json': s.BatchStatusSchema as unknown as {
+          __TYPE__: s.BatchStatus;
+        },
+      },
+      '401': {
+        'application/json': s.ErrorSchema as unknown as { __TYPE__: s.Error },
+      },
+      '404': {
         'application/json': s.ErrorSchema as unknown as { __TYPE__: s.Error },
       },
       '429': {
