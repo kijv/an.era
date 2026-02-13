@@ -266,6 +266,9 @@ export const operations = {
       '401': {
         'application/json': s.ErrorSchema as unknown as { __TYPE__: s.Error },
       },
+      '403': {
+        'application/json': s.ErrorSchema as unknown as { __TYPE__: s.Error },
+      },
       '404': {
         'application/json': s.ErrorSchema as unknown as { __TYPE__: s.Error },
       },
