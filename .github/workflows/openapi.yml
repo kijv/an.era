@@ -45,6 +45,8 @@ jobs:
           GH_TOKEN: ${{ secrets.PERSONAL_TOKEN }}
         run: |
           BRANCH="openapi-sync-$(date +%Y%m%d-%H%M%S)"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git config --global user.name "github-actions[bot]"
           git checkout -b "$BRANCH"
           git add packages/an.era/src/openapi/
           git commit -m "sync openapi"
