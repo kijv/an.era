@@ -5,6 +5,7 @@
     "an.era": "0.3.0-beta.0"
   },
   "changesets": [
+    "blue-bats-invite",
     "legal-rats-fly",
     "nine-baths-cut",
     "two-apricots-know",
