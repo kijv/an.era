@@ -5,6 +5,8 @@ node_modules
 out
 dist
 *.tgz
+target
+.turbo
 
 # code coverage
 coverage
@@ -35,6 +37,3 @@ report.[0-9]_.[0-9]_.[0-9]_.[0-9]_.json
 
 # OpenAPI
 openapi.json
-
-# Turborepo
-.turbo

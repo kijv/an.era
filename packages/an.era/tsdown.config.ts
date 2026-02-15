@@ -3,39 +3,31 @@ import { type UserConfig, defineConfig } from 'tsdown';
 const baseConfig: UserConfig = {
   minify: true,
   dts: {
-    sideEffects: true,
+    sideEffects: false,
+    emitJs: false,
+    tsgo: true,
   },
   inputOptions: {
     experimental: {
-      // nativeMagicString: true,
+      nativeMagicString: true,
       lazyBarrel: true,
+      chunkOptimization: false,
     },
-    // treeshake: {
-    //   moduleSideEffects: [{ test: /\/.*\.ts$/, sideEffects: false }],
-    // },
+    treeshake: {
+      moduleSideEffects: [{ test: /\/.*\.ts$/, sideEffects: false }],
+    },
   },
   outputOptions: {
     codeSplitting: {
       groups: [
         {
           name: 'api',
-          test: /\/api\/operations\/.*\.ts$/,
-        },
-        {
-          name: 'operations',
-          test: /\/openapi\/operation\.ts$/,
+          test: /\/api\/index\.ts$/,
         },
       ],
     },
   },
-  inlineOnly: [
-    'fast-content-type-parse',
-    'url-template',
-    'stable-hash',
-    '@types/json-schema',
-    'openapi-types',
-    'oas',
-  ],
+  inlineOnly: ['fast-content-type-parse', 'url-template', 'stable-hash'],
   external: ['valibot'],
   publint: true,
 };

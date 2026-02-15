@@ -16,7 +16,7 @@ export const createFetch =
         {},
         baseInit,
         init,
-        init?.headers && baseInit?.headers
+        init?.headers || baseInit?.headers
           ? {
               headers: mergeHeaders(
                 baseInit?.headers ?? {},
