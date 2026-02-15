@@ -258,10 +258,11 @@ created.
 
 - Maximum 50 blocks per request
 - Maximum 20 channels per request
+- All channels must be **private**
 
 **Batch results are available for 24 hours after submission.**
 
-**Authentication required.**
+**⚠️ Premium Only**: This endpoint requires a Premium subscription.
 
 ###### Example
 
@@ -287,7 +288,7 @@ arena.batchCreateBlocks({ channel_ids, blocks });
 
 <a id="2-2-2-error"></a>
 
-###### 2.2.2 `403`: [Error](#referenced-schemas-error) — Cannot add to one or more channels
+###### 2.2.2 `403`: [Error](#referenced-schemas-error) — Forbidden — requires Premium subscription, or cannot add to one or more channels
 
 </details>
 
@@ -298,7 +299,7 @@ Poll this endpoint to track progress and retrieve results.
 
 Batch results are available for 24 hours after submission.
 
-**Authentication required.**
+**⚠️ Premium Only**: This endpoint requires a Premium subscription.
 
 ###### Example
 
