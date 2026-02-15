@@ -4,7 +4,7 @@ an.era is a API wrapper for the Are.na API
 
 ## API Instance
 
-The API instance is, by default, grouped by their tags (e.g., `channels`, `blocks`, `users`, etc.) and within each group, some operations are possibly grouped if they share similar path parameters (e.g., `blocks.block({ id })`).
+The API instance is, by default, grouped by their tags (e.g., `channels`, `blocks`, `users`, etc.) and, within each group, some operations are possibly grouped if they share similar path parameters (e.g., `blocks.block({ id })`). Enabling the `plain` option will return an ungrouped API instance with each operation named as specified by the OpenAPI specification.
 
 #### Example
 
