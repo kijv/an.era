@@ -1,7 +1,6 @@
 import * as v from 'valibot';
 import {
   ErrorSchema,
-  RateLimitErrorSchema,
   LinkSchema,
   MarkdownContentSchema,
   EmbeddedUserSchema,
@@ -9,13 +8,28 @@ import {
   EmbeddedGroupSchema,
   UserCountsSchema,
   GroupCountsSchema,
+  UserTierSchema,
+  BlockStateSchema,
+  BlockVisibilitySchema,
+  ChannelStateSchema,
+  ConnectionFilterSchema,
+  FollowableTypeSchema,
+  ConnectableTypeSchema,
   ContentTypeFilterSchema,
   SearchTypeFilterSchema,
   FileExtensionSchema,
   ConnectionSortSchema,
   ChannelContentSortSchema,
   ContentSortSchema,
+  SearchScopeSchema,
+  SearchSortSchema,
   ChannelVisibilitySchema,
+  MovementSchema,
+  ChannelIdsSchema,
+  PresignedFileSchema,
+  BlockInputSchema,
+  BatchResponseSchema,
+  BatchStatusSchema,
   BlockAbilitiesSchema,
   BlockProviderSchema,
   ImageVersionSchema,
@@ -28,6 +42,8 @@ import {
   LinksSchema,
   EmbeddedConnectionSchema,
   ChannelOwnerSchema,
+  RateLimitErrorSchema,
+  PresignResponseSchema,
   BlockSourceSchema,
   BlockImageSchema,
   PaginatedResponseSchema,
@@ -62,10 +78,6 @@ import type * as Arena from '.';
 export const isError = (input: unknown): input is Arena.Error =>
   v.is(ErrorSchema, input);
 
-export const isRateLimitError = (
-  input: unknown,
-): input is Arena.RateLimitError => v.is(RateLimitErrorSchema, input);
-
 export const isLink = (input: unknown): input is Arena.Link =>
   v.is(LinkSchema, input);
 
@@ -89,6 +101,31 @@ export const isUserCounts = (input: unknown): input is Arena.UserCounts =>
 export const isGroupCounts = (input: unknown): input is Arena.GroupCounts =>
   v.is(GroupCountsSchema, input);
 
+export const isUserTier = (input: unknown): input is Arena.UserTier =>
+  v.is(UserTierSchema, input);
+
+export const isBlockState = (input: unknown): input is Arena.BlockState =>
+  v.is(BlockStateSchema, input);
+
+export const isBlockVisibility = (
+  input: unknown,
+): input is Arena.BlockVisibility => v.is(BlockVisibilitySchema, input);
+
+export const isChannelState = (input: unknown): input is Arena.ChannelState =>
+  v.is(ChannelStateSchema, input);
+
+export const isConnectionFilter = (
+  input: unknown,
+): input is Arena.ConnectionFilter => v.is(ConnectionFilterSchema, input);
+
+export const isFollowableType = (
+  input: unknown,
+): input is Arena.FollowableType => v.is(FollowableTypeSchema, input);
+
+export const isConnectableType = (
+  input: unknown,
+): input is Arena.ConnectableType => v.is(ConnectableTypeSchema, input);
+
 export const isContentTypeFilter = (
   input: unknown,
 ): input is Arena.ContentTypeFilter => v.is(ContentTypeFilterSchema, input);
@@ -110,6 +147,30 @@ export const isChannelContentSort = (
 
 export const isContentSort = (input: unknown): input is Arena.ContentSort =>
   v.is(ContentSortSchema, input);
+
+export const isSearchScope = (input: unknown): input is Arena.SearchScope =>
+  v.is(SearchScopeSchema, input);
+
+export const isSearchSort = (input: unknown): input is Arena.SearchSort =>
+  v.is(SearchSortSchema, input);
+
+export const isMovement = (input: unknown): input is Arena.Movement =>
+  v.is(MovementSchema, input);
+
+export const isChannelIds = (input: unknown): input is Arena.ChannelIds =>
+  v.is(ChannelIdsSchema, input);
+
+export const isPresignedFile = (input: unknown): input is Arena.PresignedFile =>
+  v.is(PresignedFileSchema, input);
+
+export const isBlockInput = (input: unknown): input is Arena.BlockInput =>
+  v.is(BlockInputSchema, input);
+
+export const isBatchResponse = (input: unknown): input is Arena.BatchResponse =>
+  v.is(BatchResponseSchema, input);
+
+export const isBatchStatus = (input: unknown): input is Arena.BatchStatus =>
+  v.is(BatchStatusSchema, input);
 
 export const isChannelVisibility = (
   input: unknown,
@@ -155,6 +216,14 @@ export const isEmbeddedConnection = (
 
 export const isChannelOwner = (input: unknown): input is Arena.ChannelOwner =>
   v.is(ChannelOwnerSchema, input);
+
+export const isRateLimitError = (
+  input: unknown,
+): input is Arena.RateLimitError => v.is(RateLimitErrorSchema, input);
+
+export const isPresignResponse = (
+  input: unknown,
+): input is Arena.PresignResponse => v.is(PresignResponseSchema, input);
 
 export const isBlockSource = (input: unknown): input is Arena.BlockSource =>
   v.is(BlockSourceSchema, input);
@@ -216,6 +285,23 @@ export const isEmbedBlock = (input: unknown): input is Arena.EmbedBlock =>
 
 export const isPendingBlock = (input: unknown): input is Arena.PendingBlock =>
   v.is(PendingBlockSchema, input);
+
+export const isUserListResponse = (
+  input: unknown,
+): input is Arena.UserListResponse => v.is(UserListResponseSchema, input);
+
+export const isCommentListResponse = (
+  input: unknown,
+): input is Arena.CommentListResponse => v.is(CommentListResponseSchema, input);
+
+export const isChannelListResponse = (
+  input: unknown,
+): input is Arena.ChannelListResponse => v.is(ChannelListResponseSchema, input);
+
+export const isFollowableListResponse = (
+  input: unknown,
+): input is Arena.FollowableListResponse =>
+  v.is(FollowableListResponseSchema, input);
 
 export const isConnectableList = (
   input: unknown,

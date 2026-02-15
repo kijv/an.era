@@ -1,8 +1,7 @@
 export { createApi as createArena } from './api';
-
+export * from './schema';
 export type {
   Error,
-  RateLimitError,
   Link,
   MarkdownContent,
   EmbeddedUser,
@@ -10,13 +9,28 @@ export type {
   EmbeddedGroup,
   UserCounts,
   GroupCounts,
+  UserTier,
+  BlockState,
+  BlockVisibility,
+  ChannelState,
+  ConnectionFilter,
+  FollowableType,
+  ConnectableType,
   ContentTypeFilter,
   SearchTypeFilter,
   FileExtension,
   ConnectionSort,
   ChannelContentSort,
   ContentSort,
+  SearchScope,
+  SearchSort,
   ChannelVisibility,
+  Movement,
+  ChannelIds,
+  PresignedFile,
+  BlockInput,
+  BatchResponse,
+  BatchStatus,
   BlockAbilities,
   BlockProvider,
   ImageVersion,
@@ -29,6 +43,8 @@ export type {
   Links,
   EmbeddedConnection,
   ChannelOwner,
+  RateLimitError,
+  PresignResponse,
   BlockSource,
   BlockImage,
   PaginatedResponse,
@@ -58,4 +74,3 @@ export type {
   ConnectableListResponse,
   EverythingListResponse,
 } from '@/openapi/components/schemas';
-export * from './schema';

@@ -415,7 +415,7 @@ type UngroupedOperations<O extends Record<string, Operation>> = {
 
 /** Top-level: groups by tag; within each tag, by term (similar name) then ungrouped */
 export type TransformOperations<O extends Record<string, Operation>> = {
-  [T in AllFirstTags<O> as Lowercase<T> | T]: TagGroup<O, T>;
+  [T in AllFirstTags<O> as Lowercase<T>]: TagGroup<O, T>;
 };
 
 export const splitCamelCase = (str: string): string[] => {

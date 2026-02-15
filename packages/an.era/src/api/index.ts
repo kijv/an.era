@@ -135,15 +135,12 @@ export const createApi = <
   baseUrl = 'https://api.are.na',
   requestInit = {},
   accessToken,
-  operations,
+  operations = defaultOperations as unknown as TOperations,
   ignoreValidation = false,
   plain,
 }: ApiOptions<TOperations, TPlain> = {}): TPlain extends true
   ? { [K in keyof TOperations]: OperationFunction<TOperations[K]> }
   : CreateApiReturn<TOperations> => {
-  const resolvedOperations: TOperations = (operations ??
-    defaultOperations) as TOperations;
-
   type Return = TPlain extends true
     ? {
         [K in keyof TOperations]: OperationFunction<TOperations[K]>;
@@ -162,7 +159,7 @@ export const createApi = <
   const expandTemplatePath = createExpandTemplatePath(pathnameCache);
 
   const routedOperations = routeOperations(
-    resolvedOperations,
+    operations,
     (data, params) => {
       const pathname = expandTemplatePath(
         data.path,
@@ -254,7 +251,7 @@ export const createApi = <
       [K in keyof TOperations]: OperationFunction<TOperations[K]>;
     } as Return;
 
-  const transformedOperations = transformOperations(resolvedOperations);
+  const transformedOperations = transformOperations(operations);
 
   type TransformedEntry =
     | GroupedOperation<
