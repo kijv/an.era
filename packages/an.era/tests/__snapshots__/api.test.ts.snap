@@ -521,6 +521,13 @@ exports[`Mocked > getBatchStatus > 401 1`] = `
 }
 `;
 
+exports[`Mocked > getBatchStatus > 403 1`] = `
+{
+  "code": 400,
+  "error": "mock_error",
+}
+`;
+
 exports[`Mocked > getBatchStatus > 404 1`] = `
 {
   "code": 400,

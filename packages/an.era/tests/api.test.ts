@@ -276,6 +276,10 @@ function getMockResponse(
       body: m.mockError,
       contentType: 'application/json',
     },
+    'getBatchStatus 403 application/json': {
+      body: m.mockError,
+      contentType: 'application/json',
+    },
     'getBatchStatus 404 application/json': {
       body: m.mockError,
       contentType: 'application/json',
@@ -863,13 +867,13 @@ describe('Mocked', () => {
             fetchSpy.mockImplementation(() =>
               Promise.resolve(createMockResponse(statusNum, body, contentType)),
             );
-            const api = createArena({ plain: true, ignoreValidation: true });
+            const api = createArena({ plain: true });
             const fn = api[operationId as keyof typeof api] as (
               ...args: unknown[]
             ) => Promise<unknown>;
             const args = minimalArgs[operationId] ?? [];
+            expect(async () => fn(...args)).not.toThrow();
             const result = await fn(...args);
-            expect(result).toBeDefined();
             expect(result).toMatchSnapshot();
           });
         } else {
@@ -889,13 +893,14 @@ describe('Mocked', () => {
               fetchSpy.mockImplementation(() =>
                 Promise.resolve(createMockResponse(statusNum, body, ct)),
               );
-              const api = createArena({ plain: true, ignoreValidation: true });
+              const api = createArena({ plain: true });
               const fn = api[operationId as keyof typeof api] as (
                 ...args: unknown[]
               ) => Promise<unknown>;
               const args = minimalArgs[operationId] ?? [];
+              expect(async () => fn(...args)).not.toThrow();
               const result = await fn(...args);
-              expect(result).toBeDefined();
+              console.log(result);
               expect(result).toMatchSnapshot();
             });
           }
