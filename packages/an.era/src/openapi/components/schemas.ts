@@ -536,6 +536,11 @@ export const ChannelOwnerSchema = v.union([
   EmbeddedGroupSchema,
 ]);
 type ChannelOwner = EmbeddedUser | EmbeddedGroup;
+export const ChannelCollaboratorSchema = v.union([
+  EmbeddedUserSchema,
+  EmbeddedGroupSchema,
+]);
+type ChannelCollaborator = EmbeddedUser | EmbeddedGroup;
 export const RateLimitErrorSchema = v.object({
   error: v.object({
     type: v.string(),
@@ -707,6 +712,7 @@ export const ChannelSchema = v.object({
   updated_at: v.pipe(v.string(), v.isoTimestamp()),
   owner: ChannelOwnerSchema,
   counts: ChannelCountsSchema,
+  collaborators: v.optional(v.array(ChannelCollaboratorSchema)),
   _links: LinksSchema,
   connection: v.optional(v.union([EmbeddedConnectionSchema, v.null_()])),
   can: v.optional(v.union([ChannelAbilitiesSchema, v.null_()])),
@@ -723,6 +729,7 @@ type Channel = {
   updated_at: string;
   owner: ChannelOwner;
   counts: ChannelCounts;
+  collaborators?: ChannelCollaborator[];
   _links: Links;
   connection?: EmbeddedConnection | null;
   can?: ChannelAbilities | null;
@@ -962,6 +969,7 @@ export default {
   LinksSchema,
   EmbeddedConnectionSchema,
   ChannelOwnerSchema,
+  ChannelCollaboratorSchema,
   RateLimitErrorSchema,
   PresignResponseSchema,
   BlockSourceSchema,
@@ -1036,6 +1044,7 @@ export type {
   Links,
   EmbeddedConnection,
   ChannelOwner,
+  ChannelCollaborator,
   RateLimitError,
   PresignResponse,
   BlockSource,

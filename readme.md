@@ -103,6 +103,7 @@ Find package specific information [here](https://github.com/kijv/an.era/tree/mai
   - [BlockVisibility](#referenced-schemas-blockvisibility)
   - [Channel](#referenced-schemas-channel)
   - [ChannelAbilities](#referenced-schemas-channelabilities)
+  - [ChannelCollaborator](#referenced-schemas-channelcollaborator)
   - [ChannelContentSort](#referenced-schemas-channelcontentsort)
   - [ChannelCounts](#referenced-schemas-channelcounts)
   - [ChannelIds](#referenced-schemas-channelids)
@@ -1798,6 +1799,9 @@ Visibility of a block.
 - `updated_at`: String (date-time) — When the channel was last updated (Example: `2023-01-15T14:45:00Z`)
 - `owner`: [ChannelOwner](#referenced-schemas-channelowner)
 - `counts`: [ChannelCounts](#referenced-schemas-channelcounts)
+- `collaborators`: List of [ChannelCollaborator](#referenced-schemas-channelcollaborator) — Collaborators on this channel (users and groups).
+  Only present when channel is returned as a full resource, not when embedded.
+
 - `_links`: [Links](#referenced-schemas-links) and Object
 - `connection`: [EmbeddedConnection](#referenced-schemas-embeddedconnection) or Null — Connection context (only present when channel is returned as part of another channel's contents).
   Contains position, pinned status, and information about who connected the channel.
@@ -1817,6 +1821,14 @@ Actions the current user can perform on the channel
 - `update`: Boolean — Whether the user can update this channel (Example: `false`)
 - `destroy`: Boolean — Whether the user can delete this channel (Example: `false`)
 - `manage_collaborators`: Boolean — Whether the user can add/remove collaborators (Example: `false`)
+
+##### ChannelCollaborator
+
+<a id="referenced-schemas-channelcollaborator"></a>
+
+Channel collaborator (User or Group)
+
+- [EmbeddedUser](#referenced-schemas-embeddeduser) or [EmbeddedGroup](#referenced-schemas-embeddedgroup)
 
 ##### ChannelContentSort
 

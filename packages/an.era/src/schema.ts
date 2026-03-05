@@ -72,6 +72,7 @@ import {
   BlockSchema,
   ConnectableListResponseSchema,
   EverythingListResponseSchema,
+  ChannelCollaboratorSchema,
 } from '@/openapi/components/schemas';
 import type * as Arena from '.';
 
@@ -216,6 +217,10 @@ export const isEmbeddedConnection = (
 
 export const isChannelOwner = (input: unknown): input is Arena.ChannelOwner =>
   v.is(ChannelOwnerSchema, input);
+
+export const isChannelCollaborator = (
+  input: unknown,
+): input is Arena.ChannelCollaborator => v.is(ChannelCollaboratorSchema, input);
 
 export const isRateLimitError = (
   input: unknown,
