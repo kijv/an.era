@@ -1,5 +1,11 @@
 # an.era
 
+## 0.3.1
+
+### Patch Changes
+
+- [`e3844e8`](https://github.com/kijv/an.era/commit/e3844e8ad97cf47aed98215f2d71395e1a5fadb9) Thanks [@kijv](https://github.com/kijv)! - fix validation bug
+
 ## 0.3.0
 
 ### Patch Changes
