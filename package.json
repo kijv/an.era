@@ -2,7 +2,8 @@
   "name": "@repo/an.era",
   "workspaces": [
     "scripts",
-    "packages/*"
+    "packages/*",
+    "!packages/aredotna"
   ],
   "scripts": {
     "build": "turbo run build",
