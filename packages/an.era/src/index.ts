@@ -43,6 +43,7 @@ export type {
   Links,
   EmbeddedConnection,
   ChannelOwner,
+  ChannelCollaborator,
   RateLimitError,
   PresignResponse,
   BlockSource,

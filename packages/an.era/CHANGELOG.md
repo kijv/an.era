@@ -1,0 +1,19 @@
+# an.era
+
+## 0.3.0
+
+### Patch Changes
+
+- [`29a1318`](https://github.com/kijv/an.era/commit/29a13184649e5c0bc711afad48ba484ddca32e4f) Thanks [@kijv](https://github.com/kijv)! - fix bundling
+
+- [`1ef2d5d`](https://github.com/kijv/an.era/commit/1ef2d5d704146e51085e887e4f42276e6172a78f) Thanks [@kijv](https://github.com/kijv)! - fix bundling
+
+- [`36e1acb`](https://github.com/kijv/an.era/commit/36e1acbb949551dba0d95d1faa821b774e4c0145) Thanks [@kijv](https://github.com/kijv)! - sync openapi spec
+
+- [`1ef2d5d`](https://github.com/kijv/an.era/commit/1ef2d5d704146e51085e887e4f42276e6172a78f) Thanks [@kijv](https://github.com/kijv)! - fix merging headers
+
+- [`c7477c4`](https://github.com/kijv/an.era/commit/c7477c48e0214e544cf154429504f0766a4832dd) Thanks [@kijv](https://github.com/kijv)! - fix grouping inconsistency
+
+- [#21](https://github.com/kijv/an.era/pull/21) [`b052732`](https://github.com/kijv/an.era/commit/b0527328756d5841d1b25f79a7ec9ddeef8aecd3) Thanks [@kijv](https://github.com/kijv)! - sync openapi
+
+- [`0c64013`](https://github.com/kijv/an.era/commit/0c6401357a3b14a77e5ef89af2205f7f0b383c55) Thanks [@kijv](https://github.com/kijv)! - add layer that groups operations by tags
