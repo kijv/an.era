@@ -139,6 +139,11 @@ exports[`Mocked > createBlockComment > 201 1`] = `
       "href": "https://api.are.na/v3/",
     },
   },
+  "body": {
+    "html": "<i>Hello, world!</i>",
+    "markdown": "*Hello, world!*",
+    "plain": "Hello, world!",
+  },
   "created_at": "2020-01-01T00:00:00.000Z",
   "id": 1,
   "type": "Comment",
@@ -211,6 +216,44 @@ exports[`Mocked > createChannel > 201 1`] = `
       "href": "https://api.are.na/v3/",
     },
   },
+  "can": {
+    "add_to": true,
+    "destroy": false,
+    "manage_collaborators": true,
+    "update": false,
+  },
+  "collaborators": [
+    {
+      "avatar": null,
+      "id": 1,
+      "initials": "MU",
+      "name": "Mock User",
+      "slug": "mock-user",
+      "type": "User",
+    },
+    {
+      "avatar": null,
+      "id": 1,
+      "initials": "MG",
+      "name": "Mock Group",
+      "slug": "mock-group",
+      "type": "Group",
+    },
+  ],
+  "connection": {
+    "connected_at": "2020-01-01T00:00:00.000Z",
+    "connected_by": {
+      "avatar": null,
+      "id": 1,
+      "initials": "MU",
+      "name": "Mock User",
+      "slug": "mock-user",
+      "type": "User",
+    },
+    "id": 1,
+    "pinned": false,
+    "position": 0,
+  },
   "counts": {
     "blocks": 0,
     "channels": 0,
@@ -218,6 +261,11 @@ exports[`Mocked > createChannel > 201 1`] = `
     "contents": 0,
   },
   "created_at": "2020-01-01T00:00:00.000Z",
+  "description": {
+    "html": "<i>Hello, world!</i>",
+    "markdown": "*Hello, world!*",
+    "plain": "Hello, world!",
+  },
   "id": 1,
   "owner": {
     "avatar": null,
@@ -626,6 +674,11 @@ exports[`Mocked > getBlockComments > 200 1`] = `
           "href": "https://api.are.na/v3/",
         },
       },
+      "body": {
+        "html": "<i>Hello, world!</i>",
+        "markdown": "*Hello, world!*",
+        "plain": "Hello, world!",
+      },
       "created_at": "2020-01-01T00:00:00.000Z",
       "id": 1,
       "type": "Comment",
@@ -695,6 +748,44 @@ exports[`Mocked > getBlockConnections > 200 1`] = `
           "href": "https://api.are.na/v3/",
         },
       },
+      "can": {
+        "add_to": true,
+        "destroy": false,
+        "manage_collaborators": true,
+        "update": false,
+      },
+      "collaborators": [
+        {
+          "avatar": null,
+          "id": 1,
+          "initials": "MU",
+          "name": "Mock User",
+          "slug": "mock-user",
+          "type": "User",
+        },
+        {
+          "avatar": null,
+          "id": 1,
+          "initials": "MG",
+          "name": "Mock Group",
+          "slug": "mock-group",
+          "type": "Group",
+        },
+      ],
+      "connection": {
+        "connected_at": "2020-01-01T00:00:00.000Z",
+        "connected_by": {
+          "avatar": null,
+          "id": 1,
+          "initials": "MU",
+          "name": "Mock User",
+          "slug": "mock-user",
+          "type": "User",
+        },
+        "id": 1,
+        "pinned": false,
+        "position": 0,
+      },
       "counts": {
         "blocks": 0,
         "channels": 0,
@@ -702,6 +793,11 @@ exports[`Mocked > getBlockConnections > 200 1`] = `
         "contents": 0,
       },
       "created_at": "2020-01-01T00:00:00.000Z",
+      "description": {
+        "html": "<i>Hello, world!</i>",
+        "markdown": "*Hello, world!*",
+        "plain": "Hello, world!",
+      },
       "id": 1,
       "owner": {
         "avatar": null,
@@ -772,6 +868,44 @@ exports[`Mocked > getChannel > 200 1`] = `
       "href": "https://api.are.na/v3/",
     },
   },
+  "can": {
+    "add_to": true,
+    "destroy": false,
+    "manage_collaborators": true,
+    "update": false,
+  },
+  "collaborators": [
+    {
+      "avatar": null,
+      "id": 1,
+      "initials": "MU",
+      "name": "Mock User",
+      "slug": "mock-user",
+      "type": "User",
+    },
+    {
+      "avatar": null,
+      "id": 1,
+      "initials": "MG",
+      "name": "Mock Group",
+      "slug": "mock-group",
+      "type": "Group",
+    },
+  ],
+  "connection": {
+    "connected_at": "2020-01-01T00:00:00.000Z",
+    "connected_by": {
+      "avatar": null,
+      "id": 1,
+      "initials": "MU",
+      "name": "Mock User",
+      "slug": "mock-user",
+      "type": "User",
+    },
+    "id": 1,
+    "pinned": false,
+    "position": 0,
+  },
   "counts": {
     "blocks": 0,
     "channels": 0,
@@ -779,6 +913,11 @@ exports[`Mocked > getChannel > 200 1`] = `
     "contents": 0,
   },
   "created_at": "2020-01-01T00:00:00.000Z",
+  "description": {
+    "html": "<i>Hello, world!</i>",
+    "markdown": "*Hello, world!*",
+    "plain": "Hello, world!",
+  },
   "id": 1,
   "owner": {
     "avatar": null,
@@ -842,6 +981,44 @@ exports[`Mocked > getChannelConnections > 200 1`] = `
           "href": "https://api.are.na/v3/",
         },
       },
+      "can": {
+        "add_to": true,
+        "destroy": false,
+        "manage_collaborators": true,
+        "update": false,
+      },
+      "collaborators": [
+        {
+          "avatar": null,
+          "id": 1,
+          "initials": "MU",
+          "name": "Mock User",
+          "slug": "mock-user",
+          "type": "User",
+        },
+        {
+          "avatar": null,
+          "id": 1,
+          "initials": "MG",
+          "name": "Mock Group",
+          "slug": "mock-group",
+          "type": "Group",
+        },
+      ],
+      "connection": {
+        "connected_at": "2020-01-01T00:00:00.000Z",
+        "connected_by": {
+          "avatar": null,
+          "id": 1,
+          "initials": "MU",
+          "name": "Mock User",
+          "slug": "mock-user",
+          "type": "User",
+        },
+        "id": 1,
+        "pinned": false,
+        "position": 0,
+      },
       "counts": {
         "blocks": 0,
         "channels": 0,
@@ -849,6 +1026,11 @@ exports[`Mocked > getChannelConnections > 200 1`] = `
         "contents": 0,
       },
       "created_at": "2020-01-01T00:00:00.000Z",
+      "description": {
+        "html": "<i>Hello, world!</i>",
+        "markdown": "*Hello, world!*",
+        "plain": "Hello, world!",
+      },
       "id": 1,
       "owner": {
         "avatar": null,
@@ -1114,6 +1296,11 @@ exports[`Mocked > getChannelFollowers > 200 1`] = `
         },
       },
       "avatar": null,
+      "bio": {
+        "html": "<i>Hello, world!</i>",
+        "markdown": "*Hello, world!*",
+        "plain": "Hello, world!",
+      },
       "counts": {
         "channels": 0,
         "followers": 0,
@@ -1243,6 +1430,11 @@ exports[`Mocked > getCurrentUser > 200 1`] = `
     },
   },
   "avatar": null,
+  "bio": {
+    "html": "<i>Hello, world!</i>",
+    "markdown": "*Hello, world!*",
+    "plain": "Hello, world!",
+  },
   "counts": {
     "channels": 0,
     "followers": 0,
@@ -1288,6 +1480,11 @@ exports[`Mocked > getGroup > 200 1`] = `
     },
   },
   "avatar": null,
+  "bio": {
+    "html": "<i>Hello, world!</i>",
+    "markdown": "*Hello, world!*",
+    "plain": "Hello, world!",
+  },
   "counts": {
     "channels": 0,
     "users": 0,
@@ -1548,6 +1745,11 @@ exports[`Mocked > getGroupFollowers > 200 1`] = `
         },
       },
       "avatar": null,
+      "bio": {
+        "html": "<i>Hello, world!</i>",
+        "markdown": "*Hello, world!*",
+        "plain": "Hello, world!",
+      },
       "counts": {
         "channels": 0,
         "followers": 0,
@@ -1660,6 +1862,11 @@ exports[`Mocked > getUser > 200 1`] = `
     },
   },
   "avatar": null,
+  "bio": {
+    "html": "<i>Hello, world!</i>",
+    "markdown": "*Hello, world!*",
+    "plain": "Hello, world!",
+  },
   "counts": {
     "channels": 0,
     "followers": 0,
@@ -1913,6 +2120,11 @@ exports[`Mocked > getUserFollowers > 200 1`] = `
         },
       },
       "avatar": null,
+      "bio": {
+        "html": "<i>Hello, world!</i>",
+        "markdown": "*Hello, world!*",
+        "plain": "Hello, world!",
+      },
       "counts": {
         "channels": 0,
         "followers": 0,
@@ -1983,6 +2195,11 @@ exports[`Mocked > getUserFollowing > 200 1`] = `
         },
       },
       "avatar": null,
+      "bio": {
+        "html": "<i>Hello, world!</i>",
+        "markdown": "*Hello, world!*",
+        "plain": "Hello, world!",
+      },
       "counts": {
         "channels": 0,
         "followers": 0,
@@ -2311,6 +2528,44 @@ exports[`Mocked > search > 200 1`] = `
           "href": "https://api.are.na/v3/",
         },
       },
+      "can": {
+        "add_to": true,
+        "destroy": false,
+        "manage_collaborators": true,
+        "update": false,
+      },
+      "collaborators": [
+        {
+          "avatar": null,
+          "id": 1,
+          "initials": "MU",
+          "name": "Mock User",
+          "slug": "mock-user",
+          "type": "User",
+        },
+        {
+          "avatar": null,
+          "id": 1,
+          "initials": "MG",
+          "name": "Mock Group",
+          "slug": "mock-group",
+          "type": "Group",
+        },
+      ],
+      "connection": {
+        "connected_at": "2020-01-01T00:00:00.000Z",
+        "connected_by": {
+          "avatar": null,
+          "id": 1,
+          "initials": "MU",
+          "name": "Mock User",
+          "slug": "mock-user",
+          "type": "User",
+        },
+        "id": 1,
+        "pinned": false,
+        "position": 0,
+      },
       "counts": {
         "blocks": 0,
         "channels": 0,
@@ -2318,6 +2573,11 @@ exports[`Mocked > search > 200 1`] = `
         "contents": 0,
       },
       "created_at": "2020-01-01T00:00:00.000Z",
+      "description": {
+        "html": "<i>Hello, world!</i>",
+        "markdown": "*Hello, world!*",
+        "plain": "Hello, world!",
+      },
       "id": 1,
       "owner": {
         "avatar": null,
@@ -2341,6 +2601,11 @@ exports[`Mocked > search > 200 1`] = `
         },
       },
       "avatar": null,
+      "bio": {
+        "html": "<i>Hello, world!</i>",
+        "markdown": "*Hello, world!*",
+        "plain": "Hello, world!",
+      },
       "counts": {
         "channels": 0,
         "followers": 0,
@@ -2361,6 +2626,11 @@ exports[`Mocked > search > 200 1`] = `
         },
       },
       "avatar": null,
+      "bio": {
+        "html": "<i>Hello, world!</i>",
+        "markdown": "*Hello, world!*",
+        "plain": "Hello, world!",
+      },
       "counts": {
         "channels": 0,
         "users": 0,
@@ -2516,6 +2786,44 @@ exports[`Mocked > updateChannel > 200 1`] = `
       "href": "https://api.are.na/v3/",
     },
   },
+  "can": {
+    "add_to": true,
+    "destroy": false,
+    "manage_collaborators": true,
+    "update": false,
+  },
+  "collaborators": [
+    {
+      "avatar": null,
+      "id": 1,
+      "initials": "MU",
+      "name": "Mock User",
+      "slug": "mock-user",
+      "type": "User",
+    },
+    {
+      "avatar": null,
+      "id": 1,
+      "initials": "MG",
+      "name": "Mock Group",
+      "slug": "mock-group",
+      "type": "Group",
+    },
+  ],
+  "connection": {
+    "connected_at": "2020-01-01T00:00:00.000Z",
+    "connected_by": {
+      "avatar": null,
+      "id": 1,
+      "initials": "MU",
+      "name": "Mock User",
+      "slug": "mock-user",
+      "type": "User",
+    },
+    "id": 1,
+    "pinned": false,
+    "position": 0,
+  },
   "counts": {
     "blocks": 0,
     "channels": 0,
@@ -2523,6 +2831,11 @@ exports[`Mocked > updateChannel > 200 1`] = `
     "contents": 0,
   },
   "created_at": "2020-01-01T00:00:00.000Z",
+  "description": {
+    "html": "<i>Hello, world!</i>",
+    "markdown": "*Hello, world!*",
+    "plain": "Hello, world!",
+  },
   "id": 1,
   "owner": {
     "avatar": null,

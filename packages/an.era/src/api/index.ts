@@ -210,7 +210,7 @@ export const createApi = <
 
       const body = await parseResponseBody(response, mimeType);
 
-      if (!ignoreValidation) return body;
+      if (ignoreValidation) return body;
 
       const statusCode = response.status.toString();
 

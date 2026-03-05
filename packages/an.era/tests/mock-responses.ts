@@ -128,28 +128,18 @@ export const mockPendingBlock = {
   type: 'PendingBlock' as const,
 } satisfies s.PendingBlock;
 
-export const mockChannel = {
-  id: 1,
-  type: 'Channel' as const,
-  slug: 'mock-channel',
-  title: 'Mock Channel',
-  state: 'available' as const,
-  visibility: 'public' as const,
-  created_at: ts,
-  updated_at: ts,
-  owner: embeddedUser,
-  counts: { blocks: 0, channels: 0, contents: 0, collaborators: 0 },
-  _links: links,
-} satisfies s.Channel;
+const mockMarkdownContent: s.MarkdownContent = {
+  html: '<i>Hello, world!</i>',
+  plain: 'Hello, world!',
+  markdown: '*Hello, world!*',
+};
 
-export const mockComment = {
-  id: 1,
-  type: 'Comment' as const,
-  created_at: ts,
-  updated_at: ts,
-  user: embeddedUser,
-  _links: links,
-} satisfies s.Comment;
+const mockChannelAbilities: s.ChannelAbilities = {
+  add_to: true,
+  destroy: false,
+  manage_collaborators: true,
+  update: false,
+};
 
 export const mockConnection = {
   id: 1,
@@ -161,13 +151,42 @@ export const mockConnection = {
   _links: links,
 } satisfies s.Connection;
 
+export const mockChannel = {
+  id: 1,
+  type: 'Channel' as const,
+  slug: 'mock-channel',
+  title: 'Mock Channel',
+  description: mockMarkdownContent,
+  state: 'available' as const,
+  visibility: 'public' as const,
+  created_at: ts,
+  updated_at: ts,
+  owner: embeddedUser,
+  counts: { blocks: 0, channels: 0, contents: 0, collaborators: 0 },
+  _links: links,
+  collaborators: [embeddedUser, embeddedGroup],
+  connection: mockConnection,
+  can: mockChannelAbilities,
+} satisfies Required<s.Channel>;
+
+export const mockComment = {
+  id: 1,
+  type: 'Comment' as const,
+  created_at: ts,
+  updated_at: ts,
+  user: embeddedUser,
+  _links: links,
+  body: mockMarkdownContent,
+} satisfies Required<s.Comment>;
+
 export const mockUser = {
   ...embeddedUser,
   created_at: ts,
   updated_at: ts,
   counts: { channels: 0, followers: 0, following: 0 },
   _links: links,
-} satisfies s.User;
+  bio: mockMarkdownContent,
+} satisfies Required<s.User>;
 
 export const mockGroup = {
   ...embeddedGroup,
@@ -176,7 +195,8 @@ export const mockGroup = {
   user: embeddedUser,
   counts: { channels: 0, users: 0 },
   _links: links,
-} satisfies s.Group;
+  bio: mockMarkdownContent,
+} satisfies Required<s.Group>;
 
 export const mockChannelListResponse = {
   data: [mockChannel],

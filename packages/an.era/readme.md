@@ -29,8 +29,6 @@ Accepts two token types:
 - OAuth2 access tokens (obtained via OAuth2 flow with Doorkeeper)
 - Personal access tokens (from your account settings at are.na/settings)
 
-Example: `Authorization: Bearer YOUR_TOKEN`
-
 #### `plain` (Boolean)
 
 Returned API Instance contains ungrouped functions with the names of the OpenAPI specification names. Default: `false`
