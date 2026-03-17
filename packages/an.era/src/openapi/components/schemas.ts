@@ -58,6 +58,13 @@ export const GroupCountsSchema = v.object({
   users: v.pipe(v.number(), v.integer()),
 });
 type GroupCounts = { channels: number; users: number };
+export const UserBadgeSchema = v.picklist([
+  'staff',
+  'investor',
+  'supporter',
+  'premium',
+]);
+type UserBadge = 'staff' | 'investor' | 'supporter' | 'premium';
 export const UserTierSchema = v.picklist([
   'guest',
   'free',
@@ -644,6 +651,8 @@ export const UserSchema = v.intersect([
     created_at: v.pipe(v.string(), v.isoTimestamp()),
     updated_at: v.pipe(v.string(), v.isoTimestamp()),
     bio: v.optional(v.union([MarkdownContentSchema, v.null_()])),
+    badge: v.union([UserBadgeSchema, v.null_()]),
+    tier: UserTierSchema,
     counts: UserCountsSchema,
     _links: LinksSchema,
   }),
@@ -652,6 +661,8 @@ type User = EmbeddedUser & {
   created_at: string;
   updated_at: string;
   bio?: MarkdownContent | null;
+  badge: UserBadge | null;
+  tier: UserTier;
   counts: UserCounts;
   _links: Links;
 };
@@ -935,6 +946,7 @@ export default {
   EmbeddedGroupSchema,
   UserCountsSchema,
   GroupCountsSchema,
+  UserBadgeSchema,
   UserTierSchema,
   BlockStateSchema,
   BlockVisibilitySchema,
@@ -1010,6 +1022,7 @@ export type {
   EmbeddedGroup,
   UserCounts,
   GroupCounts,
+  UserBadge,
   UserTier,
   BlockState,
   BlockVisibility,
