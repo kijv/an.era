@@ -11,207 +11,180 @@ export class Operations {
   constructor(protected client: ReturnType<typeof ac>) {}
 
   batchCreateBlocks(
-    ...args: Parameters<Client["v3"]["blocks"]["batch"]['$post']>
+    ...args: Parameters<Client['v3']['blocks']['batch']['$post']>
   ) {
     return this.client.v3.blocks.batch.$post(...args);
   }
 
-  createBlock(
-    ...args: Parameters<Client["v3"]["blocks"]['$post']>
-  ) {
+  createBlock(...args: Parameters<Client['v3']['blocks']['$post']>) {
     return this.client.v3.blocks.$post(...args);
   }
 
   createBlockComment(
-    ...args: Parameters<Client["v3"]["blocks"][':id']["comments"]['$post']>
+    ...args: Parameters<Client['v3']['blocks'][':id']['comments']['$post']>
   ) {
     return this.client.v3.blocks[':id'].comments.$post(...args);
   }
 
-  createChannel(
-    ...args: Parameters<Client["v3"]["channels"]['$post']>
-  ) {
+  createChannel(...args: Parameters<Client['v3']['channels']['$post']>) {
     return this.client.v3.channels.$post(...args);
   }
 
-  createConnection(
-    ...args: Parameters<Client["v3"]["connections"]['$post']>
-  ) {
+  createConnection(...args: Parameters<Client['v3']['connections']['$post']>) {
     return this.client.v3.connections.$post(...args);
   }
 
   createOAuthToken(
-    ...args: Parameters<Client["v3"]["oauth"]["token"]['$post']>
+    ...args: Parameters<Client['v3']['oauth']['token']['$post']>
   ) {
     return this.client.v3.oauth.token.$post(...args);
   }
 
   deleteChannel(
-    ...args: Parameters<Client["v3"]["channels"][':id']['$delete']>
+    ...args: Parameters<Client['v3']['channels'][':id']['$delete']>
   ) {
     return this.client.v3.channels[':id'].$delete(...args);
   }
 
   deleteComment(
-    ...args: Parameters<Client["v3"]["comments"][':id']['$delete']>
+    ...args: Parameters<Client['v3']['comments'][':id']['$delete']>
   ) {
     return this.client.v3.comments[':id'].$delete(...args);
   }
 
   deleteConnection(
-    ...args: Parameters<Client["v3"]["connections"][':id']['$delete']>
+    ...args: Parameters<Client['v3']['connections'][':id']['$delete']>
   ) {
     return this.client.v3.connections[':id'].$delete(...args);
   }
 
   getBatchStatus(
-    ...args: Parameters<Client["v3"]["blocks"]["batch"][':batch_id']['$get']>
+    ...args: Parameters<Client['v3']['blocks']['batch'][':batch_id']['$get']>
   ) {
     return this.client.v3.blocks.batch[':batch_id'].$get(...args);
   }
 
-  getBlock(
-    ...args: Parameters<Client["v3"]["blocks"][':id']['$get']>
-  ) {
+  getBlock(...args: Parameters<Client['v3']['blocks'][':id']['$get']>) {
     return this.client.v3.blocks[':id'].$get(...args);
   }
 
   getBlockComments(
-    ...args: Parameters<Client["v3"]["blocks"][':id']["comments"]['$get']>
+    ...args: Parameters<Client['v3']['blocks'][':id']['comments']['$get']>
   ) {
     return this.client.v3.blocks[':id'].comments.$get(...args);
   }
 
   getBlockConnections(
-    ...args: Parameters<Client["v3"]["blocks"][':id']["connections"]['$get']>
+    ...args: Parameters<Client['v3']['blocks'][':id']['connections']['$get']>
   ) {
     return this.client.v3.blocks[':id'].connections.$get(...args);
   }
 
-  getChannel(
-    ...args: Parameters<Client["v3"]["channels"][':id']['$get']>
-  ) {
+  getChannel(...args: Parameters<Client['v3']['channels'][':id']['$get']>) {
     return this.client.v3.channels[':id'].$get(...args);
   }
 
   getChannelConnections(
-    ...args: Parameters<Client["v3"]["channels"][':id']["connections"]['$get']>
+    ...args: Parameters<Client['v3']['channels'][':id']['connections']['$get']>
   ) {
     return this.client.v3.channels[':id'].connections.$get(...args);
   }
 
   getChannelContents(
-    ...args: Parameters<Client["v3"]["channels"][':id']["contents"]['$get']>
+    ...args: Parameters<Client['v3']['channels'][':id']['contents']['$get']>
   ) {
     return this.client.v3.channels[':id'].contents.$get(...args);
   }
 
   getChannelFollowers(
-    ...args: Parameters<Client["v3"]["channels"][':id']["followers"]['$get']>
+    ...args: Parameters<Client['v3']['channels'][':id']['followers']['$get']>
   ) {
     return this.client.v3.channels[':id'].followers.$get(...args);
   }
 
   getConnection(
-    ...args: Parameters<Client["v3"]["connections"][':id']['$get']>
+    ...args: Parameters<Client['v3']['connections'][':id']['$get']>
   ) {
     return this.client.v3.connections[':id'].$get(...args);
   }
 
-  getCurrentUser(
-    ...args: Parameters<Client["v3"]["me"]['$get']>
-  ) {
+  getCurrentUser(...args: Parameters<Client['v3']['me']['$get']>) {
     return this.client.v3.me.$get(...args);
   }
 
-  getGroup(
-    ...args: Parameters<Client["v3"]["groups"][':id']['$get']>
-  ) {
+  getGroup(...args: Parameters<Client['v3']['groups'][':id']['$get']>) {
     return this.client.v3.groups[':id'].$get(...args);
   }
 
   getGroupContents(
-    ...args: Parameters<Client["v3"]["groups"][':id']["contents"]['$get']>
+    ...args: Parameters<Client['v3']['groups'][':id']['contents']['$get']>
   ) {
     return this.client.v3.groups[':id'].contents.$get(...args);
   }
 
   getGroupFollowers(
-    ...args: Parameters<Client["v3"]["groups"][':id']["followers"]['$get']>
+    ...args: Parameters<Client['v3']['groups'][':id']['followers']['$get']>
   ) {
     return this.client.v3.groups[':id'].followers.$get(...args);
   }
 
-  getOpenapiSpec(
-    ...args: Parameters<Client["v3"]["openapi"]['$get']>
-  ) {
+  getOpenapiSpec(...args: Parameters<Client['v3']['openapi']['$get']>) {
     return this.client.v3.openapi.$get(...args);
   }
 
   getOpenapiSpecJson(
-    ...args: Parameters<Client["v3"]["openapi.json"]['$get']>
+    ...args: Parameters<Client['v3']['openapi.json']['$get']>
   ) {
-    return this.client.v3["openapi.json"].$get(...args);
+    return this.client.v3['openapi.json'].$get(...args);
   }
 
-  getPing(
-    ...args: Parameters<Client["v3"]["ping"]['$get']>
-  ) {
+  getPing(...args: Parameters<Client['v3']['ping']['$get']>) {
     return this.client.v3.ping.$get(...args);
   }
 
-  getUser(
-    ...args: Parameters<Client["v3"]["users"][':id']['$get']>
-  ) {
+  getUser(...args: Parameters<Client['v3']['users'][':id']['$get']>) {
     return this.client.v3.users[':id'].$get(...args);
   }
 
   getUserContents(
-    ...args: Parameters<Client["v3"]["users"][':id']["contents"]['$get']>
+    ...args: Parameters<Client['v3']['users'][':id']['contents']['$get']>
   ) {
     return this.client.v3.users[':id'].contents.$get(...args);
   }
 
   getUserFollowers(
-    ...args: Parameters<Client["v3"]["users"][':id']["followers"]['$get']>
+    ...args: Parameters<Client['v3']['users'][':id']['followers']['$get']>
   ) {
     return this.client.v3.users[':id'].followers.$get(...args);
   }
 
   getUserFollowing(
-    ...args: Parameters<Client["v3"]["users"][':id']["following"]['$get']>
+    ...args: Parameters<Client['v3']['users'][':id']['following']['$get']>
   ) {
     return this.client.v3.users[':id'].following.$get(...args);
   }
 
   moveConnection(
-    ...args: Parameters<Client["v3"]["connections"][':id']["move"]['$post']>
+    ...args: Parameters<Client['v3']['connections'][':id']['move']['$post']>
   ) {
     return this.client.v3.connections[':id'].move.$post(...args);
   }
 
   presignUpload(
-    ...args: Parameters<Client["v3"]["uploads"]["presign"]['$post']>
+    ...args: Parameters<Client['v3']['uploads']['presign']['$post']>
   ) {
     return this.client.v3.uploads.presign.$post(...args);
   }
 
-  search(
-    ...args: Parameters<Client["v3"]["search"]['$get']>
-  ) {
+  search(...args: Parameters<Client['v3']['search']['$get']>) {
     return this.client.v3.search.$get(...args);
   }
 
-  updateBlock(
-    ...args: Parameters<Client["v3"]["blocks"][':id']['$put']>
-  ) {
+  updateBlock(...args: Parameters<Client['v3']['blocks'][':id']['$put']>) {
     return this.client.v3.blocks[':id'].$put(...args);
   }
 
-  updateChannel(
-    ...args: Parameters<Client["v3"]["channels"][':id']['$put']>
-  ) {
+  updateChannel(...args: Parameters<Client['v3']['channels'][':id']['$put']>) {
     return this.client.v3.channels[':id'].$put(...args);
   }
-
 }
