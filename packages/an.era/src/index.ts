@@ -1,17 +1,47 @@
-import type { ClientRequestOptions, Hono } from 'hono';
-import type { App as DefaultApp } from './hono-app';
-import { hc } from 'hono/client';
+import type { ClientRequestOptions } from 'hono';
+import { Operations } from './operations';
+import { ac } from './client';
 
-export type ArenaClientOptions = {
-  baseUrl?: string;
-};
+type Prettify<T> = {
+  [K in keyof T]: T[K];
+} & {};
 
-export function arenaClient<Client extends Hono = DefaultApp>(
-  options: ArenaClientOptions & ClientRequestOptions = {},
-): ReturnType<typeof hc<Client>> {
-  const { baseUrl = 'https://api.are.na', ...clientRequestOptions } = options;
+export type ArenaOptions = Prettify<
+  {
+    baseUrl?: string;
+    accessToken?: string;
+  } & ClientRequestOptions
+>;
 
-  return hc<Client>(baseUrl, clientRequestOptions);
+export class Arena extends Operations {
+  constructor(options: ArenaOptions = {}) {
+    const {
+      baseUrl = 'https://api.are.na',
+      accessToken,
+      headers,
+      ...rest
+    } = options;
+    const client = ac(baseUrl, {
+      ...rest,
+      headers:
+        typeof accessToken === 'string'
+          ? typeof headers === 'function'
+            ? async () => {
+                const resolvedHeaders = await (
+                  headers as () => Promise<Record<string, string>>
+                )();
+                return {
+                  ...resolvedHeaders,
+                  Authorization: `Bearer ${accessToken}`,
+                };
+              }
+            : {
+                ...headers,
+                Authorization: `Bearer ${accessToken}`,
+              }
+          : headers,
+    });
+
+    super(client);
+  }
 }
-
-export { parseResponse, DetailedError } from 'hono/client';

@@ -28,8 +28,8 @@ await (async () => {
   );
 
   await fs.writeFile(
-    new URL('../src/schema.ts', import.meta.url),
-    contents,
+    new URL('../src/openapi.ts', import.meta.url),
+    `/* oxlint-disable */\n${contents}`,
     'utf-8',
   );
 })();
