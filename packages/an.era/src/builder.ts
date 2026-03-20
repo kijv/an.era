@@ -11,6 +11,24 @@ type ParamValue<F extends Fn, K extends string> = Parameters<F> extends [infer F
     : string | number
   : string | number;
 
+type RelaxSharedPathParams<F extends Fn, SharedKeys extends PropertyKey> = F extends (
+  first: infer First,
+  ...rest: infer Rest
+) => infer R
+  ? First extends { param: infer P }
+    ? P extends Record<string, unknown>
+      ? Rest extends readonly unknown[]
+        ? (
+            first: Omit<First, "param"> & {
+              param?: Partial<Pick<P, Extract<keyof P, SharedKeys>>> & Omit<P, Extract<keyof P, SharedKeys>>;
+            },
+            ...args: Rest
+          ) => R
+        : F
+      : F
+    : F
+  : F;
+
 export type BuilderShape = {
   authentication: {
     createOAuthToken: Client["v3"]["oauth"]["token"]['$post'];
@@ -19,45 +37,45 @@ export type BuilderShape = {
     batchCreateBlocks: Client["v3"]["blocks"]["batch"]['$post'];
     createBlock: Client["v3"]["blocks"]['$post'];
     batch_id(value: ParamValue<Client["v3"]["blocks"]["batch"][':batch_id']['$get'], "batch_id">): {
-      getBatchStatus: Client["v3"]["blocks"]["batch"][':batch_id']['$get'];
+      getBatchStatus: RelaxSharedPathParams<Client["v3"]["blocks"]["batch"][':batch_id']['$get'], "batch_id">;
     };
     id(value: ParamValue<Client["v3"]["blocks"][':id']["comments"]['$post'], "id">): {
-      createBlockComment: Client["v3"]["blocks"][':id']["comments"]['$post'];
-      getBlock: Client["v3"]["blocks"][':id']['$get'];
-      getBlockComments: Client["v3"]["blocks"][':id']["comments"]['$get'];
-      getBlockConnections: Client["v3"]["blocks"][':id']["connections"]['$get'];
-      updateBlock: Client["v3"]["blocks"][':id']['$put'];
+      createBlockComment: RelaxSharedPathParams<Client["v3"]["blocks"][':id']["comments"]['$post'], "id">;
+      getBlock: RelaxSharedPathParams<Client["v3"]["blocks"][':id']['$get'], "id">;
+      getBlockComments: RelaxSharedPathParams<Client["v3"]["blocks"][':id']["comments"]['$get'], "id">;
+      getBlockConnections: RelaxSharedPathParams<Client["v3"]["blocks"][':id']["connections"]['$get'], "id">;
+      updateBlock: RelaxSharedPathParams<Client["v3"]["blocks"][':id']['$put'], "id">;
     };
   };
   channels: {
     createChannel: Client["v3"]["channels"]['$post'];
     id(value: ParamValue<Client["v3"]["channels"][':id']['$delete'], "id">): {
-      deleteChannel: Client["v3"]["channels"][':id']['$delete'];
-      getChannel: Client["v3"]["channels"][':id']['$get'];
-      getChannelConnections: Client["v3"]["channels"][':id']["connections"]['$get'];
-      getChannelContents: Client["v3"]["channels"][':id']["contents"]['$get'];
-      getChannelFollowers: Client["v3"]["channels"][':id']["followers"]['$get'];
-      updateChannel: Client["v3"]["channels"][':id']['$put'];
+      deleteChannel: RelaxSharedPathParams<Client["v3"]["channels"][':id']['$delete'], "id">;
+      getChannel: RelaxSharedPathParams<Client["v3"]["channels"][':id']['$get'], "id">;
+      getChannelConnections: RelaxSharedPathParams<Client["v3"]["channels"][':id']["connections"]['$get'], "id">;
+      getChannelContents: RelaxSharedPathParams<Client["v3"]["channels"][':id']["contents"]['$get'], "id">;
+      getChannelFollowers: RelaxSharedPathParams<Client["v3"]["channels"][':id']["followers"]['$get'], "id">;
+      updateChannel: RelaxSharedPathParams<Client["v3"]["channels"][':id']['$put'], "id">;
     };
   };
   comments: {
     id(value: ParamValue<Client["v3"]["comments"][':id']['$delete'], "id">): {
-      deleteComment: Client["v3"]["comments"][':id']['$delete'];
+      deleteComment: RelaxSharedPathParams<Client["v3"]["comments"][':id']['$delete'], "id">;
     };
   };
   connections: {
     createConnection: Client["v3"]["connections"]['$post'];
     id(value: ParamValue<Client["v3"]["connections"][':id']['$delete'], "id">): {
-      deleteConnection: Client["v3"]["connections"][':id']['$delete'];
-      getConnection: Client["v3"]["connections"][':id']['$get'];
-      moveConnection: Client["v3"]["connections"][':id']["move"]['$post'];
+      deleteConnection: RelaxSharedPathParams<Client["v3"]["connections"][':id']['$delete'], "id">;
+      getConnection: RelaxSharedPathParams<Client["v3"]["connections"][':id']['$get'], "id">;
+      moveConnection: RelaxSharedPathParams<Client["v3"]["connections"][':id']["move"]['$post'], "id">;
     };
   };
   groups: {
     id(value: ParamValue<Client["v3"]["groups"][':id']['$get'], "id">): {
-      getGroup: Client["v3"]["groups"][':id']['$get'];
-      getGroupContents: Client["v3"]["groups"][':id']["contents"]['$get'];
-      getGroupFollowers: Client["v3"]["groups"][':id']["followers"]['$get'];
+      getGroup: RelaxSharedPathParams<Client["v3"]["groups"][':id']['$get'], "id">;
+      getGroupContents: RelaxSharedPathParams<Client["v3"]["groups"][':id']["contents"]['$get'], "id">;
+      getGroupFollowers: RelaxSharedPathParams<Client["v3"]["groups"][':id']["followers"]['$get'], "id">;
     };
   };
   search: {
@@ -74,10 +92,10 @@ export type BuilderShape = {
   users: {
     getCurrentUser: Client["v3"]["me"]['$get'];
     id(value: ParamValue<Client["v3"]["users"][':id']['$get'], "id">): {
-      getUser: Client["v3"]["users"][':id']['$get'];
-      getUserContents: Client["v3"]["users"][':id']["contents"]['$get'];
-      getUserFollowers: Client["v3"]["users"][':id']["followers"]['$get'];
-      getUserFollowing: Client["v3"]["users"][':id']["following"]['$get'];
+      getUser: RelaxSharedPathParams<Client["v3"]["users"][':id']['$get'], "id">;
+      getUserContents: RelaxSharedPathParams<Client["v3"]["users"][':id']["contents"]['$get'], "id">;
+      getUserFollowers: RelaxSharedPathParams<Client["v3"]["users"][':id']["followers"]['$get'], "id">;
+      getUserFollowing: RelaxSharedPathParams<Client["v3"]["users"][':id']["following"]['$get'], "id">;
     };
   };
 };

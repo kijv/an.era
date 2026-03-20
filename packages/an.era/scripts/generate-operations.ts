@@ -75,6 +75,10 @@ function tsPropertyKey(segment: string): string {
   return JSON.stringify(segment);
 }
 
+function tsUnionLiteralTypes(params: string[]): string {
+  return params.map((p) => JSON.stringify(p)).join(' | ');
+}
+
 function encodeParamKey(params: string[]): string {
   return params.join('|');
 }
@@ -146,6 +150,24 @@ const lines: string[] = [
   '    : string | number',
   '  : string | number;',
   '',
+  'type RelaxSharedPathParams<F extends Fn, SharedKeys extends PropertyKey> = F extends (',
+  '  first: infer First,',
+  '  ...rest: infer Rest',
+  ') => infer R',
+  '  ? First extends { param: infer P }',
+  '    ? P extends Record<string, unknown>',
+  '      ? Rest extends readonly unknown[]',
+  '        ? (',
+  '            first: Omit<First, "param"> & {',
+  '              param?: Partial<Pick<P, Extract<keyof P, SharedKeys>>> & Omit<P, Extract<keyof P, SharedKeys>>;',
+  '            },',
+  '            ...args: Rest',
+  '          ) => R',
+  '        : F',
+  '      : F',
+  '    : F',
+  '  : F;',
+  '',
 ];
 
 lines.push('export type BuilderShape = {');
@@ -179,8 +201,11 @@ for (const tag of orderedTags) {
       }
       lines.push('    }): {');
     }
+    const sharedKeysUnion = tsUnionLiteralTypes(group.params);
     for (const op of group.ops.sort((a, b) => a.operationId.localeCompare(b.operationId))) {
-      lines.push(`      ${op.operationId}: Client${op.clientTypePath}['$${op.method}'];`);
+      lines.push(
+        `      ${op.operationId}: RelaxSharedPathParams<Client${op.clientTypePath}['$${op.method}'], ${sharedKeysUnion}>;`,
+      );
     }
     lines.push('    };');
   }
