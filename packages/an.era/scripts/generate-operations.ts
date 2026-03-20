@@ -134,30 +134,13 @@ const lines: string[] = [
   ' *',
   ' * Runtime mirrors hono `client.ts`: Proxy + path accumulation; `apply` dispatches via path-keyed',
   ' * maps (no TAG_ACCESS / per-tag resolution).',
+  ' * Endpoint properties use the same types as `Client` (no BoundCall / stripped param).',
   ' */',
   '',
   "import type { ac } from './client';",
   '',
   'type Client = ReturnType<typeof ac>;',
   'type Fn = (...args: any[]) => any;',
-  '',
-  'type StripBoundParam<Input, Keys extends string> = Input extends { param: infer P }',
-  "  ? Omit<Input, 'param'> & (Omit<P, Keys> extends Record<string, never> ? {} : { param: Omit<P, Keys> })",
-  '  : Input;',
-  '',
-  'type BoundArgs<Args extends unknown[], Keys extends string> =',
-  '  Args extends [infer First, ...infer Rest]',
-  '    ? First extends { param: infer P }',
-  '      ? | Args',
-  '        | (Omit<P, Keys> extends Record<string, never>',
-  '            ? Rest | [StripBoundParam<First, Keys>, ...Rest]',
-  '            : [StripBoundParam<First, Keys>, ...Rest])',
-  '      : Args',
-  '    : Args;',
-  '',
-  'type BoundCall<F extends Fn, Keys extends string> = F extends (...args: infer A) => infer R',
-  '  ? (...args: BoundArgs<A, Keys>) => R',
-  '  : never;',
   '',
   'type ParamValue<F extends Fn, K extends string> = Parameters<F> extends [infer First, ...any]',
   '  ? First extends { param: infer P }',
@@ -183,7 +166,7 @@ for (const tag of orderedTags) {
 
   lines.push(`  ${tag.key}: {`);
   for (const op of rootOps.sort((a, b) => a.operationId.localeCompare(b.operationId))) {
-    lines.push(`    ${op.operationId}: BoundCall<Client${op.clientTypePath}['$${op.method}'], never>;`);
+    lines.push(`    ${op.operationId}: Client${op.clientTypePath}['$${op.method}'];`);
   }
   for (const group of [...groups.values()].sort((a, b) => groupNameForParams(a.params).localeCompare(groupNameForParams(b.params)))) {
     const groupName = groupNameForParams(group.params);
@@ -199,8 +182,7 @@ for (const tag of orderedTags) {
       lines.push('    }): {');
     }
     for (const op of group.ops.sort((a, b) => a.operationId.localeCompare(b.operationId))) {
-      const keysUnion = op.pathParams.map((p) => JSON.stringify(p)).join(' | ');
-      lines.push(`      ${op.operationId}: BoundCall<Client${op.clientTypePath}['$${op.method}'], ${keysUnion}>;`);
+      lines.push(`      ${op.operationId}: Client${op.clientTypePath}['$${op.method}'];`);
     }
     lines.push('    };');
   }
