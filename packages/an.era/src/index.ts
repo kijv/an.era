@@ -1,5 +1,5 @@
 import type { ClientRequestOptions } from 'hono';
-import { Operations } from './operations';
+import { Builder } from './builder';
 import { ac } from './client';
 
 type Prettify<T> = {
@@ -13,7 +13,7 @@ export type ArenaOptions = Prettify<
   } & ClientRequestOptions
 >;
 
-export class Arena extends Operations {
+export class Arena extends Builder {
   constructor(options: ArenaOptions = {}) {
     const {
       baseUrl = 'https://api.are.na',

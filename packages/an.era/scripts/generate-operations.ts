@@ -2,127 +2,116 @@ import { fileURLToPath } from 'node:url';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 
-type HttpMethod =
-  | 'get'
-  | 'put'
-  | 'post'
-  | 'delete'
-  | 'options'
-  | 'head'
-  | 'patch'
-  | 'trace';
-
-type OpenApiOperation = {
-  operationId?: string;
-};
-
-type OpenApiPaths = Record<
-  string,
-  Partial<Record<HttpMethod, OpenApiOperation>>
->;
-
-type OpenApiDocument = {
-  paths?: OpenApiPaths;
-};
-
+type HttpMethod = 'get' | 'put' | 'post' | 'delete' | 'options' | 'head' | 'patch' | 'trace';
+type OpenApiOperation = { operationId?: string; tags?: string[] };
+type OpenApiPaths = Record<string, Partial<Record<HttpMethod, OpenApiOperation>>>;
+type OpenApiDocument = { paths?: OpenApiPaths };
 type GeneratedOperation = {
   operationId: string;
   method: HttpMethod;
+  tags: string[];
+  pathParams: string[];
   clientPath: string;
   clientTypePath: string;
 };
 
 const pkgRoot = path.resolve(fileURLToPath(new URL('..', import.meta.url)));
 const repoRoot = path.resolve(pkgRoot, '..', '..');
-const outPath = path.join(pkgRoot, 'src', 'operations.ts');
+const outPath = path.join(pkgRoot, 'src', 'builder.ts');
 const defaultSource = path.join(repoRoot, 'openapi.json');
 
 const argv = process.argv.slice(2);
-const argSource = argv
-  .find((arg) => arg.startsWith('--source='))
-  ?.split('=')[1];
+const argSource = argv.find((arg) => arg.startsWith('--source='))?.split('=')[1];
 const source = argSource ?? defaultSource;
 
 async function loadOpenApi(input: string): Promise<OpenApiDocument> {
   if (input.startsWith('http://') || input.startsWith('https://')) {
     const res = await fetch(input);
-    if (!res.ok) {
-      throw new Error(
-        `Failed to fetch OpenAPI: ${res.status} ${res.statusText}`,
-      );
-    }
+    if (!res.ok) throw new Error(`Failed to fetch OpenAPI: ${res.status} ${res.statusText}`);
     return (await res.json()) as OpenApiDocument;
   }
-
-  const contents = await fs.readFile(input, 'utf-8');
-  return JSON.parse(contents) as OpenApiDocument;
+  return JSON.parse(await fs.readFile(input, 'utf-8')) as OpenApiDocument;
 }
 
 function toClientPath(pathname: string): string {
-  return pathname
-    .split('/')
-    .filter(Boolean)
-    .map((segment) => {
-      if (segment.startsWith('{') && segment.endsWith('}')) {
-        return `[':${segment.slice(1, -1)}']`;
-      }
-      if (/^[A-Za-z_$][A-Za-z0-9_$]*$/.test(segment)) {
-        return `.${segment}`;
-      }
-      return `[${JSON.stringify(segment)}]`;
-    })
-    .join('');
+  return pathname.split('/').filter(Boolean).map((segment) => {
+    if (segment.startsWith('{') && segment.endsWith('}')) return `[':${segment.slice(1, -1)}']`;
+    if (/^[A-Za-z_$][A-Za-z0-9_$]*$/.test(segment)) return `.${segment}`;
+    return `[${JSON.stringify(segment)}]`;
+  }).join('');
 }
 
 function toClientTypePath(pathname: string): string {
-  return pathname
-    .split('/')
-    .filter(Boolean)
-    .map((segment) => {
-      if (segment.startsWith('{') && segment.endsWith('}')) {
-        return `[':${segment.slice(1, -1)}']`;
-      }
-      return `[${JSON.stringify(segment)}]`;
-    })
-    .join('');
+  return pathname.split('/').filter(Boolean).map((segment) => {
+    if (segment.startsWith('{') && segment.endsWith('}')) return `[':${segment.slice(1, -1)}']`;
+    return `[${JSON.stringify(segment)}]`;
+  }).join('');
 }
 
-const methodOrder: HttpMethod[] = [
-  'get',
-  'put',
-  'post',
-  'delete',
-  'options',
-  'head',
-  'patch',
-  'trace',
-];
+function extractPathParams(pathname: string): string[] {
+  const params: string[] = [];
+  pathname.replace(/\{([^}]+)\}/g, (_, p: string) => {
+    params.push(p);
+    return '';
+  });
+  return params;
+}
 
+function camelCase(input: string): string {
+  return input
+    .replace(/[^A-Za-z0-9]+(.)/g, (_, c: string) => c.toUpperCase())
+    .replace(/^[A-Z]/, (c) => c.toLowerCase())
+    .replace(/[^A-Za-z0-9]/g, '');
+}
+
+function pascalCase(input: string): string {
+  const c = camelCase(input);
+  return c ? c[0]!.toUpperCase() + c.slice(1) : c;
+}
+
+function groupNameForParams(params: string[]): string {
+  if (params.length === 0) return 'root';
+  return `by${params.map(pascalCase).join('And')}`;
+}
+
+function encodeParamKey(params: string[]): string {
+  return params.join('|');
+}
+
+const methodOrder: HttpMethod[] = ['get', 'put', 'post', 'delete', 'options', 'head', 'patch', 'trace'];
 const openapi = await loadOpenApi(source);
 const paths = openapi.paths ?? {};
 
 const operations: GeneratedOperation[] = [];
 for (const [pathname, pathItem] of Object.entries(paths)) {
   if (!pathItem || typeof pathItem !== 'object') continue;
-
   for (const method of methodOrder) {
     const operation = pathItem[method];
     if (!operation || typeof operation !== 'object') continue;
-    if (typeof operation.operationId !== 'string' || !operation.operationId)
-      continue;
-
+    if (typeof operation.operationId !== 'string' || !operation.operationId) continue;
     operations.push({
       operationId: operation.operationId,
       method,
+      tags: Array.isArray(operation.tags) ? operation.tags : [],
+      pathParams: extractPathParams(pathname),
       clientPath: toClientPath(pathname),
       clientTypePath: toClientTypePath(pathname),
     });
   }
 }
-
 operations.sort((a, b) => a.operationId.localeCompare(b.operationId));
 
-const lines = [
+const tags = new Map<string, { key: string; ops: GeneratedOperation[] }>();
+for (const op of operations) {
+  const tagName = op.tags[0] ?? 'default';
+  const key = camelCase(tagName) || 'default';
+  const existing = tags.get(key);
+  if (existing) existing.ops.push(op);
+  else tags.set(key, { key, ops: [op] });
+}
+const orderedTags = [...tags.values()].sort((a, b) => a.key.localeCompare(b.key));
+
+const lines: string[] = [
   '/**',
   ' * This file was auto-generated by scripts/generate-operations.ts.',
   ' * DO NOT EDIT BY HAND.',
@@ -131,25 +120,148 @@ const lines = [
   "import type { ac } from './client';",
   '',
   'type Client = ReturnType<typeof ac>;',
+  'type Fn = (...args: any[]) => any;',
   '',
-  'export class Operations {',
-  '  constructor(protected client: ReturnType<typeof ac>) {}',
+  'type StripBoundParam<Input, Keys extends string> = Input extends { param: infer P }',
+  "  ? Omit<Input, 'param'> & (Omit<P, Keys> extends Record<string, never> ? {} : { param: Omit<P, Keys> })",
+  '  : Input;',
+  '',
+  'type BoundArgs<Args extends unknown[], Keys extends string> =',
+  '  Args extends [infer First, ...infer Rest]',
+  '    ? First extends { param: infer P }',
+  '      ? | Args',
+  '        | (Omit<P, Keys> extends Record<string, never>',
+  '            ? Rest | [StripBoundParam<First, Keys>, ...Rest]',
+  '            : [StripBoundParam<First, Keys>, ...Rest])',
+  '      : Args',
+  '    : Args;',
+  '',
+  'type BoundCall<F extends Fn, Keys extends string> = F extends (...args: infer A) => infer R',
+  '  ? (...args: BoundArgs<A, Keys>) => R',
+  '  : never;',
+  '',
+  'type ParamValue<F extends Fn, K extends string> = Parameters<F> extends [infer First, ...any]',
+  '  ? First extends { param: infer P }',
+  '    ? K extends keyof P ? P[K] : string | number',
+  '    : string | number',
+  '  : string | number;',
+  '',
+  '/** Merge grouped path params into the first request arg (same idea as hono client: user input drives the call). */',
+  'function invokeEndpoint(endpoint: Fn, boundParam: Record<string, unknown>, args: unknown[]) {',
+  '  if (!boundParam || Object.keys(boundParam).length === 0) return endpoint(...(args as any[]));',
+  '  if (args.length > 0 && typeof args[0] === "object" && args[0] !== null) {',
+  '    const first = args[0] as Record<string, unknown>;',
+  '    const merged = { ...first, param: { ...(first.param as object | undefined), ...boundParam } };',
+  '    return endpoint(merged, ...(args.slice(1) as any[]));',
+  '  }',
+  '  return endpoint({ param: boundParam }, ...(args as any[]));',
+  '}',
   '',
 ];
 
-for (const op of operations) {
-  lines.push(
-    `  ${op.operationId}(`,
-    `    ...args: Parameters<Client${op.clientTypePath}['$${op.method}']>`,
-    `  ): ReturnType<Client${op.clientTypePath}['$${op.method}']> {`,
-    `    return this.client${op.clientPath}.$${op.method}(...args);`,
-    '  }',
-    '',
-  );
+for (const tag of orderedTags) {
+  const groups = new Map<string, { params: string[]; ops: GeneratedOperation[] }>();
+  const rootOps: GeneratedOperation[] = [];
+  for (const op of tag.ops) {
+    if (op.pathParams.length === 0) rootOps.push(op);
+    else {
+      const k = encodeParamKey(op.pathParams);
+      const existing = groups.get(k);
+      if (existing) existing.ops.push(op);
+      else groups.set(k, { params: op.pathParams, ops: [op] });
+    }
+  }
+
+  lines.push(`type ${pascalCase(tag.key)}Tag = {`);
+  for (const op of rootOps.sort((a, b) => a.operationId.localeCompare(b.operationId))) {
+    lines.push(`  ${op.operationId}: BoundCall<Client${op.clientTypePath}['$${op.method}'], never>;`);
+  }
+  for (const group of [...groups.values()].sort((a, b) => groupNameForParams(a.params).localeCompare(groupNameForParams(b.params)))) {
+    const groupName = groupNameForParams(group.params);
+    const rep = group.ops[0]!;
+    if (group.params.length === 1) {
+      const k = group.params[0]!;
+      lines.push(`  ${groupName}(value: ParamValue<Client${rep.clientTypePath}['$${rep.method}'], ${JSON.stringify(k)}>): {`);
+    } else {
+      lines.push(`  ${groupName}(value: {`);
+      for (const k of group.params) {
+        lines.push(`    ${k}: ParamValue<Client${rep.clientTypePath}['$${rep.method}'], ${JSON.stringify(k)}>;`);
+      }
+      lines.push('  }): {');
+    }
+    for (const op of group.ops.sort((a, b) => a.operationId.localeCompare(b.operationId))) {
+      const keysUnion = op.pathParams.map((p) => JSON.stringify(p)).join(' | ');
+      lines.push(`    ${op.operationId}: BoundCall<Client${op.clientTypePath}['$${op.method}'], ${keysUnion}>;`);
+    }
+    lines.push('  };');
+  }
+  lines.push('};');
+  lines.push('');
 }
 
+lines.push('export type BuilderShape = {');
+for (const tag of orderedTags) lines.push(`  ${tag.key}: ${pascalCase(tag.key)}Tag;`);
+lines.push('};');
+lines.push('');
+lines.push('function createBuilderImpl(client: Client): BuilderShape {');
+lines.push('  return {');
+for (const tag of orderedTags) {
+  const groups = new Map<string, { params: string[]; ops: GeneratedOperation[] }>();
+  const rootOps: GeneratedOperation[] = [];
+  for (const op of tag.ops) {
+    if (op.pathParams.length === 0) rootOps.push(op);
+    else {
+      const k = encodeParamKey(op.pathParams);
+      const existing = groups.get(k);
+      if (existing) existing.ops.push(op);
+      else groups.set(k, { params: op.pathParams, ops: [op] });
+    }
+  }
+  lines.push(`    ${tag.key}: {`);
+  for (const op of rootOps.sort((a, b) => a.operationId.localeCompare(b.operationId))) {
+    lines.push(
+      `      ${op.operationId}: (...args: unknown[]) => invokeEndpoint(client${op.clientPath}['$${op.method}'], {}, args),`,
+    );
+  }
+  for (const group of [...groups.values()].sort((a, b) => groupNameForParams(a.params).localeCompare(groupNameForParams(b.params)))) {
+    const groupName = groupNameForParams(group.params);
+    if (group.params.length === 1) {
+      const k = group.params[0]!;
+      lines.push(`      ${groupName}(value: ParamValue<Client${group.ops[0]!.clientTypePath}['$${group.ops[0]!.method}'], ${JSON.stringify(k)}>) {`);
+      lines.push(`        const boundParam: Record<string, unknown> = { [${JSON.stringify(k)}]: value };`);
+    } else {
+      lines.push(`      ${groupName}(value: {`);
+      for (const k of group.params) {
+        lines.push(
+          `        ${k}: ParamValue<Client${group.ops[0]!.clientTypePath}['$${group.ops[0]!.method}'], ${JSON.stringify(k)}>;`,
+        );
+      }
+      lines.push('      }) {');
+      lines.push('        const boundParam: Record<string, unknown> = value;');
+    }
+    lines.push('        return {');
+    for (const op of group.ops.sort((a, b) => a.operationId.localeCompare(b.operationId))) {
+      lines.push(
+        `          ${op.operationId}: (...args: unknown[]) => invokeEndpoint(client${op.clientPath}['$${op.method}'], boundParam, args),`,
+      );
+    }
+    lines.push('        };');
+    lines.push('      },');
+  }
+  lines.push('    },');
+}
+lines.push('  };');
+lines.push('}');
+lines.push('');
+lines.push('export interface Builder extends BuilderShape {}');
+lines.push('');
+lines.push('export class Builder {');
+lines.push('  constructor(client: Client) {');
+lines.push('    Object.assign(this, createBuilderImpl(client));');
+lines.push('  }');
 lines.push('}');
 lines.push('');
 
 await fs.writeFile(outPath, lines.join('\n'), 'utf-8');
 console.log(`Wrote ${path.relative(repoRoot, outPath)}`);
+
