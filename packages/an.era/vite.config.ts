@@ -24,7 +24,7 @@ export default defineConfig({
       profile: 'esm-only',
     },
     dts: {
-      tsgo: true,
+      oxc: true,
     },
     inputOptions: {
       experimental: {
