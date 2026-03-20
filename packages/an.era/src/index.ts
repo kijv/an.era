@@ -1,9 +1,9 @@
 import type { ClientRequestOptions } from 'hono';
-import { Builder } from './builder-runtime';
+import { Builder } from './builder';
 import { ac } from './client';
 
 export type { BuilderShape } from './builder';
-export { Builder } from './builder-runtime';
+export { Builder };
 
 type Prettify<T> = {
   [K in keyof T]: T[K];
