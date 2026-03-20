@@ -6,46 +6,29 @@ on:
       - main
 
 concurrency: ${{ github.workflow }}-${{ github.ref }}
-permissions:
-  id-token: write
-  contents: write
 
 jobs:
   release:
     name: Release
     runs-on: ubuntu-latest
-    env:
-      TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
-      TURBO_TEAM: ${{ vars.TURBO_TEAM }}
-      TURBO_REMOTE_CACHE_SIGNATURE_KEY: ${{ secrets.TURBO_REMOTE_CACHE_SIGNATURE_KEY }}
+    permissions:
+      id-token: write
+      contents: write
     steps:
       - name: Checkout Repo
         uses: actions/checkout@v6
-
-      - uses: actions/setup-node@v4
+      - uses: voidzero-dev/setup-vp@v1
         with:
-          node-version: '24'
-          registry-url: 'https://registry.npmjs.org'
-
-      - uses: oven-sh/setup-bun@v2
-
-      - name: Install Dependencies
-        run: bun i --frozen-lockfile
-
-      - name: Cache turbo build setup
-        uses: actions/cache@v4
-        with:
-          path: .turbo
-          key: ${{ runner.os }}-turbo-${{ github.sha }}
-          restore-keys: |
-            ${{ runner.os }}-turbo-
-
+          node-version-file: '.node-version'
+          cache: true
+          run-install: false
+      - run: vp i --frozen-lockfile
       - name: Create Release Pull Request or Publish to npm
         id: changesets
         uses: changesets/action@v1
         with:
-          publish: bun run release
-          version: bun run version
+          publish: vp run release
+          version: vp run version
           title: release packages
           commit: release packages
         env:
