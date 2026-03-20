@@ -69,9 +69,10 @@ function pascalCase(input: string): string {
   return c ? c[0]!.toUpperCase() + c.slice(1) : c;
 }
 
+/** OpenAPI `{param}` names → camelCase method (`id`, `batchId`, or `fooAndBar` for multiple). */
 function groupNameForParams(params: string[]): string {
   if (params.length === 0) return 'root';
-  return `by${params.map(pascalCase).join('And')}`;
+  return params.map((p) => camelCase(p)).join('And');
 }
 
 function encodeParamKey(params: string[]): string {
@@ -138,7 +139,7 @@ const lines: string[] = [
   ' *',
   ' * Each tag is an object: methods are either endpoints, or take path params and return',
   ' * an object of endpoint methods (shared path prefix). E.g. `blocks.createBlock(...)`,',
-  ' * `blocks.byId(1).getBlock(...)`.',
+  ' * `blocks.id(1).getBlock(...)` (method name = camelCase OpenAPI param).',
   ' */',
   '',
   "import type { ac } from './client';",

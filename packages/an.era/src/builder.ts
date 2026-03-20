@@ -4,7 +4,7 @@
  *
  * Each tag is an object: methods are either endpoints, or take path params and return
  * an object of endpoint methods (shared path prefix). E.g. `blocks.createBlock(...)`,
- * `blocks.byId(1).getBlock(...)`.
+ * `blocks.id(1).getBlock(...)` (method name = camelCase OpenAPI param).
  */
 
 import type { ac } from './client';
@@ -43,10 +43,10 @@ type AuthenticationTag = {
 type BlocksTag = {
   batchCreateBlocks: BoundCall<Client["v3"]["blocks"]["batch"]['$post'], never>;
   createBlock: BoundCall<Client["v3"]["blocks"]['$post'], never>;
-  byBatchId(value: ParamValue<Client["v3"]["blocks"]["batch"][':batch_id']['$get'], "batch_id">): {
+  batchId(value: ParamValue<Client["v3"]["blocks"]["batch"][':batch_id']['$get'], "batch_id">): {
     getBatchStatus: BoundCall<Client["v3"]["blocks"]["batch"][':batch_id']['$get'], "batch_id">;
   };
-  byId(value: ParamValue<Client["v3"]["blocks"][':id']["comments"]['$post'], "id">): {
+  id(value: ParamValue<Client["v3"]["blocks"][':id']["comments"]['$post'], "id">): {
     createBlockComment: BoundCall<Client["v3"]["blocks"][':id']["comments"]['$post'], "id">;
     getBlock: BoundCall<Client["v3"]["blocks"][':id']['$get'], "id">;
     getBlockComments: BoundCall<Client["v3"]["blocks"][':id']["comments"]['$get'], "id">;
@@ -57,7 +57,7 @@ type BlocksTag = {
 
 type ChannelsTag = {
   createChannel: BoundCall<Client["v3"]["channels"]['$post'], never>;
-  byId(value: ParamValue<Client["v3"]["channels"][':id']['$delete'], "id">): {
+  id(value: ParamValue<Client["v3"]["channels"][':id']['$delete'], "id">): {
     deleteChannel: BoundCall<Client["v3"]["channels"][':id']['$delete'], "id">;
     getChannel: BoundCall<Client["v3"]["channels"][':id']['$get'], "id">;
     getChannelConnections: BoundCall<Client["v3"]["channels"][':id']["connections"]['$get'], "id">;
@@ -68,14 +68,14 @@ type ChannelsTag = {
 };
 
 type CommentsTag = {
-  byId(value: ParamValue<Client["v3"]["comments"][':id']['$delete'], "id">): {
+  id(value: ParamValue<Client["v3"]["comments"][':id']['$delete'], "id">): {
     deleteComment: BoundCall<Client["v3"]["comments"][':id']['$delete'], "id">;
   };
 };
 
 type ConnectionsTag = {
   createConnection: BoundCall<Client["v3"]["connections"]['$post'], never>;
-  byId(value: ParamValue<Client["v3"]["connections"][':id']['$delete'], "id">): {
+  id(value: ParamValue<Client["v3"]["connections"][':id']['$delete'], "id">): {
     deleteConnection: BoundCall<Client["v3"]["connections"][':id']['$delete'], "id">;
     getConnection: BoundCall<Client["v3"]["connections"][':id']['$get'], "id">;
     moveConnection: BoundCall<Client["v3"]["connections"][':id']["move"]['$post'], "id">;
@@ -83,7 +83,7 @@ type ConnectionsTag = {
 };
 
 type GroupsTag = {
-  byId(value: ParamValue<Client["v3"]["groups"][':id']['$get'], "id">): {
+  id(value: ParamValue<Client["v3"]["groups"][':id']['$get'], "id">): {
     getGroup: BoundCall<Client["v3"]["groups"][':id']['$get'], "id">;
     getGroupContents: BoundCall<Client["v3"]["groups"][':id']["contents"]['$get'], "id">;
     getGroupFollowers: BoundCall<Client["v3"]["groups"][':id']["followers"]['$get'], "id">;
@@ -106,7 +106,7 @@ type UploadsTag = {
 
 type UsersTag = {
   getCurrentUser: BoundCall<Client["v3"]["me"]['$get'], never>;
-  byId(value: ParamValue<Client["v3"]["users"][':id']['$get'], "id">): {
+  id(value: ParamValue<Client["v3"]["users"][':id']['$get'], "id">): {
     getUser: BoundCall<Client["v3"]["users"][':id']['$get'], "id">;
     getUserContents: BoundCall<Client["v3"]["users"][':id']["contents"]['$get'], "id">;
     getUserFollowers: BoundCall<Client["v3"]["users"][':id']["followers"]['$get'], "id">;
@@ -145,13 +145,13 @@ function createBuilderImpl(client: Client): BuilderShape {
     blocks: {
       batchCreateBlocks: (...args: unknown[]) => invokeEndpoint(client.v3.blocks.batch['$post'], {}, args),
       createBlock: (...args: unknown[]) => invokeEndpoint(client.v3.blocks['$post'], {}, args),
-      byBatchId(value: ParamValue<Client["v3"]["blocks"]["batch"][':batch_id']['$get'], "batch_id">) {
+      batchId(value: ParamValue<Client["v3"]["blocks"]["batch"][':batch_id']['$get'], "batch_id">) {
         const boundParam: Record<string, unknown> = { ["batch_id"]: value };
         return {
           getBatchStatus: (...args: unknown[]) => invokeEndpoint(client.v3.blocks.batch[':batch_id']['$get'], boundParam, args),
         };
       },
-      byId(value: ParamValue<Client["v3"]["blocks"][':id']["comments"]['$post'], "id">) {
+      id(value: ParamValue<Client["v3"]["blocks"][':id']["comments"]['$post'], "id">) {
         const boundParam: Record<string, unknown> = { ["id"]: value };
         return {
           createBlockComment: (...args: unknown[]) => invokeEndpoint(client.v3.blocks[':id'].comments['$post'], boundParam, args),
@@ -164,7 +164,7 @@ function createBuilderImpl(client: Client): BuilderShape {
     },
     channels: {
       createChannel: (...args: unknown[]) => invokeEndpoint(client.v3.channels['$post'], {}, args),
-      byId(value: ParamValue<Client["v3"]["channels"][':id']['$delete'], "id">) {
+      id(value: ParamValue<Client["v3"]["channels"][':id']['$delete'], "id">) {
         const boundParam: Record<string, unknown> = { ["id"]: value };
         return {
           deleteChannel: (...args: unknown[]) => invokeEndpoint(client.v3.channels[':id']['$delete'], boundParam, args),
@@ -177,7 +177,7 @@ function createBuilderImpl(client: Client): BuilderShape {
       },
     },
     comments: {
-      byId(value: ParamValue<Client["v3"]["comments"][':id']['$delete'], "id">) {
+      id(value: ParamValue<Client["v3"]["comments"][':id']['$delete'], "id">) {
         const boundParam: Record<string, unknown> = { ["id"]: value };
         return {
           deleteComment: (...args: unknown[]) => invokeEndpoint(client.v3.comments[':id']['$delete'], boundParam, args),
@@ -186,7 +186,7 @@ function createBuilderImpl(client: Client): BuilderShape {
     },
     connections: {
       createConnection: (...args: unknown[]) => invokeEndpoint(client.v3.connections['$post'], {}, args),
-      byId(value: ParamValue<Client["v3"]["connections"][':id']['$delete'], "id">) {
+      id(value: ParamValue<Client["v3"]["connections"][':id']['$delete'], "id">) {
         const boundParam: Record<string, unknown> = { ["id"]: value };
         return {
           deleteConnection: (...args: unknown[]) => invokeEndpoint(client.v3.connections[':id']['$delete'], boundParam, args),
@@ -196,7 +196,7 @@ function createBuilderImpl(client: Client): BuilderShape {
       },
     },
     groups: {
-      byId(value: ParamValue<Client["v3"]["groups"][':id']['$get'], "id">) {
+      id(value: ParamValue<Client["v3"]["groups"][':id']['$get'], "id">) {
         const boundParam: Record<string, unknown> = { ["id"]: value };
         return {
           getGroup: (...args: unknown[]) => invokeEndpoint(client.v3.groups[':id']['$get'], boundParam, args),
@@ -218,7 +218,7 @@ function createBuilderImpl(client: Client): BuilderShape {
     },
     users: {
       getCurrentUser: (...args: unknown[]) => invokeEndpoint(client.v3.me['$get'], {}, args),
-      byId(value: ParamValue<Client["v3"]["users"][':id']['$get'], "id">) {
+      id(value: ParamValue<Client["v3"]["users"][':id']['$get'], "id">) {
         const boundParam: Record<string, unknown> = { ["id"]: value };
         return {
           getUser: (...args: unknown[]) => invokeEndpoint(client.v3.users[':id']['$get'], boundParam, args),
