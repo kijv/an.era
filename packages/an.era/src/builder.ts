@@ -4,7 +4,7 @@
  *
  * Pattern: tag → callable subcategory → endpoint.
  * Examples: `blocks.root().createBlock(...)`, `blocks.byId(1).getBlock(...)`.
- * Second level is always a function (`root()` when there are no path params, else `byId` / `byBatchId` / …).
+ * Runtime is a plain nested object of closures over `client` — no string routing / Proxy.
  */
 
 import type { ac } from './client';
@@ -153,347 +153,120 @@ function invokeEndpoint(endpoint: Fn, boundParam: Record<string, unknown>, args:
   return endpoint({ param: boundParam }, ...(args as any[]));
 }
 
-/** Second level under a tag: function arity is encoded by `params` (empty => `root()`). */
-type TagAccess = { params: string[] };
-
-function resolveTagAccess(tag: string, key: string): TagAccess | undefined {
-  switch (tag) {
-    case "authentication":
-      switch (key) {
-        case "root":
-          return { params: [] };
-        default:
-          return undefined;
-      }
-    case "blocks":
-      switch (key) {
-        case "root":
-          return { params: [] };
-        case "byBatchId":
-          return { params: ["batch_id"] };
-        case "byId":
-          return { params: ["id"] };
-        default:
-          return undefined;
-      }
-    case "channels":
-      switch (key) {
-        case "root":
-          return { params: [] };
-        case "byId":
-          return { params: ["id"] };
-        default:
-          return undefined;
-      }
-    case "comments":
-      switch (key) {
-        case "byId":
-          return { params: ["id"] };
-        default:
-          return undefined;
-      }
-    case "connections":
-      switch (key) {
-        case "root":
-          return { params: [] };
-        case "byId":
-          return { params: ["id"] };
-        default:
-          return undefined;
-      }
-    case "groups":
-      switch (key) {
-        case "byId":
-          return { params: ["id"] };
-        default:
-          return undefined;
-      }
-    case "search":
-      switch (key) {
-        case "root":
-          return { params: [] };
-        default:
-          return undefined;
-      }
-    case "system":
-      switch (key) {
-        case "root":
-          return { params: [] };
-        default:
-          return undefined;
-      }
-    case "uploads":
-      switch (key) {
-        case "root":
-          return { params: [] };
-        default:
-          return undefined;
-      }
-    case "users":
-      switch (key) {
-        case "root":
-          return { params: [] };
-        case "byId":
-          return { params: ["id"] };
-        default:
-          return undefined;
-      }
-    default:
-      return undefined;
-  }
-}
-
-function dispatchGroupedOp(
-  client: Client,
-  tag: string,
-  group: string,
-  opId: string,
-  bound: Record<string, unknown>,
-  args: unknown[],
-): unknown {
-  switch (tag) {
-    case "authentication":
-      switch (group) {
-        case "root":
-          switch (opId) {
-            case "createOAuthToken":
-              return invokeEndpoint(client.v3.oauth.token['$post'], bound, args);
-            default:
-              throw new Error(`Unknown operation ${opId} in group root (tag authentication)`);
-          }
-        default:
-          throw new Error(`Unknown subcategory ${group} for tag authentication`);
-      }
-    case "blocks":
-      switch (group) {
-        case "root":
-          switch (opId) {
-            case "batchCreateBlocks":
-              return invokeEndpoint(client.v3.blocks.batch['$post'], bound, args);
-            case "createBlock":
-              return invokeEndpoint(client.v3.blocks['$post'], bound, args);
-            default:
-              throw new Error(`Unknown operation ${opId} in group root (tag blocks)`);
-          }
-        case "byBatchId":
-          switch (opId) {
-            case "getBatchStatus":
-              return invokeEndpoint(client.v3.blocks.batch[':batch_id']['$get'], bound, args);
-            default:
-              throw new Error(`Unknown operation ${opId} in group byBatchId (tag blocks)`);
-          }
-        case "byId":
-          switch (opId) {
-            case "createBlockComment":
-              return invokeEndpoint(client.v3.blocks[':id'].comments['$post'], bound, args);
-            case "getBlock":
-              return invokeEndpoint(client.v3.blocks[':id']['$get'], bound, args);
-            case "getBlockComments":
-              return invokeEndpoint(client.v3.blocks[':id'].comments['$get'], bound, args);
-            case "getBlockConnections":
-              return invokeEndpoint(client.v3.blocks[':id'].connections['$get'], bound, args);
-            case "updateBlock":
-              return invokeEndpoint(client.v3.blocks[':id']['$put'], bound, args);
-            default:
-              throw new Error(`Unknown operation ${opId} in group byId (tag blocks)`);
-          }
-        default:
-          throw new Error(`Unknown subcategory ${group} for tag blocks`);
-      }
-    case "channels":
-      switch (group) {
-        case "root":
-          switch (opId) {
-            case "createChannel":
-              return invokeEndpoint(client.v3.channels['$post'], bound, args);
-            default:
-              throw new Error(`Unknown operation ${opId} in group root (tag channels)`);
-          }
-        case "byId":
-          switch (opId) {
-            case "deleteChannel":
-              return invokeEndpoint(client.v3.channels[':id']['$delete'], bound, args);
-            case "getChannel":
-              return invokeEndpoint(client.v3.channels[':id']['$get'], bound, args);
-            case "getChannelConnections":
-              return invokeEndpoint(client.v3.channels[':id'].connections['$get'], bound, args);
-            case "getChannelContents":
-              return invokeEndpoint(client.v3.channels[':id'].contents['$get'], bound, args);
-            case "getChannelFollowers":
-              return invokeEndpoint(client.v3.channels[':id'].followers['$get'], bound, args);
-            case "updateChannel":
-              return invokeEndpoint(client.v3.channels[':id']['$put'], bound, args);
-            default:
-              throw new Error(`Unknown operation ${opId} in group byId (tag channels)`);
-          }
-        default:
-          throw new Error(`Unknown subcategory ${group} for tag channels`);
-      }
-    case "comments":
-      switch (group) {
-        case "byId":
-          switch (opId) {
-            case "deleteComment":
-              return invokeEndpoint(client.v3.comments[':id']['$delete'], bound, args);
-            default:
-              throw new Error(`Unknown operation ${opId} in group byId (tag comments)`);
-          }
-        default:
-          throw new Error(`Unknown subcategory ${group} for tag comments`);
-      }
-    case "connections":
-      switch (group) {
-        case "root":
-          switch (opId) {
-            case "createConnection":
-              return invokeEndpoint(client.v3.connections['$post'], bound, args);
-            default:
-              throw new Error(`Unknown operation ${opId} in group root (tag connections)`);
-          }
-        case "byId":
-          switch (opId) {
-            case "deleteConnection":
-              return invokeEndpoint(client.v3.connections[':id']['$delete'], bound, args);
-            case "getConnection":
-              return invokeEndpoint(client.v3.connections[':id']['$get'], bound, args);
-            case "moveConnection":
-              return invokeEndpoint(client.v3.connections[':id'].move['$post'], bound, args);
-            default:
-              throw new Error(`Unknown operation ${opId} in group byId (tag connections)`);
-          }
-        default:
-          throw new Error(`Unknown subcategory ${group} for tag connections`);
-      }
-    case "groups":
-      switch (group) {
-        case "byId":
-          switch (opId) {
-            case "getGroup":
-              return invokeEndpoint(client.v3.groups[':id']['$get'], bound, args);
-            case "getGroupContents":
-              return invokeEndpoint(client.v3.groups[':id'].contents['$get'], bound, args);
-            case "getGroupFollowers":
-              return invokeEndpoint(client.v3.groups[':id'].followers['$get'], bound, args);
-            default:
-              throw new Error(`Unknown operation ${opId} in group byId (tag groups)`);
-          }
-        default:
-          throw new Error(`Unknown subcategory ${group} for tag groups`);
-      }
-    case "search":
-      switch (group) {
-        case "root":
-          switch (opId) {
-            case "search":
-              return invokeEndpoint(client.v3.search['$get'], bound, args);
-            default:
-              throw new Error(`Unknown operation ${opId} in group root (tag search)`);
-          }
-        default:
-          throw new Error(`Unknown subcategory ${group} for tag search`);
-      }
-    case "system":
-      switch (group) {
-        case "root":
-          switch (opId) {
-            case "getOpenapiSpec":
-              return invokeEndpoint(client.v3.openapi['$get'], bound, args);
-            case "getOpenapiSpecJson":
-              return invokeEndpoint(client.v3["openapi.json"]['$get'], bound, args);
-            case "getPing":
-              return invokeEndpoint(client.v3.ping['$get'], bound, args);
-            default:
-              throw new Error(`Unknown operation ${opId} in group root (tag system)`);
-          }
-        default:
-          throw new Error(`Unknown subcategory ${group} for tag system`);
-      }
-    case "uploads":
-      switch (group) {
-        case "root":
-          switch (opId) {
-            case "presignUpload":
-              return invokeEndpoint(client.v3.uploads.presign['$post'], bound, args);
-            default:
-              throw new Error(`Unknown operation ${opId} in group root (tag uploads)`);
-          }
-        default:
-          throw new Error(`Unknown subcategory ${group} for tag uploads`);
-      }
-    case "users":
-      switch (group) {
-        case "root":
-          switch (opId) {
-            case "getCurrentUser":
-              return invokeEndpoint(client.v3.me['$get'], bound, args);
-            default:
-              throw new Error(`Unknown operation ${opId} in group root (tag users)`);
-          }
-        case "byId":
-          switch (opId) {
-            case "getUser":
-              return invokeEndpoint(client.v3.users[':id']['$get'], bound, args);
-            case "getUserContents":
-              return invokeEndpoint(client.v3.users[':id'].contents['$get'], bound, args);
-            case "getUserFollowers":
-              return invokeEndpoint(client.v3.users[':id'].followers['$get'], bound, args);
-            case "getUserFollowing":
-              return invokeEndpoint(client.v3.users[':id'].following['$get'], bound, args);
-            default:
-              throw new Error(`Unknown operation ${opId} in group byId (tag users)`);
-          }
-        default:
-          throw new Error(`Unknown subcategory ${group} for tag users`);
-      }
-    default:
-      throw new Error(`Unknown tag ${tag}`);
-  }
-}
-
-const noop = (): unknown => undefined;
-
-function normalizeGroupParams(params: string[], value: unknown): Record<string, unknown> {
-  if (params.length === 1) return { [params[0]!]: value };
-  return value as Record<string, unknown>;
-}
-
-function createGroupProxy(client: Client, tag: string, group: string, bound: Record<string, unknown>) {
-  return new Proxy(noop, {
-    get(_t, opId) {
-      if (typeof opId !== "string" || opId === "then") return undefined;
-      return (...args: unknown[]) => dispatchGroupedOp(client, tag, group, opId, bound, args);
+function createBuilderImpl(client: Client): BuilderShape {
+  return {
+    authentication: {
+      root: () => ({
+        createOAuthToken: (...args: unknown[]) => invokeEndpoint(client.v3.oauth.token['$post'], {}, args),
+      }),
     },
-  });
-}
-
-function createTagProxy(client: Client, tag: string) {
-  return new Proxy(noop, {
-    get(_t, key) {
-      if (typeof key !== "string" || key === "then") return undefined;
-      const access = resolveTagAccess(tag, key);
-      if (!access) return undefined;
-      if (access.params.length === 0) {
-        return () => createGroupProxy(client, tag, key, {});
-      }
-      return (value: unknown) =>
-        createGroupProxy(client, tag, key, normalizeGroupParams(access.params, value));
+    blocks: {
+      root: () => ({
+        batchCreateBlocks: (...args: unknown[]) => invokeEndpoint(client.v3.blocks.batch['$post'], {}, args),
+        createBlock: (...args: unknown[]) => invokeEndpoint(client.v3.blocks['$post'], {}, args),
+      }),
+      byBatchId(value: ParamValue<Client["v3"]["blocks"]["batch"][':batch_id']['$get'], "batch_id">) {
+        const boundParam: Record<string, unknown> = { ["batch_id"]: value };
+        return {
+          getBatchStatus: (...args: unknown[]) => invokeEndpoint(client.v3.blocks.batch[':batch_id']['$get'], boundParam, args),
+        };
+      },
+      byId(value: ParamValue<Client["v3"]["blocks"][':id']["comments"]['$post'], "id">) {
+        const boundParam: Record<string, unknown> = { ["id"]: value };
+        return {
+          createBlockComment: (...args: unknown[]) => invokeEndpoint(client.v3.blocks[':id'].comments['$post'], boundParam, args),
+          getBlock: (...args: unknown[]) => invokeEndpoint(client.v3.blocks[':id']['$get'], boundParam, args),
+          getBlockComments: (...args: unknown[]) => invokeEndpoint(client.v3.blocks[':id'].comments['$get'], boundParam, args),
+          getBlockConnections: (...args: unknown[]) => invokeEndpoint(client.v3.blocks[':id'].connections['$get'], boundParam, args),
+          updateBlock: (...args: unknown[]) => invokeEndpoint(client.v3.blocks[':id']['$put'], boundParam, args),
+        };
+      },
     },
-  });
-}
-
-function createBuilderRoot(client: Client) {
-  return new Proxy(noop, {
-    get(_t, tagKey) {
-      if (typeof tagKey !== "string" || tagKey === "then") return undefined;
-      return createTagProxy(client, tagKey);
+    channels: {
+      root: () => ({
+        createChannel: (...args: unknown[]) => invokeEndpoint(client.v3.channels['$post'], {}, args),
+      }),
+      byId(value: ParamValue<Client["v3"]["channels"][':id']['$delete'], "id">) {
+        const boundParam: Record<string, unknown> = { ["id"]: value };
+        return {
+          deleteChannel: (...args: unknown[]) => invokeEndpoint(client.v3.channels[':id']['$delete'], boundParam, args),
+          getChannel: (...args: unknown[]) => invokeEndpoint(client.v3.channels[':id']['$get'], boundParam, args),
+          getChannelConnections: (...args: unknown[]) => invokeEndpoint(client.v3.channels[':id'].connections['$get'], boundParam, args),
+          getChannelContents: (...args: unknown[]) => invokeEndpoint(client.v3.channels[':id'].contents['$get'], boundParam, args),
+          getChannelFollowers: (...args: unknown[]) => invokeEndpoint(client.v3.channels[':id'].followers['$get'], boundParam, args),
+          updateChannel: (...args: unknown[]) => invokeEndpoint(client.v3.channels[':id']['$put'], boundParam, args),
+        };
+      },
     },
-  });
+    comments: {
+      byId(value: ParamValue<Client["v3"]["comments"][':id']['$delete'], "id">) {
+        const boundParam: Record<string, unknown> = { ["id"]: value };
+        return {
+          deleteComment: (...args: unknown[]) => invokeEndpoint(client.v3.comments[':id']['$delete'], boundParam, args),
+        };
+      },
+    },
+    connections: {
+      root: () => ({
+        createConnection: (...args: unknown[]) => invokeEndpoint(client.v3.connections['$post'], {}, args),
+      }),
+      byId(value: ParamValue<Client["v3"]["connections"][':id']['$delete'], "id">) {
+        const boundParam: Record<string, unknown> = { ["id"]: value };
+        return {
+          deleteConnection: (...args: unknown[]) => invokeEndpoint(client.v3.connections[':id']['$delete'], boundParam, args),
+          getConnection: (...args: unknown[]) => invokeEndpoint(client.v3.connections[':id']['$get'], boundParam, args),
+          moveConnection: (...args: unknown[]) => invokeEndpoint(client.v3.connections[':id'].move['$post'], boundParam, args),
+        };
+      },
+    },
+    groups: {
+      byId(value: ParamValue<Client["v3"]["groups"][':id']['$get'], "id">) {
+        const boundParam: Record<string, unknown> = { ["id"]: value };
+        return {
+          getGroup: (...args: unknown[]) => invokeEndpoint(client.v3.groups[':id']['$get'], boundParam, args),
+          getGroupContents: (...args: unknown[]) => invokeEndpoint(client.v3.groups[':id'].contents['$get'], boundParam, args),
+          getGroupFollowers: (...args: unknown[]) => invokeEndpoint(client.v3.groups[':id'].followers['$get'], boundParam, args),
+        };
+      },
+    },
+    search: {
+      root: () => ({
+        search: (...args: unknown[]) => invokeEndpoint(client.v3.search['$get'], {}, args),
+      }),
+    },
+    system: {
+      root: () => ({
+        getOpenapiSpec: (...args: unknown[]) => invokeEndpoint(client.v3.openapi['$get'], {}, args),
+        getOpenapiSpecJson: (...args: unknown[]) => invokeEndpoint(client.v3["openapi.json"]['$get'], {}, args),
+        getPing: (...args: unknown[]) => invokeEndpoint(client.v3.ping['$get'], {}, args),
+      }),
+    },
+    uploads: {
+      root: () => ({
+        presignUpload: (...args: unknown[]) => invokeEndpoint(client.v3.uploads.presign['$post'], {}, args),
+      }),
+    },
+    users: {
+      root: () => ({
+        getCurrentUser: (...args: unknown[]) => invokeEndpoint(client.v3.me['$get'], {}, args),
+      }),
+      byId(value: ParamValue<Client["v3"]["users"][':id']['$get'], "id">) {
+        const boundParam: Record<string, unknown> = { ["id"]: value };
+        return {
+          getUser: (...args: unknown[]) => invokeEndpoint(client.v3.users[':id']['$get'], boundParam, args),
+          getUserContents: (...args: unknown[]) => invokeEndpoint(client.v3.users[':id'].contents['$get'], boundParam, args),
+          getUserFollowers: (...args: unknown[]) => invokeEndpoint(client.v3.users[':id'].followers['$get'], boundParam, args),
+          getUserFollowing: (...args: unknown[]) => invokeEndpoint(client.v3.users[':id'].following['$get'], boundParam, args),
+        };
+      },
+    },
+  };
 }
 
 export interface Builder extends BuilderShape {}
 
 export class Builder {
   constructor(client: Client) {
-    return createBuilderRoot(client) as unknown as Builder;
+    return createBuilderImpl(client) as unknown as Builder;
   }
 }

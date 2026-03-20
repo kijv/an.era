@@ -138,7 +138,7 @@ const lines: string[] = [
   ' *',
   ' * Pattern: tag → callable subcategory → endpoint.',
   ' * Examples: `blocks.root().createBlock(...)`, `blocks.byId(1).getBlock(...)`.',
-  ' * Second level is always a function (`root()` when there are no path params, else `byId` / `byBatchId` / …).',
+  ' * Runtime is a plain nested object of closures over `client` — no string routing / Proxy.',
   ' */',
   '',
   "import type { ac } from './client';",
@@ -230,137 +230,60 @@ lines.push('  }');
 lines.push('  return endpoint({ param: boundParam }, ...(args as any[]));');
 lines.push('}');
 lines.push('');
-lines.push('/** Second level under a tag: function arity is encoded by `params` (empty => `root()`). */');
-lines.push('type TagAccess = { params: string[] };');
-lines.push('');
-lines.push('function resolveTagAccess(tag: string, key: string): TagAccess | undefined {');
-lines.push('  switch (tag) {');
+lines.push('function createBuilderImpl(client: Client): BuilderShape {');
+lines.push('  return {');
 
 for (const tag of orderedTags) {
   const { rootOps, groups } = tagStructure(tag);
-  lines.push(`    case ${JSON.stringify(tag.key)}:`);
-  lines.push('      switch (key) {');
+  lines.push(`    ${tag.key}: {`);
   if (rootOps.length > 0) {
-    lines.push('        case "root":');
-    lines.push('          return { params: [] };');
-  }
-  for (const group of groups) {
-    const gn = groupNameForParams(group.params);
-    lines.push(`        case ${JSON.stringify(gn)}:`);
-    lines.push(`          return { params: ${JSON.stringify(group.params)} };`);
-  }
-  lines.push('        default:');
-  lines.push('          return undefined;');
-  lines.push('      }');
-}
-
-lines.push('    default:');
-lines.push('      return undefined;');
-lines.push('  }');
-lines.push('}');
-lines.push('');
-lines.push('function dispatchGroupedOp(');
-lines.push('  client: Client,');
-lines.push('  tag: string,');
-lines.push('  group: string,');
-lines.push('  opId: string,');
-lines.push('  bound: Record<string, unknown>,');
-lines.push('  args: unknown[],');
-lines.push('): unknown {');
-lines.push('  switch (tag) {');
-
-for (const tag of orderedTags) {
-  const { rootOps, groups } = tagStructure(tag);
-  lines.push(`    case ${JSON.stringify(tag.key)}:`);
-  lines.push('      switch (group) {');
-  if (rootOps.length > 0) {
-    lines.push('        case "root":');
-    lines.push('          switch (opId) {');
+    lines.push('      root: () => ({');
     for (const op of rootOps.sort((a, b) => a.operationId.localeCompare(b.operationId))) {
-      lines.push(`            case ${JSON.stringify(op.operationId)}:`);
       lines.push(
-        `              return invokeEndpoint(client${op.clientPath}['$${op.method}'], bound, args);`,
+        `        ${op.operationId}: (...args: unknown[]) => invokeEndpoint(client${op.clientPath}['$${op.method}'], {}, args),`,
       );
     }
-    lines.push('            default:');
-    lines.push(
-      `              throw new Error(\`Unknown operation \${opId} in group root (tag ${tag.key})\`);`,
-    );
-    lines.push('          }');
+    lines.push('      }),');
   }
   for (const group of groups) {
-    const gn = groupNameForParams(group.params);
-    lines.push(`        case ${JSON.stringify(gn)}:`);
-    lines.push('          switch (opId) {');
-    for (const op of group.ops.sort((a, b) => a.operationId.localeCompare(b.operationId))) {
-      lines.push(`            case ${JSON.stringify(op.operationId)}:`);
+    const groupName = groupNameForParams(group.params);
+    const rep = group.ops[0]!;
+    if (group.params.length === 1) {
+      const k = group.params[0]!;
       lines.push(
-        `              return invokeEndpoint(client${op.clientPath}['$${op.method}'], bound, args);`,
+        `      ${groupName}(value: ParamValue<Client${rep.clientTypePath}['$${rep.method}'], ${JSON.stringify(k)}>) {`,
+      );
+      lines.push(`        const boundParam: Record<string, unknown> = { [${JSON.stringify(k)}]: value };`);
+    } else {
+      lines.push(`      ${groupName}(value: {`);
+      for (const k of group.params) {
+        lines.push(
+          `        ${k}: ParamValue<Client${rep.clientTypePath}['$${rep.method}'], ${JSON.stringify(k)}>;`,
+        );
+      }
+      lines.push('      }) {');
+      lines.push('        const boundParam: Record<string, unknown> = value;');
+    }
+    lines.push('        return {');
+    for (const op of group.ops.sort((a, b) => a.operationId.localeCompare(b.operationId))) {
+      lines.push(
+        `          ${op.operationId}: (...args: unknown[]) => invokeEndpoint(client${op.clientPath}['$${op.method}'], boundParam, args),`,
       );
     }
-    lines.push('            default:');
-    lines.push(
-      `              throw new Error(\`Unknown operation \${opId} in group ${gn} (tag ${tag.key})\`);`,
-    );
-    lines.push('          }');
+    lines.push('        };');
+    lines.push('      },');
   }
-  lines.push('        default:');
-  lines.push(
-    `          throw new Error(\`Unknown subcategory \${group} for tag ${tag.key}\`);`,
-  );
-  lines.push('      }');
+  lines.push('    },');
 }
 
-lines.push('    default:');
-lines.push('      throw new Error(`Unknown tag ${tag}`);');
-lines.push('  }');
-lines.push('}');
-lines.push('');
-lines.push('const noop = (): unknown => undefined;');
-lines.push('');
-lines.push('function normalizeGroupParams(params: string[], value: unknown): Record<string, unknown> {');
-lines.push('  if (params.length === 1) return { [params[0]!]: value };');
-lines.push('  return value as Record<string, unknown>;');
-lines.push('}');
-lines.push('');
-lines.push('function createGroupProxy(client: Client, tag: string, group: string, bound: Record<string, unknown>) {');
-lines.push('  return new Proxy(noop, {');
-lines.push('    get(_t, opId) {');
-lines.push('      if (typeof opId !== "string" || opId === "then") return undefined;');
-lines.push('      return (...args: unknown[]) => dispatchGroupedOp(client, tag, group, opId, bound, args);');
-lines.push('    },');
-lines.push('  });');
-lines.push('}');
-lines.push('');
-lines.push('function createTagProxy(client: Client, tag: string) {');
-lines.push('  return new Proxy(noop, {');
-lines.push('    get(_t, key) {');
-lines.push('      if (typeof key !== "string" || key === "then") return undefined;');
-lines.push('      const access = resolveTagAccess(tag, key);');
-lines.push('      if (!access) return undefined;');
-lines.push('      if (access.params.length === 0) {');
-lines.push('        return () => createGroupProxy(client, tag, key, {});');
-lines.push('      }');
-lines.push('      return (value: unknown) =>');
-lines.push('        createGroupProxy(client, tag, key, normalizeGroupParams(access.params, value));');
-lines.push('    },');
-lines.push('  });');
-lines.push('}');
-lines.push('');
-lines.push('function createBuilderRoot(client: Client) {');
-lines.push('  return new Proxy(noop, {');
-lines.push('    get(_t, tagKey) {');
-lines.push('      if (typeof tagKey !== "string" || tagKey === "then") return undefined;');
-lines.push('      return createTagProxy(client, tagKey);');
-lines.push('    },');
-lines.push('  });');
+lines.push('  };');
 lines.push('}');
 lines.push('');
 lines.push('export interface Builder extends BuilderShape {}');
 lines.push('');
 lines.push('export class Builder {');
 lines.push('  constructor(client: Client) {');
-lines.push('    return createBuilderRoot(client) as unknown as Builder;');
+lines.push('    return createBuilderImpl(client) as unknown as Builder;');
 lines.push('  }');
 lines.push('}');
 lines.push('');
