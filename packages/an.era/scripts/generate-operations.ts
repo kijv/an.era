@@ -192,54 +192,42 @@ lines.push('function invokeEndpoint(endpoint: Fn, boundParam: Record<string, unk
 lines.push('  if (!boundParam || Object.keys(boundParam).length === 0) return endpoint(...(args as any[]));');
 lines.push('  if (args.length > 0 && typeof args[0] === "object" && args[0] !== null) {');
 lines.push('    const first = args[0] as Record<string, unknown>;');
-lines.push('    const merged = { ...first, param: { ...(first.param as object | undefined), ...boundParam } };');
+lines.push(
+  '    const merged = { ...first, param: { ...boundParam, ...(first.param as object | undefined) } };',
+);
 lines.push('    return endpoint(merged, ...(args.slice(1) as any[]));');
 lines.push('  }');
 lines.push('  return endpoint({ param: boundParam }, ...(args as any[]));');
 lines.push('}');
 lines.push('');
-lines.push('const ROOT_ENDPOINTS: Record<string, (client: Client, args: unknown[]) => unknown> = {');
+lines.push(
+  'const OP_HANDLERS: Record<string, (client: Client, bound: Record<string, unknown>, args: unknown[]) => unknown> = {',
+);
 
-for (const tag of orderedTags) {
-  const { rootOps } = tagStructure(tag);
-  for (const op of rootOps.sort((a, b) => a.operationId.localeCompare(b.operationId))) {
-    const pathKey = `${tag.key}|${op.operationId}`;
-    lines.push(
-      `  ${JSON.stringify(pathKey)}: (client, args) => invokeEndpoint(client${op.clientPath}['$${op.method}'], {}, args),`,
-    );
-  }
+const opById = new Map<string, GeneratedOperation>();
+for (const op of operations) opById.set(op.operationId, op);
+for (const id of [...opById.keys()].sort((a, b) => a.localeCompare(b))) {
+  const op = opById.get(id)!;
+  lines.push(
+    `  ${JSON.stringify(id)}: (client, bound, args) => invokeEndpoint(client${op.clientPath}['$${op.method}'], bound, args),`,
+  );
 }
 
 lines.push('};');
 lines.push('');
-lines.push(
-  'const GROUP_ENDPOINTS: Record<string, (client: Client, bound: Record<string, unknown>, args: unknown[]) => unknown> = {',
-);
+lines.push('const TAG_LEVEL2: Record<string, { root: Set<string>; groups: Set<string> }> = {');
 
 for (const tag of orderedTags) {
-  const { groups } = tagStructure(tag);
-  for (const group of groups) {
-    const gn = groupSegmentKey(group.params);
-    for (const op of group.ops.sort((a, b) => a.operationId.localeCompare(b.operationId))) {
-      const pathKey = `${tag.key}|${gn}|${op.operationId}`;
-      lines.push(
-        `  ${JSON.stringify(pathKey)}: (client, bound, args) => invokeEndpoint(client${op.clientPath}['$${op.method}'], bound, args),`,
-      );
-    }
-  }
+  const { rootOps, groups } = tagStructure(tag);
+  const rootIds = rootOps.map((o) => o.operationId).sort((a, b) => a.localeCompare(b));
+  const groupSegs = groups.map((g) => groupSegmentKey(g.params)).sort((a, b) => a.localeCompare(b));
+  lines.push(`  ${JSON.stringify(tag.key)}: {`);
+  lines.push(`    root: new Set(${JSON.stringify(rootIds)}),`);
+  lines.push(`    groups: new Set(${JSON.stringify(groupSegs)}),`);
+  lines.push('  },');
 }
 
 lines.push('};');
-lines.push('');
-lines.push(
-  'const GROUP_AT_TWO = new Set<string>(Object.keys(GROUP_ENDPOINTS).flatMap((k) => {',
-);
-lines.push('  const i = k.indexOf("|");');
-lines.push('  if (i === -1) return [];');
-lines.push('  const j = k.indexOf("|", i + 1);');
-lines.push('  if (j === -1) return [];');
-lines.push('  return [k.slice(0, j)];');
-lines.push('}));');
 lines.push('');
 lines.push('function paramKeysFromGroupSegment(segment: string): string[] {');
 lines.push('  if (segment.includes("\\x1f")) return segment.split("\\x1f");');
@@ -255,19 +243,24 @@ lines.push('type BuilderApplyOpts = { client: Client; path: string[]; args: unkn
 lines.push('');
 lines.push('function builderApply(opts: BuilderApplyOpts): unknown {');
 lines.push('  const { client, path, args, bound } = opts;');
-lines.push('  const key = path.join("|");');
 lines.push('  if (path.length === 2 && !bound) {');
-lines.push('    const run = ROOT_ENDPOINTS[key];');
-lines.push('    if (run) return run(client, args);');
-lines.push('    if (GROUP_AT_TWO.has(key)) {');
-lines.push('      const segment = path[1]!;');
-lines.push('      return createBuilderProxy(client, path, normalizeGroupParams(paramKeysFromGroupSegment(segment), args[0]));');
+lines.push('    const tag = path[0]!;');
+lines.push('    const seg = path[1]!;');
+lines.push('    const layout = TAG_LEVEL2[tag];');
+lines.push('    if (!layout) return undefined;');
+lines.push('    if (layout.root.has(seg)) {');
+lines.push('      const run = OP_HANDLERS[seg];');
+lines.push('      return run ? run(client, {}, args) : undefined;');
+lines.push('    }');
+lines.push('    if (layout.groups.has(seg)) {');
+lines.push('      return createBuilderProxy(client, path, normalizeGroupParams(paramKeysFromGroupSegment(seg), args[0]));');
 lines.push('    }');
 lines.push('    return undefined;');
 lines.push('  }');
 lines.push('  if (path.length === 3 && bound) {');
-lines.push('    const run = GROUP_ENDPOINTS[key];');
-lines.push('    if (run) return run(client, bound, args);');
+lines.push('    const opId = path[2]!;');
+lines.push('    const run = OP_HANDLERS[opId];');
+lines.push('    return run ? run(client, bound, args) : undefined;');
 lines.push('  }');
 lines.push('  return undefined;');
 lines.push('}');

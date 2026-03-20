@@ -86,59 +86,91 @@ function invokeEndpoint(endpoint: Fn, boundParam: Record<string, unknown>, args:
   if (!boundParam || Object.keys(boundParam).length === 0) return endpoint(...(args as any[]));
   if (args.length > 0 && typeof args[0] === "object" && args[0] !== null) {
     const first = args[0] as Record<string, unknown>;
-    const merged = { ...first, param: { ...(first.param as object | undefined), ...boundParam } };
+    const merged = { ...first, param: { ...boundParam, ...(first.param as object | undefined) } };
     return endpoint(merged, ...(args.slice(1) as any[]));
   }
   return endpoint({ param: boundParam }, ...(args as any[]));
 }
 
-const ROOT_ENDPOINTS: Record<string, (client: Client, args: unknown[]) => unknown> = {
-  "authentication|createOAuthToken": (client, args) => invokeEndpoint(client.v3.oauth.token['$post'], {}, args),
-  "blocks|batchCreateBlocks": (client, args) => invokeEndpoint(client.v3.blocks.batch['$post'], {}, args),
-  "blocks|createBlock": (client, args) => invokeEndpoint(client.v3.blocks['$post'], {}, args),
-  "channels|createChannel": (client, args) => invokeEndpoint(client.v3.channels['$post'], {}, args),
-  "connections|createConnection": (client, args) => invokeEndpoint(client.v3.connections['$post'], {}, args),
-  "search|search": (client, args) => invokeEndpoint(client.v3.search['$get'], {}, args),
-  "system|getOpenapiSpec": (client, args) => invokeEndpoint(client.v3.openapi['$get'], {}, args),
-  "system|getOpenapiSpecJson": (client, args) => invokeEndpoint(client.v3["openapi.json"]['$get'], {}, args),
-  "system|getPing": (client, args) => invokeEndpoint(client.v3.ping['$get'], {}, args),
-  "uploads|presignUpload": (client, args) => invokeEndpoint(client.v3.uploads.presign['$post'], {}, args),
-  "users|getCurrentUser": (client, args) => invokeEndpoint(client.v3.me['$get'], {}, args),
+const OP_HANDLERS: Record<string, (client: Client, bound: Record<string, unknown>, args: unknown[]) => unknown> = {
+  "batchCreateBlocks": (client, bound, args) => invokeEndpoint(client.v3.blocks.batch['$post'], bound, args),
+  "createBlock": (client, bound, args) => invokeEndpoint(client.v3.blocks['$post'], bound, args),
+  "createBlockComment": (client, bound, args) => invokeEndpoint(client.v3.blocks[':id'].comments['$post'], bound, args),
+  "createChannel": (client, bound, args) => invokeEndpoint(client.v3.channels['$post'], bound, args),
+  "createConnection": (client, bound, args) => invokeEndpoint(client.v3.connections['$post'], bound, args),
+  "createOAuthToken": (client, bound, args) => invokeEndpoint(client.v3.oauth.token['$post'], bound, args),
+  "deleteChannel": (client, bound, args) => invokeEndpoint(client.v3.channels[':id']['$delete'], bound, args),
+  "deleteComment": (client, bound, args) => invokeEndpoint(client.v3.comments[':id']['$delete'], bound, args),
+  "deleteConnection": (client, bound, args) => invokeEndpoint(client.v3.connections[':id']['$delete'], bound, args),
+  "getBatchStatus": (client, bound, args) => invokeEndpoint(client.v3.blocks.batch[':batch_id']['$get'], bound, args),
+  "getBlock": (client, bound, args) => invokeEndpoint(client.v3.blocks[':id']['$get'], bound, args),
+  "getBlockComments": (client, bound, args) => invokeEndpoint(client.v3.blocks[':id'].comments['$get'], bound, args),
+  "getBlockConnections": (client, bound, args) => invokeEndpoint(client.v3.blocks[':id'].connections['$get'], bound, args),
+  "getChannel": (client, bound, args) => invokeEndpoint(client.v3.channels[':id']['$get'], bound, args),
+  "getChannelConnections": (client, bound, args) => invokeEndpoint(client.v3.channels[':id'].connections['$get'], bound, args),
+  "getChannelContents": (client, bound, args) => invokeEndpoint(client.v3.channels[':id'].contents['$get'], bound, args),
+  "getChannelFollowers": (client, bound, args) => invokeEndpoint(client.v3.channels[':id'].followers['$get'], bound, args),
+  "getConnection": (client, bound, args) => invokeEndpoint(client.v3.connections[':id']['$get'], bound, args),
+  "getCurrentUser": (client, bound, args) => invokeEndpoint(client.v3.me['$get'], bound, args),
+  "getGroup": (client, bound, args) => invokeEndpoint(client.v3.groups[':id']['$get'], bound, args),
+  "getGroupContents": (client, bound, args) => invokeEndpoint(client.v3.groups[':id'].contents['$get'], bound, args),
+  "getGroupFollowers": (client, bound, args) => invokeEndpoint(client.v3.groups[':id'].followers['$get'], bound, args),
+  "getOpenapiSpec": (client, bound, args) => invokeEndpoint(client.v3.openapi['$get'], bound, args),
+  "getOpenapiSpecJson": (client, bound, args) => invokeEndpoint(client.v3["openapi.json"]['$get'], bound, args),
+  "getPing": (client, bound, args) => invokeEndpoint(client.v3.ping['$get'], bound, args),
+  "getUser": (client, bound, args) => invokeEndpoint(client.v3.users[':id']['$get'], bound, args),
+  "getUserContents": (client, bound, args) => invokeEndpoint(client.v3.users[':id'].contents['$get'], bound, args),
+  "getUserFollowers": (client, bound, args) => invokeEndpoint(client.v3.users[':id'].followers['$get'], bound, args),
+  "getUserFollowing": (client, bound, args) => invokeEndpoint(client.v3.users[':id'].following['$get'], bound, args),
+  "moveConnection": (client, bound, args) => invokeEndpoint(client.v3.connections[':id'].move['$post'], bound, args),
+  "presignUpload": (client, bound, args) => invokeEndpoint(client.v3.uploads.presign['$post'], bound, args),
+  "search": (client, bound, args) => invokeEndpoint(client.v3.search['$get'], bound, args),
+  "updateBlock": (client, bound, args) => invokeEndpoint(client.v3.blocks[':id']['$put'], bound, args),
+  "updateChannel": (client, bound, args) => invokeEndpoint(client.v3.channels[':id']['$put'], bound, args),
 };
 
-const GROUP_ENDPOINTS: Record<string, (client: Client, bound: Record<string, unknown>, args: unknown[]) => unknown> = {
-  "blocks|batch_id|getBatchStatus": (client, bound, args) => invokeEndpoint(client.v3.blocks.batch[':batch_id']['$get'], bound, args),
-  "blocks|id|createBlockComment": (client, bound, args) => invokeEndpoint(client.v3.blocks[':id'].comments['$post'], bound, args),
-  "blocks|id|getBlock": (client, bound, args) => invokeEndpoint(client.v3.blocks[':id']['$get'], bound, args),
-  "blocks|id|getBlockComments": (client, bound, args) => invokeEndpoint(client.v3.blocks[':id'].comments['$get'], bound, args),
-  "blocks|id|getBlockConnections": (client, bound, args) => invokeEndpoint(client.v3.blocks[':id'].connections['$get'], bound, args),
-  "blocks|id|updateBlock": (client, bound, args) => invokeEndpoint(client.v3.blocks[':id']['$put'], bound, args),
-  "channels|id|deleteChannel": (client, bound, args) => invokeEndpoint(client.v3.channels[':id']['$delete'], bound, args),
-  "channels|id|getChannel": (client, bound, args) => invokeEndpoint(client.v3.channels[':id']['$get'], bound, args),
-  "channels|id|getChannelConnections": (client, bound, args) => invokeEndpoint(client.v3.channels[':id'].connections['$get'], bound, args),
-  "channels|id|getChannelContents": (client, bound, args) => invokeEndpoint(client.v3.channels[':id'].contents['$get'], bound, args),
-  "channels|id|getChannelFollowers": (client, bound, args) => invokeEndpoint(client.v3.channels[':id'].followers['$get'], bound, args),
-  "channels|id|updateChannel": (client, bound, args) => invokeEndpoint(client.v3.channels[':id']['$put'], bound, args),
-  "comments|id|deleteComment": (client, bound, args) => invokeEndpoint(client.v3.comments[':id']['$delete'], bound, args),
-  "connections|id|deleteConnection": (client, bound, args) => invokeEndpoint(client.v3.connections[':id']['$delete'], bound, args),
-  "connections|id|getConnection": (client, bound, args) => invokeEndpoint(client.v3.connections[':id']['$get'], bound, args),
-  "connections|id|moveConnection": (client, bound, args) => invokeEndpoint(client.v3.connections[':id'].move['$post'], bound, args),
-  "groups|id|getGroup": (client, bound, args) => invokeEndpoint(client.v3.groups[':id']['$get'], bound, args),
-  "groups|id|getGroupContents": (client, bound, args) => invokeEndpoint(client.v3.groups[':id'].contents['$get'], bound, args),
-  "groups|id|getGroupFollowers": (client, bound, args) => invokeEndpoint(client.v3.groups[':id'].followers['$get'], bound, args),
-  "users|id|getUser": (client, bound, args) => invokeEndpoint(client.v3.users[':id']['$get'], bound, args),
-  "users|id|getUserContents": (client, bound, args) => invokeEndpoint(client.v3.users[':id'].contents['$get'], bound, args),
-  "users|id|getUserFollowers": (client, bound, args) => invokeEndpoint(client.v3.users[':id'].followers['$get'], bound, args),
-  "users|id|getUserFollowing": (client, bound, args) => invokeEndpoint(client.v3.users[':id'].following['$get'], bound, args),
+const TAG_LEVEL2: Record<string, { root: Set<string>; groups: Set<string> }> = {
+  "authentication": {
+    root: new Set(["createOAuthToken"]),
+    groups: new Set([]),
+  },
+  "blocks": {
+    root: new Set(["batchCreateBlocks","createBlock"]),
+    groups: new Set(["batch_id","id"]),
+  },
+  "channels": {
+    root: new Set(["createChannel"]),
+    groups: new Set(["id"]),
+  },
+  "comments": {
+    root: new Set([]),
+    groups: new Set(["id"]),
+  },
+  "connections": {
+    root: new Set(["createConnection"]),
+    groups: new Set(["id"]),
+  },
+  "groups": {
+    root: new Set([]),
+    groups: new Set(["id"]),
+  },
+  "search": {
+    root: new Set(["search"]),
+    groups: new Set([]),
+  },
+  "system": {
+    root: new Set(["getOpenapiSpec","getOpenapiSpecJson","getPing"]),
+    groups: new Set([]),
+  },
+  "uploads": {
+    root: new Set(["presignUpload"]),
+    groups: new Set([]),
+  },
+  "users": {
+    root: new Set(["getCurrentUser"]),
+    groups: new Set(["id"]),
+  },
 };
-
-const GROUP_AT_TWO = new Set<string>(Object.keys(GROUP_ENDPOINTS).flatMap((k) => {
-  const i = k.indexOf("|");
-  if (i === -1) return [];
-  const j = k.indexOf("|", i + 1);
-  if (j === -1) return [];
-  return [k.slice(0, j)];
-}));
 
 function paramKeysFromGroupSegment(segment: string): string[] {
   if (segment.includes("\x1f")) return segment.split("\x1f");
@@ -154,19 +186,24 @@ type BuilderApplyOpts = { client: Client; path: string[]; args: unknown[]; bound
 
 function builderApply(opts: BuilderApplyOpts): unknown {
   const { client, path, args, bound } = opts;
-  const key = path.join("|");
   if (path.length === 2 && !bound) {
-    const run = ROOT_ENDPOINTS[key];
-    if (run) return run(client, args);
-    if (GROUP_AT_TWO.has(key)) {
-      const segment = path[1]!;
-      return createBuilderProxy(client, path, normalizeGroupParams(paramKeysFromGroupSegment(segment), args[0]));
+    const tag = path[0]!;
+    const seg = path[1]!;
+    const layout = TAG_LEVEL2[tag];
+    if (!layout) return undefined;
+    if (layout.root.has(seg)) {
+      const run = OP_HANDLERS[seg];
+      return run ? run(client, {}, args) : undefined;
+    }
+    if (layout.groups.has(seg)) {
+      return createBuilderProxy(client, path, normalizeGroupParams(paramKeysFromGroupSegment(seg), args[0]));
     }
     return undefined;
   }
   if (path.length === 3 && bound) {
-    const run = GROUP_ENDPOINTS[key];
-    if (run) return run(client, bound, args);
+    const opId = path[2]!;
+    const run = OP_HANDLERS[opId];
+    return run ? run(client, bound, args) : undefined;
   }
   return undefined;
 }
