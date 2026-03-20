@@ -1,26 +1,24 @@
 // https://github.com/vercel/next.js/blob/34d0bcb94234db1615662cc77a5204f3a6d22cb5/scripts/automated-update-workflow.js
-import { Octokit } from 'octokit';
-import { exec as execOriginal } from 'node:child_process';
-import { promisify } from 'node:util';
-
-/* oxlint-disable no-console */
+import { Octokit } from "octokit";
+import { exec as execOriginal } from "node:child_process";
+import { promisify } from "node:util";
 
 const exec = promisify(execOriginal);
 
 const {
-  GITHUB_TOKEN = '',
-  SCRIPT = '',
-  BRANCH_NAME = 'unknown',
-  PR_TITLE = 'Automated update',
-  PR_BODY = '',
+  GITHUB_TOKEN = "",
+  SCRIPT = "",
+  BRANCH_NAME = "unknown",
+  PR_TITLE = "Automated update",
+  PR_BODY = "",
 } = process.env;
 
 if (!GITHUB_TOKEN) {
-  console.log('missing GITHUB_TOKEN env');
+  console.log("missing GITHUB_TOKEN env");
   process.exit(1);
 }
 if (!SCRIPT) {
-  console.log('missing SCRIPT env');
+  console.log("missing SCRIPT env");
   process.exit(1);
 }
 
@@ -31,34 +29,30 @@ async function main() {
   await exec(`node ${SCRIPT}`);
 
   await exec(`git config user.name "github-actions[bot]"`);
-  await exec(
-    `git config user.email "github-actions[bot]@users.noreply.github.com"`,
-  );
+  await exec(`git config user.email "github-actions[bot]@users.noreply.github.com"`);
   await exec(`git checkout -b ${branchName}`);
   await exec(`git add -A`);
   await exec(`git commit --message ${branchName}`);
 
   const changesResult = await exec(`git diff HEAD~ --name-only`);
-  const changedFiles = changesResult.stdout
-    .split('\n')
-    .filter((line) => line.trim());
+  const changedFiles = changesResult.stdout.split("\n").filter((line) => line.trim());
 
   if (changedFiles.length === 0) {
-    console.log('No files changed skipping.');
+    console.log("No files changed skipping.");
     return;
   }
 
   await exec(`git push origin ${branchName}`);
 
-  const repo = 'next-font';
-  const owner = 'kijv';
+  const repo = "an.era";
+  const owner = "kijv";
 
   const { data: pullRequests } = await octokit.rest.pulls.list({
     owner,
     repo,
-    state: 'open',
-    sort: 'created',
-    direction: 'desc',
+    state: "open",
+    sort: "created",
+    direction: "desc",
     per_page: 100,
   });
 
@@ -66,29 +60,27 @@ async function main() {
     owner,
     repo,
     head: branchName,
-    base: 'main',
+    base: "main",
     title: PR_TITLE,
     body: PR_BODY,
   });
 
-  console.log('Created pull request', pullRequest.url);
+  console.log("Created pull request", pullRequest.url);
 
   const previousPullRequests = pullRequests.filter(({ title, user }) => {
-    return title.includes(PR_TITLE) && user?.login === 'github-actions[bot]';
+    return title.includes(PR_TITLE) && user?.login === "github-actions[bot]";
   });
 
   if (previousPullRequests.length) {
     await Promise.all(
       previousPullRequests.map(async (previousPullRequest) => {
-        console.log(
-          `Closing previous pull request: ${previousPullRequest.html_url}`,
-        );
+        console.log(`Closing previous pull request: ${previousPullRequest.html_url}`);
 
         await octokit.rest.pulls.update({
           owner,
           repo,
           pull_number: previousPullRequest.number,
-          state: 'closed',
+          state: "closed",
         });
       }),
     );
