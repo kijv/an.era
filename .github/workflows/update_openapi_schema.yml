@@ -27,6 +27,6 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           BRANCH_NAME: openapi-schema
-          SCRIPT: packages/an.era/scripts/update-openapi-schema.ts
+          SCRIPT: packages/an.era/scripts/update-openapi-schema.ts && vp check --fix
           PR_TITLE: Update OpenAPI Schema
           PR_BODY: This auto-generated PR updates OpenAPI schema with latest available
