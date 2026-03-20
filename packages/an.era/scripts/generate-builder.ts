@@ -1,0 +1,315 @@
+import { fileURLToPath } from 'node:url';
+import fs from 'node:fs/promises';
+import path from 'node:path';
+
+type HttpMethod = 'get' | 'put' | 'post' | 'delete' | 'options' | 'head' | 'patch' | 'trace';
+type OpenApiOperation = { operationId?: string; tags?: string[] };
+type OpenApiPaths = Record<string, Partial<Record<HttpMethod, OpenApiOperation>>>;
+type OpenApiDocument = { paths?: OpenApiPaths };
+type GeneratedOperation = {
+  operationId: string;
+  method: HttpMethod;
+  tags: string[];
+  pathParams: string[];
+  clientPath: string;
+  clientTypePath: string;
+};
+
+const pkgRoot = path.resolve(fileURLToPath(new URL('..', import.meta.url)));
+const repoRoot = path.resolve(pkgRoot, '..', '..');
+const outPath = path.join(pkgRoot, 'src', 'builder.ts');
+const defaultSource = path.join(repoRoot, 'openapi.json');
+
+const argv = process.argv.slice(2);
+const argSource = argv.find((arg) => arg.startsWith('--source='))?.split('=')[1];
+const source = argSource ?? defaultSource;
+
+async function loadOpenApi(input: string): Promise<OpenApiDocument> {
+  if (input.startsWith('http://') || input.startsWith('https://')) {
+    const res = await fetch(input);
+    if (!res.ok) throw new Error(`Failed to fetch OpenAPI: ${res.status} ${res.statusText}`);
+    return (await res.json()) as OpenApiDocument;
+  }
+  return JSON.parse(await fs.readFile(input, 'utf-8')) as OpenApiDocument;
+}
+
+function toClientPath(pathname: string): string {
+  return pathname.split('/').filter(Boolean).map((segment) => {
+    if (segment.startsWith('{') && segment.endsWith('}')) return `[':${segment.slice(1, -1)}']`;
+    if (/^[A-Za-z_$][A-Za-z0-9_$]*$/.test(segment)) return `.${segment}`;
+    return `[${JSON.stringify(segment)}]`;
+  }).join('');
+}
+
+function toClientTypePath(pathname: string): string {
+  return pathname.split('/').filter(Boolean).map((segment) => {
+    if (segment.startsWith('{') && segment.endsWith('}')) return `[':${segment.slice(1, -1)}']`;
+    return `[${JSON.stringify(segment)}]`;
+  }).join('');
+}
+
+function extractPathParams(pathname: string): string[] {
+  const params: string[] = [];
+  pathname.replace(/\{([^}]+)\}/g, (_, p: string) => {
+    params.push(p);
+    return '';
+  });
+  return params;
+}
+
+function camelCase(input: string): string {
+  return input
+    .replace(/[^A-Za-z0-9]+(.)/g, (_, c: string) => c.toUpperCase())
+    .replace(/^[A-Z]/, (c) => c.toLowerCase())
+    .replace(/[^A-Za-z0-9]/g, '');
+}
+
+function groupSegmentKey(params: string[]): string {
+  if (params.length === 0) return 'root';
+  if (params.length === 1) return params[0]!;
+  return params.join('\x1f');
+}
+
+function tsPropertyKey(segment: string): string {
+  if (/^[A-Za-z_$][\w$]*$/.test(segment)) return segment;
+  return JSON.stringify(segment);
+}
+
+function tsUnionLiteralTypes(params: string[]): string {
+  return params.map((p) => JSON.stringify(p)).join(' | ');
+}
+
+function encodeParamKey(params: string[]): string {
+  return params.join('|');
+}
+
+const methodOrder: HttpMethod[] = ['get', 'put', 'post', 'delete', 'options', 'head', 'patch', 'trace'];
+const openapi = await loadOpenApi(source);
+const paths = openapi.paths ?? {};
+
+const operations: GeneratedOperation[] = [];
+for (const [pathname, pathItem] of Object.entries(paths)) {
+  if (!pathItem || typeof pathItem !== 'object') continue;
+  for (const method of methodOrder) {
+    const operation = pathItem[method];
+    if (!operation || typeof operation !== 'object') continue;
+    if (typeof operation.operationId !== 'string' || !operation.operationId) continue;
+    operations.push({
+      operationId: operation.operationId,
+      method,
+      tags: Array.isArray(operation.tags) ? operation.tags : [],
+      pathParams: extractPathParams(pathname),
+      clientPath: toClientPath(pathname),
+      clientTypePath: toClientTypePath(pathname),
+    });
+  }
+}
+operations.sort((a, b) => a.operationId.localeCompare(b.operationId));
+
+const tags = new Map<string, { key: string; ops: GeneratedOperation[] }>();
+for (const op of operations) {
+  const tagName = op.tags[0] ?? 'default';
+  const key = camelCase(tagName) || 'default';
+  const existing = tags.get(key);
+  if (existing) existing.ops.push(op);
+  else tags.set(key, { key, ops: [op] });
+}
+const orderedTags = [...tags.values()].sort((a, b) => a.key.localeCompare(b.key));
+
+function tagStructure(tag: (typeof orderedTags)[0]) {
+  const groups = new Map<string, { params: string[]; ops: GeneratedOperation[] }>();
+  const rootOps: GeneratedOperation[] = [];
+  for (const op of tag.ops) {
+    if (op.pathParams.length === 0) rootOps.push(op);
+    else {
+      const k = encodeParamKey(op.pathParams);
+      const existing = groups.get(k);
+      if (existing) existing.ops.push(op);
+      else groups.set(k, { params: op.pathParams, ops: [op] });
+    }
+  }
+  return {
+    rootOps: rootOps.sort((a, b) => a.operationId.localeCompare(b.operationId)),
+    groups: [...groups.values()].sort((a, b) =>
+      groupSegmentKey(a.params).localeCompare(groupSegmentKey(b.params)),
+    ),
+  };
+}
+
+const lines: string[] = [
+  '/** Auto-generated by scripts/generate-builder.ts. Do not edit by hand. */',
+  '',
+  `import type { PrettifyMany } from './types';`,
+  `import type { ac } from './client';`,
+  '',
+  'type Client = ReturnType<typeof ac>;',
+  'type Fn = (...args: any[]) => any;',
+  '',
+  'type ParamValue<F extends Fn, K extends string> = Parameters<F> extends [infer First, ...any]',
+  '  ? First extends { param: infer P }',
+  '    ? K extends keyof P ? P[K] : string | number',
+  '    : string | number',
+  '  : string | number;',
+  '',
+  'type MaybeOmitAllOptionalFirst<RF, Rest extends readonly unknown[], R> = {} extends RF',
+  '  ? ((...args: Rest) => R) & ((first?: RF, ...args: Rest) => R)',
+  '  : (first: RF, ...args: Rest) => R;',
+  '',
+  'type OptionalFirstArgIfAllOptional<F extends Fn> = F extends (',
+  '  first: infer First,',
+  '  ...rest: infer Rest',
+  ') => infer R',
+  '  ? Rest extends readonly unknown[]',
+  '    ? MaybeOmitAllOptionalFirst<PrettifyMany<First>, Rest, R>',
+  '    : F',
+  '  : F;',
+  '',
+  'type RelaxSharedPathParams<F extends Fn, SharedKeys extends PropertyKey> = F extends (',
+  '  first: infer First,',
+  '  ...rest: infer Rest',
+  ') => infer R',
+  '  ? First extends { param: infer P }',
+  '    ? P extends Record<string, unknown>',
+  '      ? Rest extends readonly unknown[]',
+  '        ? MaybeOmitAllOptionalFirst<',
+  '            PrettifyMany<',
+  '              Omit<First, "param"> & {',
+  '                param?: Partial<Pick<P, Extract<keyof P, SharedKeys>>> & Omit<P, Extract<keyof P, SharedKeys>>;',
+  '              }',
+  '            >,',
+  '            Rest,',
+  '            R',
+  '          >',
+  '        : F',
+  '      : F',
+  '    : F',
+  '  : F;',
+  '',
+];
+
+lines.push('export type BuilderShape = {');
+for (const tag of orderedTags) {
+  const groups = new Map<string, { params: string[]; ops: GeneratedOperation[] }>();
+  const rootOps: GeneratedOperation[] = [];
+  for (const op of tag.ops) {
+    if (op.pathParams.length === 0) rootOps.push(op);
+    else {
+      const k = encodeParamKey(op.pathParams);
+      const existing = groups.get(k);
+      if (existing) existing.ops.push(op);
+      else groups.set(k, { params: op.pathParams, ops: [op] });
+    }
+  }
+
+  lines.push(`  ${tag.key}: {`);
+  for (const op of rootOps.sort((a, b) => a.operationId.localeCompare(b.operationId))) {
+    lines.push(
+      `    ${op.operationId}: OptionalFirstArgIfAllOptional<Client${op.clientTypePath}['$${op.method}']>;`,
+    );
+  }
+  for (const group of [...groups.values()].sort((a, b) => groupSegmentKey(a.params).localeCompare(groupSegmentKey(b.params)))) {
+    const groupKey = tsPropertyKey(groupSegmentKey(group.params));
+    const rep = group.ops[0]!;
+    if (group.params.length === 1) {
+      const k = group.params[0]!;
+      lines.push(`    ${groupKey}(value: ParamValue<Client${rep.clientTypePath}['$${rep.method}'], ${JSON.stringify(k)}>): {`);
+    } else {
+      lines.push(`    ${groupKey}(value: {`);
+      for (const k of group.params) {
+        lines.push(`      ${k}: ParamValue<Client${rep.clientTypePath}['$${rep.method}'], ${JSON.stringify(k)}>;`);
+      }
+      lines.push('    }): {');
+    }
+    const sharedKeysUnion = tsUnionLiteralTypes(group.params);
+    for (const op of group.ops.sort((a, b) => a.operationId.localeCompare(b.operationId))) {
+      lines.push(
+        `      ${op.operationId}: RelaxSharedPathParams<Client${op.clientTypePath}['$${op.method}'], ${sharedKeysUnion}>;`,
+      );
+    }
+    lines.push('    };');
+  }
+  lines.push('  };');
+}
+lines.push('};');
+lines.push('');
+lines.push('function invokeEndpoint(endpoint: Fn, boundParam: Record<string, unknown>, args: unknown[]) {');
+lines.push('  if (!boundParam || Object.keys(boundParam).length === 0) return endpoint(...(args as any[]));');
+lines.push('  if (args.length > 0 && typeof args[0] === "object" && args[0] !== null) {');
+lines.push('    const first = args[0] as Record<string, unknown>;');
+lines.push(
+  '    const merged = { ...first, param: { ...boundParam, ...(first.param as object | undefined) } };',
+);
+lines.push('    return endpoint(merged, ...(args.slice(1) as any[]));');
+lines.push('  }');
+lines.push('  return endpoint({ param: boundParam }, ...(args as any[]));');
+lines.push('}');
+lines.push('');
+lines.push(
+  'const OP_HANDLERS: Record<string, (client: Client, bound: Record<string, unknown>, args: unknown[]) => unknown> = {',
+);
+
+const opById = new Map<string, GeneratedOperation>();
+for (const op of operations) opById.set(op.operationId, op);
+for (const id of [...opById.keys()].sort((a, b) => a.localeCompare(b))) {
+  const op = opById.get(id)!;
+  lines.push(
+    `  ${JSON.stringify(id)}: (client, bound, args) => invokeEndpoint(client${op.clientPath}['$${op.method}'], bound, args),`,
+  );
+}
+
+lines.push('};');
+lines.push('');
+lines.push('function paramKeysFromGroupSegment(segment: string): string[] {');
+lines.push('  if (segment.includes("\\x1f")) return segment.split("\\x1f").filter(Boolean);');
+lines.push('  return segment ? [segment] : [];');
+lines.push('}');
+lines.push('');
+lines.push('function normalizeGroupParams(params: string[], value: unknown): Record<string, unknown> {');
+lines.push('  if (params.length === 1) return { [params[0]!]: value };');
+lines.push('  return value as Record<string, unknown>;');
+lines.push('}');
+lines.push('');
+lines.push('type BuilderApplyOpts = { client: Client; path: string[]; args: unknown[]; bound?: Record<string, unknown> };');
+lines.push('');
+lines.push('function builderApply(opts: BuilderApplyOpts): unknown {');
+lines.push('  const { client, path, args, bound } = opts;');
+lines.push('  if (path.length === 2 && !bound) {');
+lines.push('    const seg = path[1]!;');
+lines.push('    const op = OP_HANDLERS[seg];');
+lines.push('    if (op) return op(client, {}, args);');
+lines.push('    const keys = paramKeysFromGroupSegment(seg);');
+lines.push('    if (keys.length === 0) return undefined;');
+lines.push('    return createBuilderProxy(client, path, normalizeGroupParams(keys, args[0]));');
+lines.push('  }');
+lines.push('  if (path.length === 3 && bound) {');
+lines.push('    const opId = path[2]!;');
+lines.push('    const run = OP_HANDLERS[opId];');
+lines.push('    return run ? run(client, bound, args) : undefined;');
+lines.push('  }');
+lines.push('  return undefined;');
+lines.push('}');
+lines.push('');
+lines.push('function createBuilderProxy(client: Client, path: string[] = [], bound?: Record<string, unknown>) {');
+lines.push('  const proxy: unknown = new Proxy(() => {}, {');
+lines.push('    get(_obj, prop) {');
+lines.push('      if (typeof prop !== "string" || prop === "then") return undefined;');
+lines.push('      return createBuilderProxy(client, [...path, prop], bound);');
+lines.push('    },');
+lines.push('    apply(_1, _2, args: unknown[]) {');
+lines.push('      return builderApply({ client, path, args, bound });');
+lines.push('    },');
+lines.push('  });');
+lines.push('  return proxy;');
+lines.push('}');
+lines.push('');
+lines.push('export interface Builder extends BuilderShape {}');
+lines.push('');
+lines.push('export class Builder {');
+lines.push('  constructor(client: Client) {');
+lines.push('    return createBuilderProxy(client) as unknown as Builder;');
+lines.push('  }');
+lines.push('}');
+lines.push('');
+
+await fs.writeFile(outPath, lines.join('\n'), 'utf-8');
+console.log(`Wrote ${path.relative(repoRoot, outPath)}`);
