@@ -141,7 +141,7 @@ for (const op of operations) {
   lines.push(
     `  ${op.operationId}(`,
     `    ...args: Parameters<Client${op.clientTypePath}['$${op.method}']>`,
-    '  ) {',
+    `  ): ReturnType<Client${op.clientTypePath}['$${op.method}']> {`,
     `    return this.client${op.clientPath}.$${op.method}(...args);`,
     '  }',
     '',

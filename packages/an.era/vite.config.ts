@@ -19,6 +19,7 @@ export default defineConfig({
     },
   },
   pack: {
+    entry: ['src/index.ts', 'src/client/index.ts'],
     publint: true,
     attw: {
       profile: 'esm-only',
