@@ -28,7 +28,7 @@ await (async () => {
   );
 
   await fs.writeFile(
-    new URL('../src/openapi.ts', import.meta.url),
+    new URL('../src/schema.d.ts', import.meta.url),
     `/* oxlint-disable */\n${contents}`,
     'utf-8',
   );

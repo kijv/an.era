@@ -1,13 +1,7 @@
-import type { ClientRequestOptions } from 'hono';
 import { Builder } from './builder';
+import type { ClientRequestOptions } from 'hono';
+import type { Prettify } from './types';
 import { ac } from './client';
-
-export type { BuilderShape } from './builder';
-export { Builder };
-
-type Prettify<T> = {
-  [K in keyof T]: T[K];
-} & {};
 
 export type ArenaOptions = Prettify<
   {

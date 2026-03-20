@@ -4,9 +4,9 @@
  */
 
 import type { Hono } from 'hono';
-import type { components } from '../openapi';
+import type { components } from '../schema';
 
-type Routes = {
+type Endpoints = {
   '/v3/oauth/token': {
     $post:
       | {
@@ -1971,4 +1971,4 @@ type Routes = {
   };
 };
 
-export type App = Hono<{}, Routes>;
+export type App = Hono<{}, Endpoints>;

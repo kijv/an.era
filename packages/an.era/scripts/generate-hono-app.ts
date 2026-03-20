@@ -18,7 +18,7 @@ import path from 'node:path';
 import type ts from 'typescript';
 
 const repoRoot = path.resolve(fileURLToPath(new URL('..', import.meta.url)));
-const outPath = path.join(repoRoot, 'src', 'hono', 'app.ts');
+const outPath = path.join(repoRoot, 'src', 'client', 'app.ts');
 
 const SOURCE_URL = 'https://api.are.na/v3/openapi.json';
 
@@ -340,7 +340,7 @@ const output = [
   ' */',
   '',
   `import type { Hono } from 'hono';`,
-  `import type { components } from '../openapi';`,
+  `import type { components } from '../schema';`,
   '',
   honoSchemaLines.join('\n'),
   '',
