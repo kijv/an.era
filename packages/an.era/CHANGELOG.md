@@ -1,5 +1,13 @@
 # an.era
 
+## 0.3.2
+
+### Patch Changes
+
+- [#32](https://github.com/kijv/an.era/pull/32) [`88c20ea`](https://github.com/kijv/an.era/commit/88c20ea5351df2af50969d68d4f53698388e2f24) Thanks [@github-actions](https://github.com/apps/github-actions)! - Update OpenAPI Schema
+
+- [#30](https://github.com/kijv/an.era/pull/30) [`48d5e3c`](https://github.com/kijv/an.era/commit/48d5e3c958b6f15ea197617cf94912a9ac47c709) Thanks [@kijv](https://github.com/kijv)! - use hono client
+
 ## 0.3.1
 
 ### Patch Changes
