@@ -13,7 +13,7 @@ type ParamValue<F extends Fn, K extends string> = Parameters<F> extends [infer F
   : string | number;
 
 type MaybeOmitAllOptionalFirst<RF, Rest extends readonly unknown[], R> = {} extends RF
-  ? ((...args: Rest) => R) & ((first?: RF, ...args: Rest) => R)
+  ? (first?: RF, ...args: Rest) => R
   : (first: RF, ...args: Rest) => R;
 
 type OptionalFirstArgIfAllOptional<F extends Fn> = F extends (
