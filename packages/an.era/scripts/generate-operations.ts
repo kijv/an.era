@@ -64,9 +64,15 @@ function camelCase(input: string): string {
     .replace(/[^A-Za-z0-9]/g, '');
 }
 
-function groupNameForParams(params: string[]): string {
+function groupSegmentKey(params: string[]): string {
   if (params.length === 0) return 'root';
-  return params.map((p) => camelCase(p)).join('And');
+  if (params.length === 1) return params[0]!;
+  return params.join('_');
+}
+
+function tsPropertyKey(segment: string): string {
+  if (/^[A-Za-z_$][\w$]*$/.test(segment)) return segment;
+  return JSON.stringify(segment);
 }
 
 function encodeParamKey(params: string[]): string {
@@ -121,7 +127,7 @@ function tagStructure(tag: (typeof orderedTags)[0]) {
   return {
     rootOps: rootOps.sort((a, b) => a.operationId.localeCompare(b.operationId)),
     groups: [...groups.values()].sort((a, b) =>
-      groupNameForParams(a.params).localeCompare(groupNameForParams(b.params)),
+      groupSegmentKey(a.params).localeCompare(groupSegmentKey(b.params)),
     ),
   };
 }
@@ -160,14 +166,14 @@ for (const tag of orderedTags) {
   for (const op of rootOps.sort((a, b) => a.operationId.localeCompare(b.operationId))) {
     lines.push(`    ${op.operationId}: Client${op.clientTypePath}['$${op.method}'];`);
   }
-  for (const group of [...groups.values()].sort((a, b) => groupNameForParams(a.params).localeCompare(groupNameForParams(b.params)))) {
-    const groupName = groupNameForParams(group.params);
+  for (const group of [...groups.values()].sort((a, b) => groupSegmentKey(a.params).localeCompare(groupSegmentKey(b.params)))) {
+    const groupKey = tsPropertyKey(groupSegmentKey(group.params));
     const rep = group.ops[0]!;
     if (group.params.length === 1) {
       const k = group.params[0]!;
-      lines.push(`    ${groupName}(value: ParamValue<Client${rep.clientTypePath}['$${rep.method}'], ${JSON.stringify(k)}>): {`);
+      lines.push(`    ${groupKey}(value: ParamValue<Client${rep.clientTypePath}['$${rep.method}'], ${JSON.stringify(k)}>): {`);
     } else {
-      lines.push(`    ${groupName}(value: {`);
+      lines.push(`    ${groupKey}(value: {`);
       for (const k of group.params) {
         lines.push(`      ${k}: ParamValue<Client${rep.clientTypePath}['$${rep.method}'], ${JSON.stringify(k)}>;`);
       }
@@ -197,7 +203,7 @@ lines.push('const GROUP_PARAM_KEYS: Record<string, string[]> = {');
 for (const tag of orderedTags) {
   const { groups } = tagStructure(tag);
   for (const group of groups) {
-    const gn = groupNameForParams(group.params);
+    const gn = groupSegmentKey(group.params);
     const pathKey = `${tag.key}|${gn}`;
     lines.push(`  ${JSON.stringify(pathKey)}: ${JSON.stringify(group.params)},`);
   }
@@ -226,7 +232,7 @@ lines.push(
 for (const tag of orderedTags) {
   const { groups } = tagStructure(tag);
   for (const group of groups) {
-    const gn = groupNameForParams(group.params);
+    const gn = groupSegmentKey(group.params);
     for (const op of group.ops.sort((a, b) => a.operationId.localeCompare(b.operationId))) {
       const pathKey = `${tag.key}|${gn}|${op.operationId}`;
       lines.push(

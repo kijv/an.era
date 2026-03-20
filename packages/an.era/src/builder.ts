@@ -18,7 +18,7 @@ export type BuilderShape = {
   blocks: {
     batchCreateBlocks: Client["v3"]["blocks"]["batch"]['$post'];
     createBlock: Client["v3"]["blocks"]['$post'];
-    batchId(value: ParamValue<Client["v3"]["blocks"]["batch"][':batch_id']['$get'], "batch_id">): {
+    batch_id(value: ParamValue<Client["v3"]["blocks"]["batch"][':batch_id']['$get'], "batch_id">): {
       getBatchStatus: Client["v3"]["blocks"]["batch"][':batch_id']['$get'];
     };
     id(value: ParamValue<Client["v3"]["blocks"][':id']["comments"]['$post'], "id">): {
@@ -93,7 +93,7 @@ function invokeEndpoint(endpoint: Fn, boundParam: Record<string, unknown>, args:
 }
 
 const GROUP_PARAM_KEYS: Record<string, string[]> = {
-  "blocks|batchId": ["batch_id"],
+  "blocks|batch_id": ["batch_id"],
   "blocks|id": ["id"],
   "channels|id": ["id"],
   "comments|id": ["id"],
@@ -117,7 +117,7 @@ const ROOT_ENDPOINTS: Record<string, (client: Client, args: unknown[]) => unknow
 };
 
 const GROUP_ENDPOINTS: Record<string, (client: Client, bound: Record<string, unknown>, args: unknown[]) => unknown> = {
-  "blocks|batchId|getBatchStatus": (client, bound, args) => invokeEndpoint(client.v3.blocks.batch[':batch_id']['$get'], bound, args),
+  "blocks|batch_id|getBatchStatus": (client, bound, args) => invokeEndpoint(client.v3.blocks.batch[':batch_id']['$get'], bound, args),
   "blocks|id|createBlockComment": (client, bound, args) => invokeEndpoint(client.v3.blocks[':id'].comments['$post'], bound, args),
   "blocks|id|getBlock": (client, bound, args) => invokeEndpoint(client.v3.blocks[':id']['$get'], bound, args),
   "blocks|id|getBlockComments": (client, bound, args) => invokeEndpoint(client.v3.blocks[':id'].comments['$get'], bound, args),
