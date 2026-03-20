@@ -1,54 +1,35 @@
 name: OpenAPI
 
 on:
+  # Run every every day at midnight https://crontab.guru/#0_0_*_*_*/1
   schedule:
-    - cron: '0 6 * * *'
+    - cron: '0 0 * * */1'
+  # Allow manual runs
   workflow_dispatch:
 
 permissions:
   contents: write
+  pull-requests: write
 
 jobs:
   openapi:
     name: Sync
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-slim
     steps:
       - name: Checkout
-        uses: actions/checkout@v6
-
-      - uses: oven-sh/setup-bun@v2
-
-      - name: Install dependencies
-        run: bun install --frozen-lockfile
-
-      - name: Fetch
-        run: curl -fsSL "https://api.are.na/v3/openapi.json" -o openapi.json
-
-      - name: Generate
-        run: bun run gen -- --input=./openapi.json --outDir=packages/an.era/src/openapi
-
-      - name: Format
-        run: bun run fmt packages/an.era/src/openapi
-
-      - name: Check for changes
-        id: changes
-        run: |
-          if git diff --name-only -- "packages/an.era/src/openapi" | grep -q .; then
-            echo "changed=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "changed=false" >> "$GITHUB_OUTPUT"
-          fi
-
+        uses: actions/checkout@v4
+      - uses: voidzero-dev/setup-vp@v1
+        with:
+          node-version-file: '.node-version'
+          cache: true
+          run-install: false
+      - run: vp i --frozen-lockfile
       - name: Create Pull Request
-        if: steps.changes.outputs.changed == 'true'
+        shell: bash
+        run: node scripts/automated-update-workflow.ts
         env:
-          GH_TOKEN: ${{ secrets.PERSONAL_TOKEN }}
-        run: |
-          BRANCH="openapi-sync-$(date +%Y%m%d-%H%M%S)"
-          git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          git config --global user.name "github-actions[bot]"
-          git checkout -b "$BRANCH"
-          git add packages/an.era/src/openapi/
-          git commit -m "sync openapi"
-          git push origin "$BRANCH"
-          gh pr create --title "sync openapi" --base main --fill
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          BRANCH_NAME: openapi-schema
+          SCRIPT: packages/an.era/scripts/update-openapi-schema.ts
+          PR_TITLE: Update OpenAPI Schema
+          PR_BODY: This auto-generated PR updates OpenAPI schema with latest available

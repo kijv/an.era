@@ -2,4 +2,4 @@
 "an.era": patch
 ---
 
-fix validation bug
+use hono client
