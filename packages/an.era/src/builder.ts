@@ -92,16 +92,6 @@ function invokeEndpoint(endpoint: Fn, boundParam: Record<string, unknown>, args:
   return endpoint({ param: boundParam }, ...(args as any[]));
 }
 
-const GROUP_PARAM_KEYS: Record<string, string[]> = {
-  "blocks|batch_id": ["batch_id"],
-  "blocks|id": ["id"],
-  "channels|id": ["id"],
-  "comments|id": ["id"],
-  "connections|id": ["id"],
-  "groups|id": ["id"],
-  "users|id": ["id"],
-};
-
 const ROOT_ENDPOINTS: Record<string, (client: Client, args: unknown[]) => unknown> = {
   "authentication|createOAuthToken": (client, args) => invokeEndpoint(client.v3.oauth.token['$post'], {}, args),
   "blocks|batchCreateBlocks": (client, args) => invokeEndpoint(client.v3.blocks.batch['$post'], {}, args),
@@ -142,6 +132,19 @@ const GROUP_ENDPOINTS: Record<string, (client: Client, bound: Record<string, unk
   "users|id|getUserFollowing": (client, bound, args) => invokeEndpoint(client.v3.users[':id'].following['$get'], bound, args),
 };
 
+const GROUP_AT_TWO = new Set<string>(Object.keys(GROUP_ENDPOINTS).flatMap((k) => {
+  const i = k.indexOf("|");
+  if (i === -1) return [];
+  const j = k.indexOf("|", i + 1);
+  if (j === -1) return [];
+  return [k.slice(0, j)];
+}));
+
+function paramKeysFromGroupSegment(segment: string): string[] {
+  if (segment.includes("\x1f")) return segment.split("\x1f");
+  return [segment];
+}
+
 function normalizeGroupParams(params: string[], value: unknown): Record<string, unknown> {
   if (params.length === 1) return { [params[0]!]: value };
   return value as Record<string, unknown>;
@@ -153,12 +156,12 @@ function builderApply(opts: BuilderApplyOpts): unknown {
   const { client, path, args, bound } = opts;
   const key = path.join("|");
   if (path.length === 2 && !bound) {
-    const paramKeys = GROUP_PARAM_KEYS[key];
-    if (paramKeys) {
-      return createBuilderProxy(client, path, normalizeGroupParams(paramKeys, args[0]));
-    }
     const run = ROOT_ENDPOINTS[key];
     if (run) return run(client, args);
+    if (GROUP_AT_TWO.has(key)) {
+      const segment = path[1]!;
+      return createBuilderProxy(client, path, normalizeGroupParams(paramKeysFromGroupSegment(segment), args[0]));
+    }
     return undefined;
   }
   if (path.length === 3 && bound) {

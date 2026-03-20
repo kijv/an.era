@@ -67,7 +67,7 @@ function camelCase(input: string): string {
 function groupSegmentKey(params: string[]): string {
   if (params.length === 0) return 'root';
   if (params.length === 1) return params[0]!;
-  return params.join('_');
+  return params.join('\x1f');
 }
 
 function tsPropertyKey(segment: string): string {
@@ -198,19 +198,6 @@ lines.push('  }');
 lines.push('  return endpoint({ param: boundParam }, ...(args as any[]));');
 lines.push('}');
 lines.push('');
-lines.push('const GROUP_PARAM_KEYS: Record<string, string[]> = {');
-
-for (const tag of orderedTags) {
-  const { groups } = tagStructure(tag);
-  for (const group of groups) {
-    const gn = groupSegmentKey(group.params);
-    const pathKey = `${tag.key}|${gn}`;
-    lines.push(`  ${JSON.stringify(pathKey)}: ${JSON.stringify(group.params)},`);
-  }
-}
-
-lines.push('};');
-lines.push('');
 lines.push('const ROOT_ENDPOINTS: Record<string, (client: Client, args: unknown[]) => unknown> = {');
 
 for (const tag of orderedTags) {
@@ -244,6 +231,21 @@ for (const tag of orderedTags) {
 
 lines.push('};');
 lines.push('');
+lines.push(
+  'const GROUP_AT_TWO = new Set<string>(Object.keys(GROUP_ENDPOINTS).flatMap((k) => {',
+);
+lines.push('  const i = k.indexOf("|");');
+lines.push('  if (i === -1) return [];');
+lines.push('  const j = k.indexOf("|", i + 1);');
+lines.push('  if (j === -1) return [];');
+lines.push('  return [k.slice(0, j)];');
+lines.push('}));');
+lines.push('');
+lines.push('function paramKeysFromGroupSegment(segment: string): string[] {');
+lines.push('  if (segment.includes("\\x1f")) return segment.split("\\x1f");');
+lines.push('  return [segment];');
+lines.push('}');
+lines.push('');
 lines.push('function normalizeGroupParams(params: string[], value: unknown): Record<string, unknown> {');
 lines.push('  if (params.length === 1) return { [params[0]!]: value };');
 lines.push('  return value as Record<string, unknown>;');
@@ -255,12 +257,12 @@ lines.push('function builderApply(opts: BuilderApplyOpts): unknown {');
 lines.push('  const { client, path, args, bound } = opts;');
 lines.push('  const key = path.join("|");');
 lines.push('  if (path.length === 2 && !bound) {');
-lines.push('    const paramKeys = GROUP_PARAM_KEYS[key];');
-lines.push('    if (paramKeys) {');
-lines.push('      return createBuilderProxy(client, path, normalizeGroupParams(paramKeys, args[0]));');
-lines.push('    }');
 lines.push('    const run = ROOT_ENDPOINTS[key];');
 lines.push('    if (run) return run(client, args);');
+lines.push('    if (GROUP_AT_TWO.has(key)) {');
+lines.push('      const segment = path[1]!;');
+lines.push('      return createBuilderProxy(client, path, normalizeGroupParams(paramKeysFromGroupSegment(segment), args[0]));');
+lines.push('    }');
 lines.push('    return undefined;');
 lines.push('  }');
 lines.push('  if (path.length === 3 && bound) {');
