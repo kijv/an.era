@@ -4,9 +4,7 @@
   "private": false,
   "scripts": {
     "build": "vp run -r build",
-    "dev": "vp run -r dev",
-    "gen": "bun scripts/openapi/gen.ts",
-    "readme": "curl -fsSL \"https://api.are.na/v3/openapi.json\" -o openapi.json && bun scripts/readme.ts readme > readme.md && bun fmt readme.md"
+    "dev": "vp run -r dev"
   },
   "devDependencies": {
     "@arethetypeswrong/core": "^0.18.2",

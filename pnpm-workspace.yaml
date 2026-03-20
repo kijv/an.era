@@ -1,5 +1,5 @@
 packages:
-  - scripts/*
+  - scripts
   - packages/*
   - '!packages/aredotna'
 

@@ -1,5 +1,5 @@
 {
-  "name": "@next-font/scripts",
+  "name": "@an.era/scripts",
   "type": "module",
   "devDependencies": {
     "octokit": "^5.0.5"
