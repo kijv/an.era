@@ -8,13 +8,20 @@ import type { ac } from './client';
 type Client = ReturnType<typeof ac>;
 type Fn = (...args: any[]) => any;
 
-type ParamValue<F extends Fn, K extends string> = Parameters<F> extends [infer First, ...any]
-  ? First extends { param: infer P }
-    ? K extends keyof P ? P[K] : string | number
-    : string | number
-  : string | number;
+type ParamValue<F extends Fn, K extends string> =
+  Parameters<F> extends [infer First, ...any]
+    ? First extends { param: infer P }
+      ? K extends keyof P
+        ? P[K]
+        : string | number
+      : string | number
+    : string | number;
 
-type MaybeOmitAllOptionalFirst<RF, Rest extends readonly unknown[], R> = {} extends RF
+type MaybeOmitAllOptionalFirst<
+  RF,
+  Rest extends readonly unknown[],
+  R,
+> = {} extends RF
   ? (first?: RF, ...args: Rest) => R
   : (first: RF, ...args: Rest) => R;
 
@@ -27,17 +34,18 @@ type OptionalFirstArgIfAllOptional<F extends Fn> = F extends (
     : F
   : F;
 
-type RelaxSharedPathParams<F extends Fn, SharedKeys extends PropertyKey> = F extends (
-  first: infer First,
-  ...rest: infer Rest
-) => infer R
+type RelaxSharedPathParams<
+  F extends Fn,
+  SharedKeys extends PropertyKey,
+> = F extends (first: infer First, ...rest: infer Rest) => infer R
   ? First extends { param: infer P }
     ? P extends Record<string, unknown>
       ? Rest extends readonly unknown[]
         ? MaybeOmitAllOptionalFirst<
             PrettifyMany<
-              Omit<First, "param"> & {
-                param?: Partial<Pick<P, Extract<keyof P, SharedKeys>>> & Omit<P, Extract<keyof P, SharedKeys>>;
+              Omit<First, 'param'> & {
+                param?: Partial<Pick<P, Extract<keyof P, SharedKeys>>> &
+                  Omit<P, Extract<keyof P, SharedKeys>>;
               }
             >,
             Rest,
@@ -50,133 +58,281 @@ type RelaxSharedPathParams<F extends Fn, SharedKeys extends PropertyKey> = F ext
 
 export type BuilderShape = {
   authentication: {
-    createOAuthToken: OptionalFirstArgIfAllOptional<Client["v3"]["oauth"]["token"]['$post']>;
+    createOAuthToken: OptionalFirstArgIfAllOptional<
+      Client['v3']['oauth']['token']['$post']
+    >;
   };
   blocks: {
-    batchCreateBlocks: OptionalFirstArgIfAllOptional<Client["v3"]["blocks"]["batch"]['$post']>;
-    createBlock: OptionalFirstArgIfAllOptional<Client["v3"]["blocks"]['$post']>;
-    batch_id(value: ParamValue<Client["v3"]["blocks"]["batch"][':batch_id']['$get'], "batch_id">): {
-      getBatchStatus: RelaxSharedPathParams<Client["v3"]["blocks"]["batch"][':batch_id']['$get'], "batch_id">;
+    batchCreateBlocks: OptionalFirstArgIfAllOptional<
+      Client['v3']['blocks']['batch']['$post']
+    >;
+    createBlock: OptionalFirstArgIfAllOptional<Client['v3']['blocks']['$post']>;
+    batch_id(
+      value: ParamValue<
+        Client['v3']['blocks']['batch'][':batch_id']['$get'],
+        'batch_id'
+      >,
+    ): {
+      getBatchStatus: RelaxSharedPathParams<
+        Client['v3']['blocks']['batch'][':batch_id']['$get'],
+        'batch_id'
+      >;
     };
-    id(value: ParamValue<Client["v3"]["blocks"][':id']["comments"]['$post'], "id">): {
-      createBlockComment: RelaxSharedPathParams<Client["v3"]["blocks"][':id']["comments"]['$post'], "id">;
-      getBlock: RelaxSharedPathParams<Client["v3"]["blocks"][':id']['$get'], "id">;
-      getBlockComments: RelaxSharedPathParams<Client["v3"]["blocks"][':id']["comments"]['$get'], "id">;
-      getBlockConnections: RelaxSharedPathParams<Client["v3"]["blocks"][':id']["connections"]['$get'], "id">;
-      updateBlock: RelaxSharedPathParams<Client["v3"]["blocks"][':id']['$put'], "id">;
+    id(
+      value: ParamValue<
+        Client['v3']['blocks'][':id']['comments']['$post'],
+        'id'
+      >,
+    ): {
+      createBlockComment: RelaxSharedPathParams<
+        Client['v3']['blocks'][':id']['comments']['$post'],
+        'id'
+      >;
+      getBlock: RelaxSharedPathParams<
+        Client['v3']['blocks'][':id']['$get'],
+        'id'
+      >;
+      getBlockComments: RelaxSharedPathParams<
+        Client['v3']['blocks'][':id']['comments']['$get'],
+        'id'
+      >;
+      getBlockConnections: RelaxSharedPathParams<
+        Client['v3']['blocks'][':id']['connections']['$get'],
+        'id'
+      >;
+      updateBlock: RelaxSharedPathParams<
+        Client['v3']['blocks'][':id']['$put'],
+        'id'
+      >;
     };
   };
   channels: {
-    createChannel: OptionalFirstArgIfAllOptional<Client["v3"]["channels"]['$post']>;
-    id(value: ParamValue<Client["v3"]["channels"][':id']['$delete'], "id">): {
-      deleteChannel: RelaxSharedPathParams<Client["v3"]["channels"][':id']['$delete'], "id">;
-      getChannel: RelaxSharedPathParams<Client["v3"]["channels"][':id']['$get'], "id">;
-      getChannelConnections: RelaxSharedPathParams<Client["v3"]["channels"][':id']["connections"]['$get'], "id">;
-      getChannelContents: RelaxSharedPathParams<Client["v3"]["channels"][':id']["contents"]['$get'], "id">;
-      getChannelFollowers: RelaxSharedPathParams<Client["v3"]["channels"][':id']["followers"]['$get'], "id">;
-      updateChannel: RelaxSharedPathParams<Client["v3"]["channels"][':id']['$put'], "id">;
+    createChannel: OptionalFirstArgIfAllOptional<
+      Client['v3']['channels']['$post']
+    >;
+    id(value: ParamValue<Client['v3']['channels'][':id']['$delete'], 'id'>): {
+      deleteChannel: RelaxSharedPathParams<
+        Client['v3']['channels'][':id']['$delete'],
+        'id'
+      >;
+      getChannel: RelaxSharedPathParams<
+        Client['v3']['channels'][':id']['$get'],
+        'id'
+      >;
+      getChannelConnections: RelaxSharedPathParams<
+        Client['v3']['channels'][':id']['connections']['$get'],
+        'id'
+      >;
+      getChannelContents: RelaxSharedPathParams<
+        Client['v3']['channels'][':id']['contents']['$get'],
+        'id'
+      >;
+      getChannelFollowers: RelaxSharedPathParams<
+        Client['v3']['channels'][':id']['followers']['$get'],
+        'id'
+      >;
+      updateChannel: RelaxSharedPathParams<
+        Client['v3']['channels'][':id']['$put'],
+        'id'
+      >;
     };
   };
   comments: {
-    id(value: ParamValue<Client["v3"]["comments"][':id']['$delete'], "id">): {
-      deleteComment: RelaxSharedPathParams<Client["v3"]["comments"][':id']['$delete'], "id">;
+    id(value: ParamValue<Client['v3']['comments'][':id']['$delete'], 'id'>): {
+      deleteComment: RelaxSharedPathParams<
+        Client['v3']['comments'][':id']['$delete'],
+        'id'
+      >;
     };
   };
   connections: {
-    createConnection: OptionalFirstArgIfAllOptional<Client["v3"]["connections"]['$post']>;
-    id(value: ParamValue<Client["v3"]["connections"][':id']['$delete'], "id">): {
-      deleteConnection: RelaxSharedPathParams<Client["v3"]["connections"][':id']['$delete'], "id">;
-      getConnection: RelaxSharedPathParams<Client["v3"]["connections"][':id']['$get'], "id">;
-      moveConnection: RelaxSharedPathParams<Client["v3"]["connections"][':id']["move"]['$post'], "id">;
+    createConnection: OptionalFirstArgIfAllOptional<
+      Client['v3']['connections']['$post']
+    >;
+    id(
+      value: ParamValue<Client['v3']['connections'][':id']['$delete'], 'id'>,
+    ): {
+      deleteConnection: RelaxSharedPathParams<
+        Client['v3']['connections'][':id']['$delete'],
+        'id'
+      >;
+      getConnection: RelaxSharedPathParams<
+        Client['v3']['connections'][':id']['$get'],
+        'id'
+      >;
+      moveConnection: RelaxSharedPathParams<
+        Client['v3']['connections'][':id']['move']['$post'],
+        'id'
+      >;
     };
   };
   groups: {
-    id(value: ParamValue<Client["v3"]["groups"][':id']['$get'], "id">): {
-      getGroup: RelaxSharedPathParams<Client["v3"]["groups"][':id']['$get'], "id">;
-      getGroupContents: RelaxSharedPathParams<Client["v3"]["groups"][':id']["contents"]['$get'], "id">;
-      getGroupFollowers: RelaxSharedPathParams<Client["v3"]["groups"][':id']["followers"]['$get'], "id">;
+    id(value: ParamValue<Client['v3']['groups'][':id']['$get'], 'id'>): {
+      getGroup: RelaxSharedPathParams<
+        Client['v3']['groups'][':id']['$get'],
+        'id'
+      >;
+      getGroupContents: RelaxSharedPathParams<
+        Client['v3']['groups'][':id']['contents']['$get'],
+        'id'
+      >;
+      getGroupFollowers: RelaxSharedPathParams<
+        Client['v3']['groups'][':id']['followers']['$get'],
+        'id'
+      >;
     };
   };
   search: {
-    search: OptionalFirstArgIfAllOptional<Client["v3"]["search"]['$get']>;
+    search: OptionalFirstArgIfAllOptional<Client['v3']['search']['$get']>;
   };
   system: {
-    getOpenapiSpec: OptionalFirstArgIfAllOptional<Client["v3"]["openapi"]['$get']>;
-    getOpenapiSpecJson: OptionalFirstArgIfAllOptional<Client["v3"]["openapi.json"]['$get']>;
-    getPing: OptionalFirstArgIfAllOptional<Client["v3"]["ping"]['$get']>;
+    getOpenapiSpec: OptionalFirstArgIfAllOptional<
+      Client['v3']['openapi']['$get']
+    >;
+    getOpenapiSpecJson: OptionalFirstArgIfAllOptional<
+      Client['v3']['openapi.json']['$get']
+    >;
+    getPing: OptionalFirstArgIfAllOptional<Client['v3']['ping']['$get']>;
   };
   uploads: {
-    presignUpload: OptionalFirstArgIfAllOptional<Client["v3"]["uploads"]["presign"]['$post']>;
+    presignUpload: OptionalFirstArgIfAllOptional<
+      Client['v3']['uploads']['presign']['$post']
+    >;
   };
   users: {
-    getCurrentUser: OptionalFirstArgIfAllOptional<Client["v3"]["me"]['$get']>;
-    id(value: ParamValue<Client["v3"]["users"][':id']['$get'], "id">): {
-      getUser: RelaxSharedPathParams<Client["v3"]["users"][':id']['$get'], "id">;
-      getUserContents: RelaxSharedPathParams<Client["v3"]["users"][':id']["contents"]['$get'], "id">;
-      getUserFollowers: RelaxSharedPathParams<Client["v3"]["users"][':id']["followers"]['$get'], "id">;
-      getUserFollowing: RelaxSharedPathParams<Client["v3"]["users"][':id']["following"]['$get'], "id">;
+    getCurrentUser: OptionalFirstArgIfAllOptional<Client['v3']['me']['$get']>;
+    id(value: ParamValue<Client['v3']['users'][':id']['$get'], 'id'>): {
+      getUser: RelaxSharedPathParams<
+        Client['v3']['users'][':id']['$get'],
+        'id'
+      >;
+      getUserContents: RelaxSharedPathParams<
+        Client['v3']['users'][':id']['contents']['$get'],
+        'id'
+      >;
+      getUserFollowers: RelaxSharedPathParams<
+        Client['v3']['users'][':id']['followers']['$get'],
+        'id'
+      >;
+      getUserFollowing: RelaxSharedPathParams<
+        Client['v3']['users'][':id']['following']['$get'],
+        'id'
+      >;
     };
   };
 };
 
-function invokeEndpoint(endpoint: Fn, boundParam: Record<string, unknown>, args: unknown[]) {
-  if (!boundParam || Object.keys(boundParam).length === 0) return endpoint(...(args as any[]));
-  if (args.length > 0 && typeof args[0] === "object" && args[0] !== null) {
+function invokeEndpoint(
+  endpoint: Fn,
+  boundParam: Record<string, unknown>,
+  args: unknown[],
+) {
+  if (!boundParam || Object.keys(boundParam).length === 0)
+    return endpoint(...(args as any[]));
+  if (args.length > 0 && typeof args[0] === 'object' && args[0] !== null) {
     const first = args[0] as Record<string, unknown>;
-    const merged = { ...first, param: { ...boundParam, ...(first.param as object | undefined) } };
+    const merged = {
+      ...first,
+      param: { ...boundParam, ...(first.param as object | undefined) },
+    };
     return endpoint(merged, ...(args.slice(1) as any[]));
   }
   return endpoint({ param: boundParam }, ...(args as any[]));
 }
 
-const OP_HANDLERS: Record<string, (client: Client, bound: Record<string, unknown>, args: unknown[]) => unknown> = {
-  "batchCreateBlocks": (client, bound, args) => invokeEndpoint(client.v3.blocks.batch['$post'], bound, args),
-  "createBlock": (client, bound, args) => invokeEndpoint(client.v3.blocks['$post'], bound, args),
-  "createBlockComment": (client, bound, args) => invokeEndpoint(client.v3.blocks[':id'].comments['$post'], bound, args),
-  "createChannel": (client, bound, args) => invokeEndpoint(client.v3.channels['$post'], bound, args),
-  "createConnection": (client, bound, args) => invokeEndpoint(client.v3.connections['$post'], bound, args),
-  "createOAuthToken": (client, bound, args) => invokeEndpoint(client.v3.oauth.token['$post'], bound, args),
-  "deleteChannel": (client, bound, args) => invokeEndpoint(client.v3.channels[':id']['$delete'], bound, args),
-  "deleteComment": (client, bound, args) => invokeEndpoint(client.v3.comments[':id']['$delete'], bound, args),
-  "deleteConnection": (client, bound, args) => invokeEndpoint(client.v3.connections[':id']['$delete'], bound, args),
-  "getBatchStatus": (client, bound, args) => invokeEndpoint(client.v3.blocks.batch[':batch_id']['$get'], bound, args),
-  "getBlock": (client, bound, args) => invokeEndpoint(client.v3.blocks[':id']['$get'], bound, args),
-  "getBlockComments": (client, bound, args) => invokeEndpoint(client.v3.blocks[':id'].comments['$get'], bound, args),
-  "getBlockConnections": (client, bound, args) => invokeEndpoint(client.v3.blocks[':id'].connections['$get'], bound, args),
-  "getChannel": (client, bound, args) => invokeEndpoint(client.v3.channels[':id']['$get'], bound, args),
-  "getChannelConnections": (client, bound, args) => invokeEndpoint(client.v3.channels[':id'].connections['$get'], bound, args),
-  "getChannelContents": (client, bound, args) => invokeEndpoint(client.v3.channels[':id'].contents['$get'], bound, args),
-  "getChannelFollowers": (client, bound, args) => invokeEndpoint(client.v3.channels[':id'].followers['$get'], bound, args),
-  "getConnection": (client, bound, args) => invokeEndpoint(client.v3.connections[':id']['$get'], bound, args),
-  "getCurrentUser": (client, bound, args) => invokeEndpoint(client.v3.me['$get'], bound, args),
-  "getGroup": (client, bound, args) => invokeEndpoint(client.v3.groups[':id']['$get'], bound, args),
-  "getGroupContents": (client, bound, args) => invokeEndpoint(client.v3.groups[':id'].contents['$get'], bound, args),
-  "getGroupFollowers": (client, bound, args) => invokeEndpoint(client.v3.groups[':id'].followers['$get'], bound, args),
-  "getOpenapiSpec": (client, bound, args) => invokeEndpoint(client.v3.openapi['$get'], bound, args),
-  "getOpenapiSpecJson": (client, bound, args) => invokeEndpoint(client.v3["openapi.json"]['$get'], bound, args),
-  "getPing": (client, bound, args) => invokeEndpoint(client.v3.ping['$get'], bound, args),
-  "getUser": (client, bound, args) => invokeEndpoint(client.v3.users[':id']['$get'], bound, args),
-  "getUserContents": (client, bound, args) => invokeEndpoint(client.v3.users[':id'].contents['$get'], bound, args),
-  "getUserFollowers": (client, bound, args) => invokeEndpoint(client.v3.users[':id'].followers['$get'], bound, args),
-  "getUserFollowing": (client, bound, args) => invokeEndpoint(client.v3.users[':id'].following['$get'], bound, args),
-  "moveConnection": (client, bound, args) => invokeEndpoint(client.v3.connections[':id'].move['$post'], bound, args),
-  "presignUpload": (client, bound, args) => invokeEndpoint(client.v3.uploads.presign['$post'], bound, args),
-  "search": (client, bound, args) => invokeEndpoint(client.v3.search['$get'], bound, args),
-  "updateBlock": (client, bound, args) => invokeEndpoint(client.v3.blocks[':id']['$put'], bound, args),
-  "updateChannel": (client, bound, args) => invokeEndpoint(client.v3.channels[':id']['$put'], bound, args),
+const OP_HANDLERS: Record<
+  string,
+  (client: Client, bound: Record<string, unknown>, args: unknown[]) => unknown
+> = {
+  batchCreateBlocks: (client, bound, args) =>
+    invokeEndpoint(client.v3.blocks.batch['$post'], bound, args),
+  createBlock: (client, bound, args) =>
+    invokeEndpoint(client.v3.blocks['$post'], bound, args),
+  createBlockComment: (client, bound, args) =>
+    invokeEndpoint(client.v3.blocks[':id'].comments['$post'], bound, args),
+  createChannel: (client, bound, args) =>
+    invokeEndpoint(client.v3.channels['$post'], bound, args),
+  createConnection: (client, bound, args) =>
+    invokeEndpoint(client.v3.connections['$post'], bound, args),
+  createOAuthToken: (client, bound, args) =>
+    invokeEndpoint(client.v3.oauth.token['$post'], bound, args),
+  deleteChannel: (client, bound, args) =>
+    invokeEndpoint(client.v3.channels[':id']['$delete'], bound, args),
+  deleteComment: (client, bound, args) =>
+    invokeEndpoint(client.v3.comments[':id']['$delete'], bound, args),
+  deleteConnection: (client, bound, args) =>
+    invokeEndpoint(client.v3.connections[':id']['$delete'], bound, args),
+  getBatchStatus: (client, bound, args) =>
+    invokeEndpoint(client.v3.blocks.batch[':batch_id']['$get'], bound, args),
+  getBlock: (client, bound, args) =>
+    invokeEndpoint(client.v3.blocks[':id']['$get'], bound, args),
+  getBlockComments: (client, bound, args) =>
+    invokeEndpoint(client.v3.blocks[':id'].comments['$get'], bound, args),
+  getBlockConnections: (client, bound, args) =>
+    invokeEndpoint(client.v3.blocks[':id'].connections['$get'], bound, args),
+  getChannel: (client, bound, args) =>
+    invokeEndpoint(client.v3.channels[':id']['$get'], bound, args),
+  getChannelConnections: (client, bound, args) =>
+    invokeEndpoint(client.v3.channels[':id'].connections['$get'], bound, args),
+  getChannelContents: (client, bound, args) =>
+    invokeEndpoint(client.v3.channels[':id'].contents['$get'], bound, args),
+  getChannelFollowers: (client, bound, args) =>
+    invokeEndpoint(client.v3.channels[':id'].followers['$get'], bound, args),
+  getConnection: (client, bound, args) =>
+    invokeEndpoint(client.v3.connections[':id']['$get'], bound, args),
+  getCurrentUser: (client, bound, args) =>
+    invokeEndpoint(client.v3.me['$get'], bound, args),
+  getGroup: (client, bound, args) =>
+    invokeEndpoint(client.v3.groups[':id']['$get'], bound, args),
+  getGroupContents: (client, bound, args) =>
+    invokeEndpoint(client.v3.groups[':id'].contents['$get'], bound, args),
+  getGroupFollowers: (client, bound, args) =>
+    invokeEndpoint(client.v3.groups[':id'].followers['$get'], bound, args),
+  getOpenapiSpec: (client, bound, args) =>
+    invokeEndpoint(client.v3.openapi['$get'], bound, args),
+  getOpenapiSpecJson: (client, bound, args) =>
+    invokeEndpoint(client.v3['openapi.json']['$get'], bound, args),
+  getPing: (client, bound, args) =>
+    invokeEndpoint(client.v3.ping['$get'], bound, args),
+  getUser: (client, bound, args) =>
+    invokeEndpoint(client.v3.users[':id']['$get'], bound, args),
+  getUserContents: (client, bound, args) =>
+    invokeEndpoint(client.v3.users[':id'].contents['$get'], bound, args),
+  getUserFollowers: (client, bound, args) =>
+    invokeEndpoint(client.v3.users[':id'].followers['$get'], bound, args),
+  getUserFollowing: (client, bound, args) =>
+    invokeEndpoint(client.v3.users[':id'].following['$get'], bound, args),
+  moveConnection: (client, bound, args) =>
+    invokeEndpoint(client.v3.connections[':id'].move['$post'], bound, args),
+  presignUpload: (client, bound, args) =>
+    invokeEndpoint(client.v3.uploads.presign['$post'], bound, args),
+  search: (client, bound, args) =>
+    invokeEndpoint(client.v3.search['$get'], bound, args),
+  updateBlock: (client, bound, args) =>
+    invokeEndpoint(client.v3.blocks[':id']['$put'], bound, args),
+  updateChannel: (client, bound, args) =>
+    invokeEndpoint(client.v3.channels[':id']['$put'], bound, args),
 };
 
 function paramKeysFromGroupSegment(segment: string): string[] {
-  if (segment.includes("\x1f")) return segment.split("\x1f").filter(Boolean);
+  if (segment.includes('\x1f')) return segment.split('\x1f').filter(Boolean);
   return segment ? [segment] : [];
 }
 
-function normalizeGroupParams(params: string[], value: unknown): Record<string, unknown> {
+function normalizeGroupParams(
+  params: string[],
+  value: unknown,
+): Record<string, unknown> {
   if (params.length === 1) return { [params[0]!]: value };
   return value as Record<string, unknown>;
 }
 
-type BuilderApplyOpts = { client: Client; path: string[]; args: unknown[]; bound?: Record<string, unknown> };
+type BuilderApplyOpts = {
+  client: Client;
+  path: string[];
+  args: unknown[];
+  bound?: Record<string, unknown>;
+};
 
 function builderApply(opts: BuilderApplyOpts): unknown {
   const { client, path, args, bound } = opts;
@@ -186,7 +342,11 @@ function builderApply(opts: BuilderApplyOpts): unknown {
     if (op) return op(client, {}, args);
     const keys = paramKeysFromGroupSegment(seg);
     if (keys.length === 0) return undefined;
-    return createBuilderProxy(client, path, normalizeGroupParams(keys, args[0]));
+    return createBuilderProxy(
+      client,
+      path,
+      normalizeGroupParams(keys, args[0]),
+    );
   }
   if (path.length === 3 && bound) {
     const opId = path[2]!;
@@ -196,10 +356,14 @@ function builderApply(opts: BuilderApplyOpts): unknown {
   return undefined;
 }
 
-function createBuilderProxy(client: Client, path: string[] = [], bound?: Record<string, unknown>) {
+function createBuilderProxy(
+  client: Client,
+  path: string[] = [],
+  bound?: Record<string, unknown>,
+) {
   const proxy: unknown = new Proxy(() => {}, {
     get(_obj, prop) {
-      if (typeof prop !== "string" || prop === "then") return undefined;
+      if (typeof prop !== 'string' || prop === 'then') return undefined;
       return createBuilderProxy(client, [...path, prop], bound);
     },
     apply(_1, _2, args: unknown[]) {
