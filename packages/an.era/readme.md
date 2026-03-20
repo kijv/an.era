@@ -11,7 +11,7 @@ npm install an.era
 # Usage
 
 ```js
-import { arenaClient, parseResponse } from './src';
+import { arenaClient, parseResponse } from 'an.era';
 
 const arena = arenaClient();
 
