@@ -129,52 +129,9 @@ const OP_HANDLERS: Record<string, (client: Client, bound: Record<string, unknown
   "updateChannel": (client, bound, args) => invokeEndpoint(client.v3.channels[':id']['$put'], bound, args),
 };
 
-const TAG_LEVEL2: Record<string, { root: Set<string>; groups: Set<string> }> = {
-  "authentication": {
-    root: new Set(["createOAuthToken"]),
-    groups: new Set([]),
-  },
-  "blocks": {
-    root: new Set(["batchCreateBlocks","createBlock"]),
-    groups: new Set(["batch_id","id"]),
-  },
-  "channels": {
-    root: new Set(["createChannel"]),
-    groups: new Set(["id"]),
-  },
-  "comments": {
-    root: new Set([]),
-    groups: new Set(["id"]),
-  },
-  "connections": {
-    root: new Set(["createConnection"]),
-    groups: new Set(["id"]),
-  },
-  "groups": {
-    root: new Set([]),
-    groups: new Set(["id"]),
-  },
-  "search": {
-    root: new Set(["search"]),
-    groups: new Set([]),
-  },
-  "system": {
-    root: new Set(["getOpenapiSpec","getOpenapiSpecJson","getPing"]),
-    groups: new Set([]),
-  },
-  "uploads": {
-    root: new Set(["presignUpload"]),
-    groups: new Set([]),
-  },
-  "users": {
-    root: new Set(["getCurrentUser"]),
-    groups: new Set(["id"]),
-  },
-};
-
 function paramKeysFromGroupSegment(segment: string): string[] {
-  if (segment.includes("\x1f")) return segment.split("\x1f");
-  return [segment];
+  if (segment.includes("\x1f")) return segment.split("\x1f").filter(Boolean);
+  return segment ? [segment] : [];
 }
 
 function normalizeGroupParams(params: string[], value: unknown): Record<string, unknown> {
@@ -187,18 +144,12 @@ type BuilderApplyOpts = { client: Client; path: string[]; args: unknown[]; bound
 function builderApply(opts: BuilderApplyOpts): unknown {
   const { client, path, args, bound } = opts;
   if (path.length === 2 && !bound) {
-    const tag = path[0]!;
     const seg = path[1]!;
-    const layout = TAG_LEVEL2[tag];
-    if (!layout) return undefined;
-    if (layout.root.has(seg)) {
-      const run = OP_HANDLERS[seg];
-      return run ? run(client, {}, args) : undefined;
-    }
-    if (layout.groups.has(seg)) {
-      return createBuilderProxy(client, path, normalizeGroupParams(paramKeysFromGroupSegment(seg), args[0]));
-    }
-    return undefined;
+    const op = OP_HANDLERS[seg];
+    if (op) return op(client, {}, args);
+    const keys = paramKeysFromGroupSegment(seg);
+    if (keys.length === 0) return undefined;
+    return createBuilderProxy(client, path, normalizeGroupParams(keys, args[0]));
   }
   if (path.length === 3 && bound) {
     const opId = path[2]!;

@@ -215,23 +215,9 @@ for (const id of [...opById.keys()].sort((a, b) => a.localeCompare(b))) {
 
 lines.push('};');
 lines.push('');
-lines.push('const TAG_LEVEL2: Record<string, { root: Set<string>; groups: Set<string> }> = {');
-
-for (const tag of orderedTags) {
-  const { rootOps, groups } = tagStructure(tag);
-  const rootIds = rootOps.map((o) => o.operationId).sort((a, b) => a.localeCompare(b));
-  const groupSegs = groups.map((g) => groupSegmentKey(g.params)).sort((a, b) => a.localeCompare(b));
-  lines.push(`  ${JSON.stringify(tag.key)}: {`);
-  lines.push(`    root: new Set(${JSON.stringify(rootIds)}),`);
-  lines.push(`    groups: new Set(${JSON.stringify(groupSegs)}),`);
-  lines.push('  },');
-}
-
-lines.push('};');
-lines.push('');
 lines.push('function paramKeysFromGroupSegment(segment: string): string[] {');
-lines.push('  if (segment.includes("\\x1f")) return segment.split("\\x1f");');
-lines.push('  return [segment];');
+lines.push('  if (segment.includes("\\x1f")) return segment.split("\\x1f").filter(Boolean);');
+lines.push('  return segment ? [segment] : [];');
 lines.push('}');
 lines.push('');
 lines.push('function normalizeGroupParams(params: string[], value: unknown): Record<string, unknown> {');
@@ -244,18 +230,12 @@ lines.push('');
 lines.push('function builderApply(opts: BuilderApplyOpts): unknown {');
 lines.push('  const { client, path, args, bound } = opts;');
 lines.push('  if (path.length === 2 && !bound) {');
-lines.push('    const tag = path[0]!;');
 lines.push('    const seg = path[1]!;');
-lines.push('    const layout = TAG_LEVEL2[tag];');
-lines.push('    if (!layout) return undefined;');
-lines.push('    if (layout.root.has(seg)) {');
-lines.push('      const run = OP_HANDLERS[seg];');
-lines.push('      return run ? run(client, {}, args) : undefined;');
-lines.push('    }');
-lines.push('    if (layout.groups.has(seg)) {');
-lines.push('      return createBuilderProxy(client, path, normalizeGroupParams(paramKeysFromGroupSegment(seg), args[0]));');
-lines.push('    }');
-lines.push('    return undefined;');
+lines.push('    const op = OP_HANDLERS[seg];');
+lines.push('    if (op) return op(client, {}, args);');
+lines.push('    const keys = paramKeysFromGroupSegment(seg);');
+lines.push('    if (keys.length === 0) return undefined;');
+lines.push('    return createBuilderProxy(client, path, normalizeGroupParams(keys, args[0]));');
 lines.push('  }');
 lines.push('  if (path.length === 3 && bound) {');
 lines.push('    const opId = path[2]!;');
