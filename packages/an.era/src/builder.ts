@@ -36,95 +36,75 @@ type ParamValue<F extends Fn, K extends string> = Parameters<F> extends [infer F
     : string | number
   : string | number;
 
-type AuthenticationTag = {
-  createOAuthToken: BoundCall<Client["v3"]["oauth"]["token"]['$post'], never>;
-};
-
-type BlocksTag = {
-  batchCreateBlocks: BoundCall<Client["v3"]["blocks"]["batch"]['$post'], never>;
-  createBlock: BoundCall<Client["v3"]["blocks"]['$post'], never>;
-  batchId(value: ParamValue<Client["v3"]["blocks"]["batch"][':batch_id']['$get'], "batch_id">): {
-    getBatchStatus: BoundCall<Client["v3"]["blocks"]["batch"][':batch_id']['$get'], "batch_id">;
-  };
-  id(value: ParamValue<Client["v3"]["blocks"][':id']["comments"]['$post'], "id">): {
-    createBlockComment: BoundCall<Client["v3"]["blocks"][':id']["comments"]['$post'], "id">;
-    getBlock: BoundCall<Client["v3"]["blocks"][':id']['$get'], "id">;
-    getBlockComments: BoundCall<Client["v3"]["blocks"][':id']["comments"]['$get'], "id">;
-    getBlockConnections: BoundCall<Client["v3"]["blocks"][':id']["connections"]['$get'], "id">;
-    updateBlock: BoundCall<Client["v3"]["blocks"][':id']['$put'], "id">;
-  };
-};
-
-type ChannelsTag = {
-  createChannel: BoundCall<Client["v3"]["channels"]['$post'], never>;
-  id(value: ParamValue<Client["v3"]["channels"][':id']['$delete'], "id">): {
-    deleteChannel: BoundCall<Client["v3"]["channels"][':id']['$delete'], "id">;
-    getChannel: BoundCall<Client["v3"]["channels"][':id']['$get'], "id">;
-    getChannelConnections: BoundCall<Client["v3"]["channels"][':id']["connections"]['$get'], "id">;
-    getChannelContents: BoundCall<Client["v3"]["channels"][':id']["contents"]['$get'], "id">;
-    getChannelFollowers: BoundCall<Client["v3"]["channels"][':id']["followers"]['$get'], "id">;
-    updateChannel: BoundCall<Client["v3"]["channels"][':id']['$put'], "id">;
-  };
-};
-
-type CommentsTag = {
-  id(value: ParamValue<Client["v3"]["comments"][':id']['$delete'], "id">): {
-    deleteComment: BoundCall<Client["v3"]["comments"][':id']['$delete'], "id">;
-  };
-};
-
-type ConnectionsTag = {
-  createConnection: BoundCall<Client["v3"]["connections"]['$post'], never>;
-  id(value: ParamValue<Client["v3"]["connections"][':id']['$delete'], "id">): {
-    deleteConnection: BoundCall<Client["v3"]["connections"][':id']['$delete'], "id">;
-    getConnection: BoundCall<Client["v3"]["connections"][':id']['$get'], "id">;
-    moveConnection: BoundCall<Client["v3"]["connections"][':id']["move"]['$post'], "id">;
-  };
-};
-
-type GroupsTag = {
-  id(value: ParamValue<Client["v3"]["groups"][':id']['$get'], "id">): {
-    getGroup: BoundCall<Client["v3"]["groups"][':id']['$get'], "id">;
-    getGroupContents: BoundCall<Client["v3"]["groups"][':id']["contents"]['$get'], "id">;
-    getGroupFollowers: BoundCall<Client["v3"]["groups"][':id']["followers"]['$get'], "id">;
-  };
-};
-
-type SearchTag = {
-  search: BoundCall<Client["v3"]["search"]['$get'], never>;
-};
-
-type SystemTag = {
-  getOpenapiSpec: BoundCall<Client["v3"]["openapi"]['$get'], never>;
-  getOpenapiSpecJson: BoundCall<Client["v3"]["openapi.json"]['$get'], never>;
-  getPing: BoundCall<Client["v3"]["ping"]['$get'], never>;
-};
-
-type UploadsTag = {
-  presignUpload: BoundCall<Client["v3"]["uploads"]["presign"]['$post'], never>;
-};
-
-type UsersTag = {
-  getCurrentUser: BoundCall<Client["v3"]["me"]['$get'], never>;
-  id(value: ParamValue<Client["v3"]["users"][':id']['$get'], "id">): {
-    getUser: BoundCall<Client["v3"]["users"][':id']['$get'], "id">;
-    getUserContents: BoundCall<Client["v3"]["users"][':id']["contents"]['$get'], "id">;
-    getUserFollowers: BoundCall<Client["v3"]["users"][':id']["followers"]['$get'], "id">;
-    getUserFollowing: BoundCall<Client["v3"]["users"][':id']["following"]['$get'], "id">;
-  };
-};
-
 export type BuilderShape = {
-  authentication: AuthenticationTag;
-  blocks: BlocksTag;
-  channels: ChannelsTag;
-  comments: CommentsTag;
-  connections: ConnectionsTag;
-  groups: GroupsTag;
-  search: SearchTag;
-  system: SystemTag;
-  uploads: UploadsTag;
-  users: UsersTag;
+  authentication: {
+    createOAuthToken: BoundCall<Client["v3"]["oauth"]["token"]['$post'], never>;
+  };
+  blocks: {
+    batchCreateBlocks: BoundCall<Client["v3"]["blocks"]["batch"]['$post'], never>;
+    createBlock: BoundCall<Client["v3"]["blocks"]['$post'], never>;
+    batchId(value: ParamValue<Client["v3"]["blocks"]["batch"][':batch_id']['$get'], "batch_id">): {
+      getBatchStatus: BoundCall<Client["v3"]["blocks"]["batch"][':batch_id']['$get'], "batch_id">;
+    };
+    id(value: ParamValue<Client["v3"]["blocks"][':id']["comments"]['$post'], "id">): {
+      createBlockComment: BoundCall<Client["v3"]["blocks"][':id']["comments"]['$post'], "id">;
+      getBlock: BoundCall<Client["v3"]["blocks"][':id']['$get'], "id">;
+      getBlockComments: BoundCall<Client["v3"]["blocks"][':id']["comments"]['$get'], "id">;
+      getBlockConnections: BoundCall<Client["v3"]["blocks"][':id']["connections"]['$get'], "id">;
+      updateBlock: BoundCall<Client["v3"]["blocks"][':id']['$put'], "id">;
+    };
+  };
+  channels: {
+    createChannel: BoundCall<Client["v3"]["channels"]['$post'], never>;
+    id(value: ParamValue<Client["v3"]["channels"][':id']['$delete'], "id">): {
+      deleteChannel: BoundCall<Client["v3"]["channels"][':id']['$delete'], "id">;
+      getChannel: BoundCall<Client["v3"]["channels"][':id']['$get'], "id">;
+      getChannelConnections: BoundCall<Client["v3"]["channels"][':id']["connections"]['$get'], "id">;
+      getChannelContents: BoundCall<Client["v3"]["channels"][':id']["contents"]['$get'], "id">;
+      getChannelFollowers: BoundCall<Client["v3"]["channels"][':id']["followers"]['$get'], "id">;
+      updateChannel: BoundCall<Client["v3"]["channels"][':id']['$put'], "id">;
+    };
+  };
+  comments: {
+    id(value: ParamValue<Client["v3"]["comments"][':id']['$delete'], "id">): {
+      deleteComment: BoundCall<Client["v3"]["comments"][':id']['$delete'], "id">;
+    };
+  };
+  connections: {
+    createConnection: BoundCall<Client["v3"]["connections"]['$post'], never>;
+    id(value: ParamValue<Client["v3"]["connections"][':id']['$delete'], "id">): {
+      deleteConnection: BoundCall<Client["v3"]["connections"][':id']['$delete'], "id">;
+      getConnection: BoundCall<Client["v3"]["connections"][':id']['$get'], "id">;
+      moveConnection: BoundCall<Client["v3"]["connections"][':id']["move"]['$post'], "id">;
+    };
+  };
+  groups: {
+    id(value: ParamValue<Client["v3"]["groups"][':id']['$get'], "id">): {
+      getGroup: BoundCall<Client["v3"]["groups"][':id']['$get'], "id">;
+      getGroupContents: BoundCall<Client["v3"]["groups"][':id']["contents"]['$get'], "id">;
+      getGroupFollowers: BoundCall<Client["v3"]["groups"][':id']["followers"]['$get'], "id">;
+    };
+  };
+  search: {
+    search: BoundCall<Client["v3"]["search"]['$get'], never>;
+  };
+  system: {
+    getOpenapiSpec: BoundCall<Client["v3"]["openapi"]['$get'], never>;
+    getOpenapiSpecJson: BoundCall<Client["v3"]["openapi.json"]['$get'], never>;
+    getPing: BoundCall<Client["v3"]["ping"]['$get'], never>;
+  };
+  uploads: {
+    presignUpload: BoundCall<Client["v3"]["uploads"]["presign"]['$post'], never>;
+  };
+  users: {
+    getCurrentUser: BoundCall<Client["v3"]["me"]['$get'], never>;
+    id(value: ParamValue<Client["v3"]["users"][':id']['$get'], "id">): {
+      getUser: BoundCall<Client["v3"]["users"][':id']['$get'], "id">;
+      getUserContents: BoundCall<Client["v3"]["users"][':id']["contents"]['$get'], "id">;
+      getUserFollowers: BoundCall<Client["v3"]["users"][':id']["followers"]['$get'], "id">;
+      getUserFollowing: BoundCall<Client["v3"]["users"][':id']["following"]['$get'], "id">;
+    };
+  };
 };
 
 function invokeEndpoint(endpoint: Fn, boundParam: Record<string, unknown>, args: unknown[]) {

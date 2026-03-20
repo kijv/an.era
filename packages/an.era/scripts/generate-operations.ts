@@ -64,11 +64,6 @@ function camelCase(input: string): string {
     .replace(/[^A-Za-z0-9]/g, '');
 }
 
-function pascalCase(input: string): string {
-  const c = camelCase(input);
-  return c ? c[0]!.toUpperCase() + c.slice(1) : c;
-}
-
 /** OpenAPI `{param}` names → camelCase method (`id`, `batchId`, or `fooAndBar` for multiple). */
 function groupNameForParams(params: string[]): string {
   if (params.length === 0) return 'root';
@@ -173,6 +168,7 @@ const lines: string[] = [
   '',
 ];
 
+lines.push('export type BuilderShape = {');
 for (const tag of orderedTags) {
   const groups = new Map<string, { params: string[]; ops: GeneratedOperation[] }>();
   const rootOps: GeneratedOperation[] = [];
@@ -186,35 +182,31 @@ for (const tag of orderedTags) {
     }
   }
 
-  lines.push(`type ${pascalCase(tag.key)}Tag = {`);
+  lines.push(`  ${tag.key}: {`);
   for (const op of rootOps.sort((a, b) => a.operationId.localeCompare(b.operationId))) {
-    lines.push(`  ${op.operationId}: BoundCall<Client${op.clientTypePath}['$${op.method}'], never>;`);
+    lines.push(`    ${op.operationId}: BoundCall<Client${op.clientTypePath}['$${op.method}'], never>;`);
   }
   for (const group of [...groups.values()].sort((a, b) => groupNameForParams(a.params).localeCompare(groupNameForParams(b.params)))) {
     const groupName = groupNameForParams(group.params);
     const rep = group.ops[0]!;
     if (group.params.length === 1) {
       const k = group.params[0]!;
-      lines.push(`  ${groupName}(value: ParamValue<Client${rep.clientTypePath}['$${rep.method}'], ${JSON.stringify(k)}>): {`);
+      lines.push(`    ${groupName}(value: ParamValue<Client${rep.clientTypePath}['$${rep.method}'], ${JSON.stringify(k)}>): {`);
     } else {
-      lines.push(`  ${groupName}(value: {`);
+      lines.push(`    ${groupName}(value: {`);
       for (const k of group.params) {
-        lines.push(`    ${k}: ParamValue<Client${rep.clientTypePath}['$${rep.method}'], ${JSON.stringify(k)}>;`);
+        lines.push(`      ${k}: ParamValue<Client${rep.clientTypePath}['$${rep.method}'], ${JSON.stringify(k)}>;`);
       }
-      lines.push('  }): {');
+      lines.push('    }): {');
     }
     for (const op of group.ops.sort((a, b) => a.operationId.localeCompare(b.operationId))) {
       const keysUnion = op.pathParams.map((p) => JSON.stringify(p)).join(' | ');
-      lines.push(`    ${op.operationId}: BoundCall<Client${op.clientTypePath}['$${op.method}'], ${keysUnion}>;`);
+      lines.push(`      ${op.operationId}: BoundCall<Client${op.clientTypePath}['$${op.method}'], ${keysUnion}>;`);
     }
-    lines.push('  };');
+    lines.push('    };');
   }
-  lines.push('};');
-  lines.push('');
+  lines.push('  };');
 }
-
-lines.push('export type BuilderShape = {');
-for (const tag of orderedTags) lines.push(`  ${tag.key}: ${pascalCase(tag.key)}Tag;`);
 lines.push('};');
 lines.push('');
 lines.push('function invokeEndpoint(endpoint: Fn, boundParam: Record<string, unknown>, args: unknown[]) {');
