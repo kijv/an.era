@@ -1,4 +1,4 @@
-name: Update OpenAPI Schema
+name: Update OpenAPI
 
 on:
   # Run every every day at midnight https://crontab.guru/#0_0_*_*_*/1
@@ -7,7 +7,7 @@ on:
   # Allow manual runs
   workflow_dispatch:
 jobs:
-  update_openapi_schema:
+  update_openapi:
     runs-on: ubuntu-slim
     permissions:
       contents: write
@@ -27,6 +27,6 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           BRANCH_NAME: openapi-schema
-          SCRIPT: packages/an.era/scripts/update-openapi-schema.ts && node packages/an.era/scripts/generate-hono-app.mjs && vp check --fix
+          SCRIPT: packages/an.era/scripts/update-openapi-schema.ts && node packages/an.era/scripts/generate-hono-app.ts && node packages/an.era/scripts/generate-operations.ts && vp check --fix
           PR_TITLE: Update OpenAPI Schema
           PR_BODY: This auto-generated PR updates OpenAPI schema with latest available
