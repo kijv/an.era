@@ -1,5 +1,15 @@
 # an.era
 
+## 0.3.3
+
+### Patch Changes
+
+- [#34](https://github.com/kijv/an.era/pull/34) [`cbda839`](https://github.com/kijv/an.era/commit/cbda8396c00899d9cee39850aee21ea165239a87) Thanks [@kijv](https://github.com/kijv)! - layer more descriptive operation functions on top of client
+
+- [#36](https://github.com/kijv/an.era/pull/36) [`845efea`](https://github.com/kijv/an.era/commit/845efea8bb7b3c764cee0226ddbe7eb16a92f853) Thanks [@kijv](https://github.com/kijv)! - add hono/client like API (by default)
+
+- [#34](https://github.com/kijv/an.era/pull/34) [`cbda839`](https://github.com/kijv/an.era/commit/cbda8396c00899d9cee39850aee21ea165239a87) Thanks [@kijv](https://github.com/kijv)! - typescript fixes
+
 ## 0.3.2
 
 ### Patch Changes
