@@ -19,7 +19,7 @@ import { parseResponse } from 'an.era/client';
 const arena = new Arena();
 
 // https://api.are.na/v3/channels/arena
-// Can alternatively be written as `arena.$getChannel({ param: { id: 'arena' } })`
+// Alternatively, this can be written as `arena.$getChannel({ param: { id: 'arena' } })`
 const res = arena.channel.id('arena').$get();
 // parseResponse ensures there is not an error, and throws otherwise
 const channel = await parseResponse(res);
