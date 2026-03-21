@@ -1,9 +1,11 @@
 import type { App as DefaultApp } from './app';
-import { hc } from 'hono/client';
+import { hc, parseResponse as pr } from 'hono/client';
 
 export type App = DefaultApp;
 
-export { parseResponse, DetailedError } from 'hono/client';
+export { DetailedError } from 'hono/client';
+
+export const parseResponse = (...args: Parameters<typeof pr>) => pr(...args);
 
 export const ac = (
   ...args: Parameters<typeof hc<App>>

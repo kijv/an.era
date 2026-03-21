@@ -16,5 +16,5 @@ import { parseResponse } from 'an.era/client';
 
 const arena = new Arena();
 
-const channel = await parseResponse(arena.channels.id('arena').getChannel());
+const channel = await parseResponse(arena.channel.id('arena').$get());
 ```
