@@ -145,7 +145,7 @@ function schemaToTypeExpr(
 
 /** OpenAPI allows `parameters` as an array or (in some specs) a map of name → parameter. */
 function normalizeParametersList(
-  parameters: PathItemObject['parameters'] | OperationObject['parameters'],
+  parameters: PathItemObject['parameters'],
 ): unknown[] {
   if (parameters == null) return [];
   if (Array.isArray(parameters)) return parameters;
@@ -193,18 +193,30 @@ function parameterToTypeExpr(
         ]),
       });
     });
-    return typeExprs.length === 1 ? typeExprs[0]! : `(${typeExprs.join(' | ')})`;
+    return typeExprs.length === 1
+      ? typeExprs[0]!
+      : `(${typeExprs.join(' | ')})`;
   }
 
   return 'unknown';
+}
+
+/**
+ * OpenAPI: `required` defaults to `false` for query/header/cookie; path params
+ * must be `true` in valid specs — we only mark path keys optional if explicitly
+ * `required: false`.
+ */
+function isParameterOptional(parameter: { in?: string; required?: boolean }) {
+  if (parameter.in === 'path') return parameter.required === false;
+  return parameter.required !== true;
 }
 
 function collectParametersByLocation(
   pathItem: PathItemObject,
   operation: OperationObject,
   paramIn: 'path' | 'query',
-): Array<{ name: string; typeExpr: string }> {
-  const out: Array<{ name: string; typeExpr: string }> = [];
+): Array<{ name: string; typeExpr: string; optional: boolean }> {
+  const out: Array<{ name: string; typeExpr: string; optional: boolean }> = [];
   const all = [
     ...normalizeParametersList(pathItem?.parameters),
     ...normalizeParametersList(operation?.parameters),
@@ -213,12 +225,13 @@ function collectParametersByLocation(
   for (const p of all) {
     const resolved = resolveMaybeRef(p);
     if (!resolved || typeof resolved !== 'object') continue;
-    const parameter = resolved as { in?: string; name?: string };
+    const parameter = resolved as { in?: string; name?: string; required?: boolean };
     if (parameter.in !== paramIn) continue;
     if (!parameter.name) continue;
     out.push({
       name: String(parameter.name),
       typeExpr: parameterToTypeExpr(p, paramIn),
+      optional: isParameterOptional(parameter),
     });
   }
   return out;
@@ -262,19 +275,19 @@ function buildInputExpr({
   queryParams,
 }: {
   bodyMembers: BodyInputMember[];
-  pathParams: Array<{ name: string; typeExpr: string }>;
-  queryParams: Array<{ name: string; typeExpr: string }>;
+  pathParams: Array<{ name: string; typeExpr: string; optional: boolean }>;
+  queryParams: Array<{ name: string; typeExpr: string; optional: boolean }>;
 }) {
   const sharedProps: string[] = [];
   if (pathParams.length) {
     const record = pathParams
-      .map((p) => `${p.name}: ${p.typeExpr}`)
+      .map((p) => `${p.name}${p.optional ? '?' : ''}: ${p.typeExpr}`)
       .join('; ');
     sharedProps.push(`param: { ${record} }`);
   }
   if (queryParams.length) {
     const record = queryParams
-      .map((p) => `${p.name}: ${p.typeExpr}`)
+      .map((p) => `${p.name}${p.optional ? '?' : ''}: ${p.typeExpr}`)
       .join('; ');
     sharedProps.push(`query: { ${record} }`);
   }
