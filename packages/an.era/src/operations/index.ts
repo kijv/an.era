@@ -2,9 +2,7 @@ import {
   type Operations as GeneratedOperations,
   OPERATIONS,
 } from './generated';
-import type {
-  OptionalPropertyForFirstArgumentOfFunction,
-} from './types';
+import type { OptionalPropertyForFirstArgumentOfFunction } from './types';
 import type { UnionToIntersection } from 'hono/utils/types';
 import type { ac } from '../client';
 import { deepAssign } from './utils';
