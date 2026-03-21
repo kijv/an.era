@@ -180,11 +180,26 @@ function getRefName($ref: string): string {
   return parts[parts.length - 1] ?? 'Unknown';
 }
 
-// Simplify nested optional wrappers by tracking optionality
-interface SchemaResult {
-  expr: string;
-  isOptional: boolean;
-  isNullable: boolean;
+// Type guards for OpenAPI schema subtypes
+type StringSchema = SchemaObject & { type: 'string' };
+type NumberSchema = SchemaObject & { type: 'number' | 'integer' };
+type ArraySchema = SchemaObject & { type: 'array' };
+type ObjectSchema = SchemaObject & { type: 'object' };
+
+function isStringSchema(s: SchemaObject): s is StringSchema {
+  return s.type === 'string';
+}
+
+function isNumberSchema(s: SchemaObject): s is NumberSchema {
+  return s.type === 'number' || s.type === 'integer';
+}
+
+function isArraySchema(s: SchemaObject): s is ArraySchema {
+  return s.type === 'array';
+}
+
+function isObjectSchema(s: SchemaObject): s is ObjectSchema {
+  return s.type === 'object';
 }
 
 // Convert JSON schema to Valibot schema expression
@@ -194,7 +209,7 @@ function jsonSchemaToValibot(
   options: {
     propertyPath?: string[];
     schemaName?: string;
-    inOneOf?: boolean; // Track if we're inside a oneOf/anyOf for discriminator handling
+    inOneOf?: boolean;
   } = {},
 ): string {
   if (schema === true) return 'v.any()';
@@ -211,11 +226,7 @@ function jsonSchemaToValibot(
   const pipes: string[] = [];
 
   // Handle nullable (OpenAPI 3.0 style)
-  const isNullable = s.nullable === true;
-
-  // Note: v.variant() requires each option to have a literal `key` property,
-  // which doesn't work with allOf/intersect schemas. We use v.union() instead
-  // for discriminated unions from OpenAPI.
+  const isNullable = (s as Record<string, unknown>).nullable === true;
 
   // Handle type or anyOf/oneOf/allOf
   if (s.allOf && Array.isArray(s.allOf)) {
@@ -224,7 +235,7 @@ function jsonSchemaToValibot(
     const schemas = s.allOf
       .filter((sub) => hasActualConstraints(sub))
       .map((sub, i) =>
-        jsonSchemaToValibot(sub, ctx, {
+        jsonSchemaToValibot(sub as SchemaObject, ctx, {
           ...options,
           propertyPath: [...(options.propertyPath ?? []), 'allOf', String(i)],
         }),
@@ -256,7 +267,7 @@ function jsonSchemaToValibot(
   if (s.anyOf && Array.isArray(s.anyOf)) {
     // anyOf -> v.union()
     const schemas = s.anyOf.map((sub, i) =>
-      jsonSchemaToValibot(sub, ctx, {
+      jsonSchemaToValibot(sub as SchemaObject, ctx, {
         ...options,
         propertyPath: [...(options.propertyPath ?? []), 'anyOf', String(i)],
       }),
@@ -269,9 +280,9 @@ function jsonSchemaToValibot(
   }
 
   if (s.oneOf && Array.isArray(s.oneOf)) {
-    // oneOf -> v.union() (or v.variant() handled above)
+    // oneOf -> v.union()
     const schemas = s.oneOf.map((sub, i) =>
-      jsonSchemaToValibot(sub, ctx, {
+      jsonSchemaToValibot(sub as SchemaObject, ctx, {
         ...options,
         propertyPath: [...(options.propertyPath ?? []), 'oneOf', String(i)],
       }),
@@ -283,8 +294,10 @@ function jsonSchemaToValibot(
     return result;
   }
 
-  if (s.enum && Array.isArray(s.enum)) {
-    const values = s.enum;
+  // Handle enum
+  const enumValues = (s as Record<string, unknown>).enum;
+  if (Array.isArray(enumValues)) {
+    const values = enumValues as (string | number | boolean | null)[];
     let result: string;
 
     if (values.every((v) => typeof v === 'string')) {
@@ -299,7 +312,6 @@ function jsonSchemaToValibot(
       if (values.length === 1) {
         result = `v.literal(${JSON.stringify(values[0])})`;
       } else {
-        // v.enum for numbers doesn't work well, use picklist
         result = `v.picklist([${values.map((v) => JSON.stringify(v)).join(', ')}])`;
       }
     } else {
@@ -314,8 +326,10 @@ function jsonSchemaToValibot(
     return result;
   }
 
-  if (s.const !== undefined) {
-    let result = `v.literal(${JSON.stringify(s.const)})`;
+  // Handle const
+  const constValue = (s as Record<string, unknown>).const;
+  if (constValue !== undefined) {
+    let result = `v.literal(${JSON.stringify(constValue)})`;
     if (isNullable) {
       result = `v.nullable(${result})`;
     }
@@ -329,37 +343,38 @@ function jsonSchemaToValibot(
   switch (type) {
     case 'string': {
       baseSchema = 'v.string()';
+      const ss = s as StringSchema & Record<string, unknown>;
 
       // Format-based validation
-      if (s.format && FORMAT_ACTIONS[s.format]) {
-        const action = FORMAT_ACTIONS[s.format];
+      if (typeof ss.format === 'string' && FORMAT_ACTIONS[ss.format]) {
+        const action = FORMAT_ACTIONS[ss.format];
         if (action) pipes.push(action);
       }
 
       // Pattern-based validation
-      if (s.pattern) {
-        const patternAction = PATTERN_ACTIONS[s.pattern];
+      if (typeof ss.pattern === 'string') {
+        const patternAction = PATTERN_ACTIONS[ss.pattern];
         if (patternAction) {
           pipes.push(patternAction);
         } else {
-          pipes.push(`v.regex(/${s.pattern.replace(/\//g, '\\/')}/)`);
+          pipes.push(`v.regex(/${ss.pattern.replace(/\//g, '\\/')}/)`);
         }
       }
 
       // Length validations
-      if (s.minLength !== undefined) {
-        if (s.minLength === 0) {
+      if (typeof ss.minLength === 'number') {
+        if (ss.minLength === 0) {
           pipes.push('v.nonEmpty()');
         } else {
-          pipes.push(`v.minLength(${s.minLength})`);
+          pipes.push(`v.minLength(${ss.minLength})`);
         }
       }
-      if (s.maxLength !== undefined) {
-        pipes.push(`v.maxLength(${s.maxLength})`);
+      if (typeof ss.maxLength === 'number') {
+        pipes.push(`v.maxLength(${ss.maxLength})`);
       }
 
       // Content encoding
-      if (s.contentEncoding === 'base64') {
+      if (ss.contentEncoding === 'base64') {
         pipes.push('v.base64()');
       }
       break;
@@ -368,35 +383,30 @@ function jsonSchemaToValibot(
     case 'number':
     case 'integer': {
       baseSchema = 'v.number()';
+      const ns = s as NumberSchema & Record<string, unknown>;
 
       // Integer validation
-      if (type === 'integer' || s.format === 'int64') {
+      if (type === 'integer' || ns.format === 'int64') {
         pipes.push('v.integer()');
       }
 
-      // Range validations - handle both boolean and number exclusiveMinimum/Maximum
-      if (s.minimum !== undefined) {
-        pipes.push(`v.minValue(${s.minimum})`);
+      // Range validations
+      if (typeof ns.minimum === 'number') {
+        pipes.push(`v.minValue(${ns.minimum})`);
       }
-      if (s.maximum !== undefined) {
-        pipes.push(`v.maxValue(${s.maximum})`);
+      if (typeof ns.maximum === 'number') {
+        pipes.push(`v.maxValue(${ns.maximum})`);
       }
-      if (
-        s.exclusiveMinimum !== undefined &&
-        typeof s.exclusiveMinimum === 'number'
-      ) {
-        pipes.push(`v.gtValue(${s.exclusiveMinimum})`);
+      if (typeof ns.exclusiveMinimum === 'number') {
+        pipes.push(`v.gtValue(${ns.exclusiveMinimum})`);
       }
-      if (
-        s.exclusiveMaximum !== undefined &&
-        typeof s.exclusiveMaximum === 'number'
-      ) {
-        pipes.push(`v.ltValue(${s.exclusiveMaximum})`);
+      if (typeof ns.exclusiveMaximum === 'number') {
+        pipes.push(`v.ltValue(${ns.exclusiveMaximum})`);
       }
 
       // Multiple of
-      if (s.multipleOf !== undefined) {
-        pipes.push(`v.multipleOf(${s.multipleOf})`);
+      if (typeof ns.multipleOf === 'number') {
+        pipes.push(`v.multipleOf(${ns.multipleOf})`);
       }
       break;
     }
@@ -407,24 +417,22 @@ function jsonSchemaToValibot(
     }
 
     case 'array': {
-      let itemSchema: string;
-      if (s.items) {
-        if (Array.isArray(s.items)) {
+      const arr = s as ArraySchema & Record<string, unknown>;
+      const items = arr.items;
+
+      if (items) {
+        if (Array.isArray(items)) {
           // Tuple with specific types for each position
-          const tupleItems = s.items.map((item, i) =>
-            jsonSchemaToValibot(item, ctx, {
+          const tupleItems = items.map((item, i) =>
+            jsonSchemaToValibot(item as SchemaObject, ctx, {
               ...options,
-              propertyPath: [
-                ...(options.propertyPath ?? []),
-                'items',
-                String(i),
-              ],
+              propertyPath: [...(options.propertyPath ?? []), 'items', String(i)],
             }),
           );
           baseSchema = `v.tuple([${tupleItems.join(', ')}])`;
         } else {
           // Array with single item type
-          itemSchema = jsonSchemaToValibot(s.items, ctx, {
+          const itemSchema = jsonSchemaToValibot(items as SchemaObject, ctx, {
             ...options,
             propertyPath: [...(options.propertyPath ?? []), 'items'],
           });
@@ -435,18 +443,19 @@ function jsonSchemaToValibot(
       }
 
       // Length validations
-      if (s.minItems !== undefined) {
-        pipes.push(`v.minLength(${s.minItems})`);
+      if (typeof arr.minItems === 'number') {
+        pipes.push(`v.minLength(${arr.minItems})`);
       }
-      if (s.maxItems !== undefined) {
-        pipes.push(`v.maxLength(${s.maxItems})`);
+      if (typeof arr.maxItems === 'number') {
+        pipes.push(`v.maxLength(${arr.maxItems})`);
       }
       break;
     }
 
     case 'object': {
-      const properties = s.properties || {};
-      const required = new Set(s.required || []);
+      const obj = s as ObjectSchema & Record<string, unknown>;
+      const properties = (obj.properties || {}) as Record<string, SchemaObject | ReferenceObject>;
+      const required = new Set(Array.isArray(obj.required) ? obj.required : []);
 
       const propEntries: string[] = [];
       for (const [propName, propSchema] of Object.entries(properties)) {
@@ -455,30 +464,21 @@ function jsonSchemaToValibot(
         // Get the raw schema without considering optionality yet
         let propExpr = jsonSchemaToValibot(propSchema, ctx, {
           ...options,
-          propertyPath: [
-            ...(options.propertyPath ?? []),
-            'properties',
-            propName,
-          ],
+          propertyPath: [...(options.propertyPath ?? []), 'properties', propName],
         });
 
         // Check if already nullable (wrapped with v.nullable)
         const isAlreadyNullable = propExpr.startsWith('v.nullable(');
 
         // Handle nullable references - if property is not required and the schema allows null
-        // OpenAPI often uses oneOf/anyOf with null for optional nullable fields
         if (!isRequired) {
           // Check if it's a union containing null
           const resolvedProp = resolveMaybeRef(propSchema, ctx) as
-            | SchemaObject
+            | (SchemaObject & Record<string, unknown>)
             | undefined;
           const hasNullInUnion =
-            resolvedProp?.anyOf?.some(
-              (s) => (s as SchemaObject).type === 'null',
-            ) ??
-            resolvedProp?.oneOf?.some(
-              (s) => (s as SchemaObject).type === 'null',
-            ) ??
+            resolvedProp?.anyOf?.some((s) => (s as { type?: string }).type === 'null') ??
+            resolvedProp?.oneOf?.some((s) => (s as { type?: string }).type === 'null') ??
             resolvedProp?.nullable === true;
 
           if (hasNullInUnion && !isAlreadyNullable) {
@@ -493,15 +493,13 @@ function jsonSchemaToValibot(
       }
 
       // Handle additionalProperties
-      if (s.additionalProperties === false) {
+      const additionalProps = obj.additionalProperties;
+      if (additionalProps === false) {
         baseSchema = `v.strictObject({ ${propEntries.join(', ')} })`;
-      } else if (isObject(s.additionalProperties)) {
-        const restSchema = jsonSchemaToValibot(s.additionalProperties, ctx, {
+      } else if (isObject(additionalProps)) {
+        const restSchema = jsonSchemaToValibot(additionalProps as SchemaObject, ctx, {
           ...options,
-          propertyPath: [
-            ...(options.propertyPath ?? []),
-            'additionalProperties',
-          ],
+          propertyPath: [...(options.propertyPath ?? []), 'additionalProperties'],
         });
         baseSchema = `v.objectWithRest({ ${propEntries.join(', ')} }, ${restSchema})`;
       } else {
@@ -509,13 +507,10 @@ function jsonSchemaToValibot(
       }
 
       // Record type (propertyNames + additionalProperties)
-      if (s.propertyNames && isObject(s.additionalProperties)) {
-        const valueSchema = jsonSchemaToValibot(s.additionalProperties, ctx, {
+      if (obj.propertyNames && isObject(additionalProps)) {
+        const valueSchema = jsonSchemaToValibot(additionalProps as SchemaObject, ctx, {
           ...options,
-          propertyPath: [
-            ...(options.propertyPath ?? []),
-            'additionalProperties',
-          ],
+          propertyPath: [...(options.propertyPath ?? []), 'additionalProperties'],
         });
         baseSchema = `v.record(v.string(), ${valueSchema})`;
       }
@@ -529,13 +524,12 @@ function jsonSchemaToValibot(
 
     default: {
       // No type specified or unknown type
-      if (s.properties || s.additionalProperties) {
-        return jsonSchemaToValibot({ ...s, type: 'object' }, ctx, options);
+      const objWithProps = s as SchemaObject & { properties?: unknown; additionalProperties?: unknown };
+      if (objWithProps.properties || objWithProps.additionalProperties) {
+        // Treat as object
+        return jsonSchemaToValibot({ ...s, type: 'object' } as SchemaObject, ctx, options);
       }
-      // Check for anyOf/oneOf/allOf without explicit type
-      if (!s.allOf && !s.anyOf && !s.oneOf) {
-        baseSchema = 'v.unknown()';
-      }
+      baseSchema = 'v.unknown()';
     }
   }
 
@@ -553,7 +547,10 @@ function jsonSchemaToValibot(
   return result;
 }
 
-function resolveMaybeRef(obj: unknown, ctx: GlobalContext): unknown {
+function resolveMaybeRef(
+  obj: unknown,
+  ctx: GlobalContext,
+): unknown {
   if (isObject(obj) && '$ref' in obj && typeof obj.$ref === 'string') {
     return ctx.resolve(obj.$ref);
   }
@@ -729,7 +726,7 @@ async function generateValidators() {
     const schemaObj = schemas[schemaName];
     if (!schemaObj) continue;
 
-    const valibotExpr = jsonSchemaToValibot(schemaObj, ctx, {
+    const valibotExpr = jsonSchemaToValibot(schemaObj as SchemaObject, ctx, {
       schemaName,
       propertyPath: ['components', 'schemas', schemaName],
     });
@@ -749,12 +746,7 @@ async function generateValidators() {
     if (!paramObj) continue;
 
     const resolved = resolveMaybeRef(paramObj, ctx) as
-      | {
-          name?: string;
-          in?: string;
-          schema?: SchemaObject;
-          required?: boolean;
-        }
+      | { name?: string; in?: string; schema?: SchemaObject; required?: boolean }
       | undefined;
     if (!resolved?.schema) continue;
 
@@ -823,10 +815,7 @@ async function generateValidators() {
                 ? 'FormSchema'
                 : 'RequestSchema';
               const exportName = toIdentifier(operationId + suffix);
-              operationBodies.set(
-                `${operationId}:request:${contentType}`,
-                exportName,
-              );
+              operationBodies.set(`${operationId}:request:${contentType}`, exportName);
               lines.push(`export const ${exportName} = ${valibotExpr};`);
               lines.push('');
             }
