@@ -9,125 +9,167 @@ type Client = ReturnType<typeof ac>;
 
 export type OperationsMappedToPathParam = {
   batch: {
-    getStatus: { param: "batch_id"; method: Client["v3"]["blocks"]["batch"][":batch_id"]["$get"] };
-  }
+    getStatus: {
+      param: 'batch_id';
+      method: Client['v3']['blocks']['batch'][':batch_id']['$get'];
+    };
+  };
   block: {
-    get: { param: "id"; method: Client["v3"]["blocks"][":id"]["$get"] };
-    update: { param: "id"; method: Client["v3"]["blocks"][":id"]["$put"] };
-    getConnections: { param: "id"; method: Client["v3"]["blocks"][":id"]["connections"]["$get"] };
-    getComments: { param: "id"; method: Client["v3"]["blocks"][":id"]["comments"]["$get"] };
-    createComment: { param: "id"; method: Client["v3"]["blocks"][":id"]["comments"]["$post"] };
-  }
+    get: { param: 'id'; method: Client['v3']['blocks'][':id']['$get'] };
+    update: { param: 'id'; method: Client['v3']['blocks'][':id']['$put'] };
+    getConnections: {
+      param: 'id';
+      method: Client['v3']['blocks'][':id']['connections']['$get'];
+    };
+    getComments: {
+      param: 'id';
+      method: Client['v3']['blocks'][':id']['comments']['$get'];
+    };
+    createComment: {
+      param: 'id';
+      method: Client['v3']['blocks'][':id']['comments']['$post'];
+    };
+  };
   comment: {
-    delete: { param: "id"; method: Client["v3"]["comments"][":id"]["$delete"] };
-  }
+    delete: { param: 'id'; method: Client['v3']['comments'][':id']['$delete'] };
+  };
   channel: {
-    get: { param: "id"; method: Client["v3"]["channels"][":id"]["$get"] };
-    update: { param: "id"; method: Client["v3"]["channels"][":id"]["$put"] };
-    delete: { param: "id"; method: Client["v3"]["channels"][":id"]["$delete"] };
-    getContents: { param: "id"; method: Client["v3"]["channels"][":id"]["contents"]["$get"] };
-    getConnections: { param: "id"; method: Client["v3"]["channels"][":id"]["connections"]["$get"] };
-    getFollowers: { param: "id"; method: Client["v3"]["channels"][":id"]["followers"]["$get"] };
-  }
+    get: { param: 'id'; method: Client['v3']['channels'][':id']['$get'] };
+    update: { param: 'id'; method: Client['v3']['channels'][':id']['$put'] };
+    delete: { param: 'id'; method: Client['v3']['channels'][':id']['$delete'] };
+    getContents: {
+      param: 'id';
+      method: Client['v3']['channels'][':id']['contents']['$get'];
+    };
+    getConnections: {
+      param: 'id';
+      method: Client['v3']['channels'][':id']['connections']['$get'];
+    };
+    getFollowers: {
+      param: 'id';
+      method: Client['v3']['channels'][':id']['followers']['$get'];
+    };
+  };
   connection: {
-    get: { param: "id"; method: Client["v3"]["connections"][":id"]["$get"] };
-    delete: { param: "id"; method: Client["v3"]["connections"][":id"]["$delete"] };
-    move: { param: "id"; method: Client["v3"]["connections"][":id"]["move"]["$post"] };
-  }
+    get: { param: 'id'; method: Client['v3']['connections'][':id']['$get'] };
+    delete: {
+      param: 'id';
+      method: Client['v3']['connections'][':id']['$delete'];
+    };
+    move: {
+      param: 'id';
+      method: Client['v3']['connections'][':id']['move']['$post'];
+    };
+  };
   user: {
-    get: { param: "id"; method: Client["v3"]["users"][":id"]["$get"] };
-    getContents: { param: "id"; method: Client["v3"]["users"][":id"]["contents"]["$get"] };
-    getFollowers: { param: "id"; method: Client["v3"]["users"][":id"]["followers"]["$get"] };
-    getFollowing: { param: "id"; method: Client["v3"]["users"][":id"]["following"]["$get"] };
-  }
+    get: { param: 'id'; method: Client['v3']['users'][':id']['$get'] };
+    getContents: {
+      param: 'id';
+      method: Client['v3']['users'][':id']['contents']['$get'];
+    };
+    getFollowers: {
+      param: 'id';
+      method: Client['v3']['users'][':id']['followers']['$get'];
+    };
+    getFollowing: {
+      param: 'id';
+      method: Client['v3']['users'][':id']['following']['$get'];
+    };
+  };
   group: {
-    get: { param: "id"; method: Client["v3"]["groups"][":id"]["$get"] };
-    getContents: { param: "id"; method: Client["v3"]["groups"][":id"]["contents"]["$get"] };
-    getFollowers: { param: "id"; method: Client["v3"]["groups"][":id"]["followers"]["$get"] };
-  }
-  createOAuthToken: Client["v3"]["oauth"]["token"]["$post"]
-  getOpenapiSpec: Client["v3"]["openapi"]["$get"]
-  getOpenapiSpecJson: Client["v3"]["openapi.json"]["$get"]
-  getPing: Client["v3"]["ping"]["$get"]
-  presignUpload: Client["v3"]["uploads"]["presign"]["$post"]
-  createBlock: Client["v3"]["blocks"]["$post"]
-  batchCreateBlocks: Client["v3"]["blocks"]["batch"]["$post"]
-  createChannel: Client["v3"]["channels"]["$post"]
-  createConnection: Client["v3"]["connections"]["$post"]
-  getCurrentUser: Client["v3"]["me"]["$get"]
-  search: Client["v3"]["search"]["$get"]
-}
+    get: { param: 'id'; method: Client['v3']['groups'][':id']['$get'] };
+    getContents: {
+      param: 'id';
+      method: Client['v3']['groups'][':id']['contents']['$get'];
+    };
+    getFollowers: {
+      param: 'id';
+      method: Client['v3']['groups'][':id']['followers']['$get'];
+    };
+  };
+  createOAuthToken: Client['v3']['oauth']['token']['$post'];
+  getOpenapiSpec: Client['v3']['openapi']['$get'];
+  getOpenapiSpecJson: Client['v3']['openapi.json']['$get'];
+  getPing: Client['v3']['ping']['$get'];
+  presignUpload: Client['v3']['uploads']['presign']['$post'];
+  createBlock: Client['v3']['blocks']['$post'];
+  batchCreateBlocks: Client['v3']['blocks']['batch']['$post'];
+  createChannel: Client['v3']['channels']['$post'];
+  createConnection: Client['v3']['connections']['$post'];
+  getCurrentUser: Client['v3']['me']['$get'];
+  search: Client['v3']['search']['$get'];
+};
 
 export type Operations = {
-  createOAuthToken: Client["v3"]["oauth"]["token"]["$post"];
-  getOpenapiSpec: Client["v3"]["openapi"]["$get"];
-  getOpenapiSpecJson: Client["v3"]["openapi.json"]["$get"];
-  getPing: Client["v3"]["ping"]["$get"];
-  presignUpload: Client["v3"]["uploads"]["presign"]["$post"];
-  createBlock: Client["v3"]["blocks"]["$post"];
-  batchCreateBlocks: Client["v3"]["blocks"]["batch"]["$post"];
-  getBatchStatus: Client["v3"]["blocks"]["batch"][":batch_id"]["$get"];
-  getBlock: Client["v3"]["blocks"][":id"]["$get"];
-  updateBlock: Client["v3"]["blocks"][":id"]["$put"];
-  getBlockConnections: Client["v3"]["blocks"][":id"]["connections"]["$get"];
-  getBlockComments: Client["v3"]["blocks"][":id"]["comments"]["$get"];
-  createBlockComment: Client["v3"]["blocks"][":id"]["comments"]["$post"];
-  deleteComment: Client["v3"]["comments"][":id"]["$delete"];
-  createChannel: Client["v3"]["channels"]["$post"];
-  getChannel: Client["v3"]["channels"][":id"]["$get"];
-  updateChannel: Client["v3"]["channels"][":id"]["$put"];
-  deleteChannel: Client["v3"]["channels"][":id"]["$delete"];
-  createConnection: Client["v3"]["connections"]["$post"];
-  getConnection: Client["v3"]["connections"][":id"]["$get"];
-  deleteConnection: Client["v3"]["connections"][":id"]["$delete"];
-  moveConnection: Client["v3"]["connections"][":id"]["move"]["$post"];
-  getChannelContents: Client["v3"]["channels"][":id"]["contents"]["$get"];
-  getChannelConnections: Client["v3"]["channels"][":id"]["connections"]["$get"];
-  getChannelFollowers: Client["v3"]["channels"][":id"]["followers"]["$get"];
-  getCurrentUser: Client["v3"]["me"]["$get"];
-  getUser: Client["v3"]["users"][":id"]["$get"];
-  getUserContents: Client["v3"]["users"][":id"]["contents"]["$get"];
-  getUserFollowers: Client["v3"]["users"][":id"]["followers"]["$get"];
-  getUserFollowing: Client["v3"]["users"][":id"]["following"]["$get"];
-  getGroup: Client["v3"]["groups"][":id"]["$get"];
-  getGroupContents: Client["v3"]["groups"][":id"]["contents"]["$get"];
-  getGroupFollowers: Client["v3"]["groups"][":id"]["followers"]["$get"];
-  search: Client["v3"]["search"]["$get"];
+  createOAuthToken: Client['v3']['oauth']['token']['$post'];
+  getOpenapiSpec: Client['v3']['openapi']['$get'];
+  getOpenapiSpecJson: Client['v3']['openapi.json']['$get'];
+  getPing: Client['v3']['ping']['$get'];
+  presignUpload: Client['v3']['uploads']['presign']['$post'];
+  createBlock: Client['v3']['blocks']['$post'];
+  batchCreateBlocks: Client['v3']['blocks']['batch']['$post'];
+  getBatchStatus: Client['v3']['blocks']['batch'][':batch_id']['$get'];
+  getBlock: Client['v3']['blocks'][':id']['$get'];
+  updateBlock: Client['v3']['blocks'][':id']['$put'];
+  getBlockConnections: Client['v3']['blocks'][':id']['connections']['$get'];
+  getBlockComments: Client['v3']['blocks'][':id']['comments']['$get'];
+  createBlockComment: Client['v3']['blocks'][':id']['comments']['$post'];
+  deleteComment: Client['v3']['comments'][':id']['$delete'];
+  createChannel: Client['v3']['channels']['$post'];
+  getChannel: Client['v3']['channels'][':id']['$get'];
+  updateChannel: Client['v3']['channels'][':id']['$put'];
+  deleteChannel: Client['v3']['channels'][':id']['$delete'];
+  createConnection: Client['v3']['connections']['$post'];
+  getConnection: Client['v3']['connections'][':id']['$get'];
+  deleteConnection: Client['v3']['connections'][':id']['$delete'];
+  moveConnection: Client['v3']['connections'][':id']['move']['$post'];
+  getChannelContents: Client['v3']['channels'][':id']['contents']['$get'];
+  getChannelConnections: Client['v3']['channels'][':id']['connections']['$get'];
+  getChannelFollowers: Client['v3']['channels'][':id']['followers']['$get'];
+  getCurrentUser: Client['v3']['me']['$get'];
+  getUser: Client['v3']['users'][':id']['$get'];
+  getUserContents: Client['v3']['users'][':id']['contents']['$get'];
+  getUserFollowers: Client['v3']['users'][':id']['followers']['$get'];
+  getUserFollowing: Client['v3']['users'][':id']['following']['$get'];
+  getGroup: Client['v3']['groups'][':id']['$get'];
+  getGroupContents: Client['v3']['groups'][':id']['contents']['$get'];
+  getGroupFollowers: Client['v3']['groups'][':id']['followers']['$get'];
+  search: Client['v3']['search']['$get'];
 };
 
 export const OPERATIONS: Map<string, readonly string[]> = new Map([
-  ['createOAuthToken', ["v3", "oauth", "token", "$post"]],
-  ['getOpenapiSpec', ["v3", "openapi", "$get"]],
-  ['getOpenapiSpecJson', ["v3", "openapi.json", "$get"]],
-  ['getPing', ["v3", "ping", "$get"]],
-  ['presignUpload', ["v3", "uploads", "presign", "$post"]],
-  ['createBlock', ["v3", "blocks", "$post"]],
-  ['batchCreateBlocks', ["v3", "blocks", "batch", "$post"]],
-  ['getBatchStatus', ["v3", "blocks", "batch", ":batch_id", "$get"]],
-  ['getBlock', ["v3", "blocks", ":id", "$get"]],
-  ['updateBlock', ["v3", "blocks", ":id", "$put"]],
-  ['getBlockConnections', ["v3", "blocks", ":id", "connections", "$get"]],
-  ['getBlockComments', ["v3", "blocks", ":id", "comments", "$get"]],
-  ['createBlockComment', ["v3", "blocks", ":id", "comments", "$post"]],
-  ['deleteComment', ["v3", "comments", ":id", "$delete"]],
-  ['createChannel', ["v3", "channels", "$post"]],
-  ['getChannel', ["v3", "channels", ":id", "$get"]],
-  ['updateChannel', ["v3", "channels", ":id", "$put"]],
-  ['deleteChannel', ["v3", "channels", ":id", "$delete"]],
-  ['createConnection', ["v3", "connections", "$post"]],
-  ['getConnection', ["v3", "connections", ":id", "$get"]],
-  ['deleteConnection', ["v3", "connections", ":id", "$delete"]],
-  ['moveConnection', ["v3", "connections", ":id", "move", "$post"]],
-  ['getChannelContents', ["v3", "channels", ":id", "contents", "$get"]],
-  ['getChannelConnections', ["v3", "channels", ":id", "connections", "$get"]],
-  ['getChannelFollowers', ["v3", "channels", ":id", "followers", "$get"]],
-  ['getCurrentUser', ["v3", "me", "$get"]],
-  ['getUser', ["v3", "users", ":id", "$get"]],
-  ['getUserContents', ["v3", "users", ":id", "contents", "$get"]],
-  ['getUserFollowers', ["v3", "users", ":id", "followers", "$get"]],
-  ['getUserFollowing', ["v3", "users", ":id", "following", "$get"]],
-  ['getGroup', ["v3", "groups", ":id", "$get"]],
-  ['getGroupContents', ["v3", "groups", ":id", "contents", "$get"]],
-  ['getGroupFollowers', ["v3", "groups", ":id", "followers", "$get"]],
-  ['search', ["v3", "search", "$get"]],
+  ['createOAuthToken', ['v3', 'oauth', 'token', '$post']],
+  ['getOpenapiSpec', ['v3', 'openapi', '$get']],
+  ['getOpenapiSpecJson', ['v3', 'openapi.json', '$get']],
+  ['getPing', ['v3', 'ping', '$get']],
+  ['presignUpload', ['v3', 'uploads', 'presign', '$post']],
+  ['createBlock', ['v3', 'blocks', '$post']],
+  ['batchCreateBlocks', ['v3', 'blocks', 'batch', '$post']],
+  ['getBatchStatus', ['v3', 'blocks', 'batch', ':batch_id', '$get']],
+  ['getBlock', ['v3', 'blocks', ':id', '$get']],
+  ['updateBlock', ['v3', 'blocks', ':id', '$put']],
+  ['getBlockConnections', ['v3', 'blocks', ':id', 'connections', '$get']],
+  ['getBlockComments', ['v3', 'blocks', ':id', 'comments', '$get']],
+  ['createBlockComment', ['v3', 'blocks', ':id', 'comments', '$post']],
+  ['deleteComment', ['v3', 'comments', ':id', '$delete']],
+  ['createChannel', ['v3', 'channels', '$post']],
+  ['getChannel', ['v3', 'channels', ':id', '$get']],
+  ['updateChannel', ['v3', 'channels', ':id', '$put']],
+  ['deleteChannel', ['v3', 'channels', ':id', '$delete']],
+  ['createConnection', ['v3', 'connections', '$post']],
+  ['getConnection', ['v3', 'connections', ':id', '$get']],
+  ['deleteConnection', ['v3', 'connections', ':id', '$delete']],
+  ['moveConnection', ['v3', 'connections', ':id', 'move', '$post']],
+  ['getChannelContents', ['v3', 'channels', ':id', 'contents', '$get']],
+  ['getChannelConnections', ['v3', 'channels', ':id', 'connections', '$get']],
+  ['getChannelFollowers', ['v3', 'channels', ':id', 'followers', '$get']],
+  ['getCurrentUser', ['v3', 'me', '$get']],
+  ['getUser', ['v3', 'users', ':id', '$get']],
+  ['getUserContents', ['v3', 'users', ':id', 'contents', '$get']],
+  ['getUserFollowers', ['v3', 'users', ':id', 'followers', '$get']],
+  ['getUserFollowing', ['v3', 'users', ':id', 'following', '$get']],
+  ['getGroup', ['v3', 'groups', ':id', '$get']],
+  ['getGroupContents', ['v3', 'groups', ':id', 'contents', '$get']],
+  ['getGroupFollowers', ['v3', 'groups', ':id', 'followers', '$get']],
+  ['search', ['v3', 'search', '$get']],
 ]);

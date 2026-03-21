@@ -5,7 +5,9 @@ export type App = DefaultApp;
 
 export { DetailedError } from 'hono/client';
 
-export const parseResponse = (...args: Parameters<typeof pr>): ReturnType<typeof pr> => pr(...args);
+export const parseResponse = (
+  ...args: Parameters<typeof pr>
+): ReturnType<typeof pr> => pr(...args);
 
 export const ac = (
   ...args: Parameters<typeof hc<App>>
