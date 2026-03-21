@@ -15,7 +15,7 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 
 const repoRoot = path.resolve(fileURLToPath(new URL('..', import.meta.url)));
-const outPath = path.join(repoRoot, 'src', 'validator.ts');
+const outPath = path.join(repoRoot, 'src', 'validator', 'generated.ts');
 
 const SOURCE_URL = 'https://api.are.na/v3/openapi.json';
 
@@ -114,92 +114,19 @@ function hasActualConstraints(schema: unknown): boolean {
   return constraintKeys.some((key) => key in schema);
 }
 
-// Generate a valid TypeScript identifier from a name
-function toIdentifier(name: string): string {
-  let ident = name.replace(/[^a-zA-Z0-9_$]/g, '_').replace(/^[0-9]/, '_$&');
-  if (!/^[a-zA-Z_$]/.test(ident)) {
-    ident = '$' + ident;
-  }
-  return ident;
+// Convert PascalCase to camelCase (lowercase first letter only)
+function toCamelCase(name: string): string {
+  return name.charAt(0).toLowerCase() + name.slice(1);
 }
 
-// Reserved words that can't be used as bare property names
-const RESERVED_WORDS = new Set([
-  'break',
-  'case',
-  'catch',
-  'class',
-  'const',
-  'continue',
-  'debugger',
-  'default',
-  'delete',
-  'do',
-  'else',
-  'enum',
-  'export',
-  'extends',
-  'false',
-  'finally',
-  'for',
-  'function',
-  'if',
-  'import',
-  'in',
-  'instanceof',
-  'new',
-  'null',
-  'return',
-  'super',
-  'switch',
-  'this',
-  'throw',
-  'true',
-  'try',
-  'typeof',
-  'var',
-  'void',
-  'while',
-  'with',
-  'let',
-  'static',
-  'yield',
-  'await',
-]);
-
-function escapeProperty(name: string): string {
-  if (RESERVED_WORDS.has(name) || !/^[a-zA-Z_$][a-zA-Z0-9_$]*$/.test(name)) {
-    return JSON.stringify(name);
-  }
-  return name;
+// Get raw schema name (for internal use in other schemas)
+function getRawSchemaName(name: string): string {
+  return toCamelCase(name.replace(/Schema$/, '')) + 'Schema';
 }
 
-// Extract $ref name from a reference string
-function getRefName($ref: string): string {
-  const parts = $ref.split('/');
-  return parts[parts.length - 1] ?? 'Unknown';
-}
-
-// Type guards for OpenAPI schema subtypes
-type StringSchema = SchemaObject & { type: 'string' };
-type NumberSchema = SchemaObject & { type: 'number' | 'integer' };
-type ArraySchema = SchemaObject & { type: 'array' };
-type ObjectSchema = SchemaObject & { type: 'object' };
-
-function isStringSchema(s: SchemaObject): s is StringSchema {
-  return s.type === 'string';
-}
-
-function isNumberSchema(s: SchemaObject): s is NumberSchema {
-  return s.type === 'number' || s.type === 'integer';
-}
-
-function isArraySchema(s: SchemaObject): s is ArraySchema {
-  return s.type === 'array';
-}
-
-function isObjectSchema(s: SchemaObject): s is ObjectSchema {
-  return s.type === 'object';
+// Get validator export name (for sValidator wrapped export)
+function getValidatorName(name: string): string {
+  return toCamelCase(name.replace(/Schema$/, ''));
 }
 
 // Convert JSON schema to Valibot schema expression
@@ -216,10 +143,10 @@ function jsonSchemaToValibot(
   if (schema === false) return 'v.never()';
   if (!schema) return 'v.unknown()';
 
-  // Handle $ref directly
+  // Handle $ref directly - use raw schema name
   if (isObject(schema) && '$ref' in schema && typeof schema.$ref === 'string') {
     const refName = getRefName(schema.$ref);
-    return toIdentifier(refName + 'Schema');
+    return getRawSchemaName(refName);
   }
 
   const s = schema as SchemaObject;
@@ -343,7 +270,7 @@ function jsonSchemaToValibot(
   switch (type) {
     case 'string': {
       baseSchema = 'v.string()';
-      const ss = s as StringSchema & Record<string, unknown>;
+      const ss = s as SchemaObject & Record<string, unknown>;
 
       // Format-based validation
       if (typeof ss.format === 'string' && FORMAT_ACTIONS[ss.format]) {
@@ -383,7 +310,7 @@ function jsonSchemaToValibot(
     case 'number':
     case 'integer': {
       baseSchema = 'v.number()';
-      const ns = s as NumberSchema & Record<string, unknown>;
+      const ns = s as SchemaObject & Record<string, unknown>;
 
       // Integer validation
       if (type === 'integer' || ns.format === 'int64') {
@@ -417,7 +344,7 @@ function jsonSchemaToValibot(
     }
 
     case 'array': {
-      const arr = s as ArraySchema & Record<string, unknown>;
+      const arr = s as SchemaObject & Record<string, unknown>;
       const items = arr.items;
 
       if (items) {
@@ -426,7 +353,11 @@ function jsonSchemaToValibot(
           const tupleItems = items.map((item, i) =>
             jsonSchemaToValibot(item as SchemaObject, ctx, {
               ...options,
-              propertyPath: [...(options.propertyPath ?? []), 'items', String(i)],
+              propertyPath: [
+                ...(options.propertyPath ?? []),
+                'items',
+                String(i),
+              ],
             }),
           );
           baseSchema = `v.tuple([${tupleItems.join(', ')}])`;
@@ -453,8 +384,11 @@ function jsonSchemaToValibot(
     }
 
     case 'object': {
-      const obj = s as ObjectSchema & Record<string, unknown>;
-      const properties = (obj.properties || {}) as Record<string, SchemaObject | ReferenceObject>;
+      const obj = s as SchemaObject & Record<string, unknown>;
+      const properties = (obj.properties || {}) as Record<
+        string,
+        SchemaObject | ReferenceObject
+      >;
       const required = new Set(Array.isArray(obj.required) ? obj.required : []);
 
       const propEntries: string[] = [];
@@ -464,7 +398,11 @@ function jsonSchemaToValibot(
         // Get the raw schema without considering optionality yet
         let propExpr = jsonSchemaToValibot(propSchema, ctx, {
           ...options,
-          propertyPath: [...(options.propertyPath ?? []), 'properties', propName],
+          propertyPath: [
+            ...(options.propertyPath ?? []),
+            'properties',
+            propName,
+          ],
         });
 
         // Check if already nullable (wrapped with v.nullable)
@@ -477,8 +415,12 @@ function jsonSchemaToValibot(
             | (SchemaObject & Record<string, unknown>)
             | undefined;
           const hasNullInUnion =
-            resolvedProp?.anyOf?.some((s) => (s as { type?: string }).type === 'null') ??
-            resolvedProp?.oneOf?.some((s) => (s as { type?: string }).type === 'null') ??
+            resolvedProp?.anyOf?.some(
+              (s) => (s as { type?: string }).type === 'null',
+            ) ??
+            resolvedProp?.oneOf?.some(
+              (s) => (s as { type?: string }).type === 'null',
+            ) ??
             resolvedProp?.nullable === true;
 
           if (hasNullInUnion && !isAlreadyNullable) {
@@ -489,29 +431,26 @@ function jsonSchemaToValibot(
           propExpr = `v.optional(${propExpr})`;
         }
 
-        propEntries.push(`${escapeProperty(propName)}: ${propExpr}`);
+        propEntries.push(`${JSON.stringify(propName)}: ${propExpr}`);
       }
 
-      // Handle additionalProperties
+      // looseObject keeps unknown keys from the API (forward-compatible with new fields).
       const additionalProps = obj.additionalProperties;
-      if (additionalProps === false) {
-        baseSchema = `v.strictObject({ ${propEntries.join(', ')} })`;
-      } else if (isObject(additionalProps)) {
-        const restSchema = jsonSchemaToValibot(additionalProps as SchemaObject, ctx, {
-          ...options,
-          propertyPath: [...(options.propertyPath ?? []), 'additionalProperties'],
-        });
-        baseSchema = `v.objectWithRest({ ${propEntries.join(', ')} }, ${restSchema})`;
-      } else {
-        baseSchema = `v.object({ ${propEntries.join(', ')} })`;
-      }
+      baseSchema = `v.looseObject({ ${propEntries.join(', ')} })`;
 
       // Record type (propertyNames + additionalProperties)
       if (obj.propertyNames && isObject(additionalProps)) {
-        const valueSchema = jsonSchemaToValibot(additionalProps as SchemaObject, ctx, {
-          ...options,
-          propertyPath: [...(options.propertyPath ?? []), 'additionalProperties'],
-        });
+        const valueSchema = jsonSchemaToValibot(
+          additionalProps as SchemaObject,
+          ctx,
+          {
+            ...options,
+            propertyPath: [
+              ...(options.propertyPath ?? []),
+              'additionalProperties',
+            ],
+          },
+        );
         baseSchema = `v.record(v.string(), ${valueSchema})`;
       }
       break;
@@ -524,10 +463,17 @@ function jsonSchemaToValibot(
 
     default: {
       // No type specified or unknown type
-      const objWithProps = s as SchemaObject & { properties?: unknown; additionalProperties?: unknown };
+      const objWithProps = s as SchemaObject & {
+        properties?: unknown;
+        additionalProperties?: unknown;
+      };
       if (objWithProps.properties || objWithProps.additionalProperties) {
         // Treat as object
-        return jsonSchemaToValibot({ ...s, type: 'object' } as SchemaObject, ctx, options);
+        return jsonSchemaToValibot(
+          { ...s, type: 'object' } as SchemaObject,
+          ctx,
+          options,
+        );
       }
       baseSchema = 'v.unknown()';
     }
@@ -547,50 +493,116 @@ function jsonSchemaToValibot(
   return result;
 }
 
-function resolveMaybeRef(
-  obj: unknown,
-  ctx: GlobalContext,
-): unknown {
+function resolveMaybeRef(obj: unknown, ctx: GlobalContext): unknown {
   if (isObject(obj) && '$ref' in obj && typeof obj.$ref === 'string') {
     return ctx.resolve(obj.$ref);
   }
   return obj;
 }
 
-// Analyze schema dependencies to determine order
-function analyzeDependencies(
+// Extract $ref name from a reference string
+function getRefName($ref: string): string {
+  const parts = $ref.split('/');
+  return parts[parts.length - 1] ?? 'Unknown';
+}
+
+const COMPONENTS_SCHEMAS_PREFIX = '#/components/schemas/';
+
+/** Collect OpenAPI component schema names this schema depends on (via $ref). */
+function collectComponentSchemaRefs(
+  node: unknown,
+  refs: Set<string>,
+  ctx: GlobalContext,
+  visitedRefs: Set<string>,
+): void {
+  if (!isObject(node)) return;
+
+  if ('$ref' in node && typeof node.$ref === 'string') {
+    const ref = node.$ref;
+    if (ref.startsWith(COMPONENTS_SCHEMAS_PREFIX)) {
+      const name = getRefName(ref);
+      refs.add(name);
+      if (!visitedRefs.has(ref)) {
+        visitedRefs.add(ref);
+        const resolved = ctx.resolve(ref);
+        if (resolved) {
+          collectComponentSchemaRefs(resolved, refs, ctx, visitedRefs);
+        }
+      }
+    }
+    return;
+  }
+
+  if ('properties' in node && isObject(node.properties)) {
+    for (const prop of Object.values(node.properties)) {
+      collectComponentSchemaRefs(prop, refs, ctx, visitedRefs);
+    }
+  }
+  if ('items' in node && node.items) {
+    if (Array.isArray(node.items)) {
+      for (const item of node.items) {
+        collectComponentSchemaRefs(item, refs, ctx, visitedRefs);
+      }
+    } else {
+      collectComponentSchemaRefs(node.items, refs, ctx, visitedRefs);
+    }
+  }
+  if ('allOf' in node && Array.isArray(node.allOf)) {
+    for (const sub of node.allOf) {
+      collectComponentSchemaRefs(sub, refs, ctx, visitedRefs);
+    }
+  }
+  if ('anyOf' in node && Array.isArray(node.anyOf)) {
+    for (const sub of node.anyOf) {
+      collectComponentSchemaRefs(sub, refs, ctx, visitedRefs);
+    }
+  }
+  if ('oneOf' in node && Array.isArray(node.oneOf)) {
+    for (const sub of node.oneOf) {
+      collectComponentSchemaRefs(sub, refs, ctx, visitedRefs);
+    }
+  }
+  if ('additionalProperties' in node && isObject(node.additionalProperties)) {
+    collectComponentSchemaRefs(
+      node.additionalProperties,
+      refs,
+      ctx,
+      visitedRefs,
+    );
+  }
+}
+
+/** Topological order: dependencies before dependents (OpenAPI component schema keys). */
+function analyzeComponentSchemaOrder(
   schemas: Record<string, SchemaObject | ReferenceObject | boolean>,
   ctx: GlobalContext,
 ): string[] {
   const graph = new Map<string, Set<string>>();
-
-  // Build dependency graph
-  for (const [name, schema] of Object.entries(schemas)) {
+  for (const name of Object.keys(schemas)) {
     const deps = new Set<string>();
-    collectRefs(schema, deps, ctx, new Set());
-    graph.set(name, deps);
+    const schemaObj = schemas[name];
+    if (schemaObj !== undefined) {
+      collectComponentSchemaRefs(schemaObj, deps, ctx, new Set());
+    }
+    const filtered = new Set<string>();
+    for (const d of deps) {
+      if (d in schemas) filtered.add(d);
+    }
+    graph.set(name, filtered);
   }
 
-  // Topological sort
-  const visited = new Set<string>();
+  const done = new Set<string>();
   const result: string[] = [];
 
   function visit(name: string, visiting = new Set<string>()) {
-    if (visited.has(name)) return;
-    if (visiting.has(name)) {
-      // Circular dependency - we'll handle it with lazy() if needed
-      return;
-    }
-
+    if (done.has(name)) return;
+    if (visiting.has(name)) return; // cycle: skip re-entry; will still emit when stack unwinds
     visiting.add(name);
-    const deps = graph.get(name) ?? new Set();
-    for (const dep of deps) {
-      if (dep !== name) {
-        visit(dep, visiting);
-      }
+    for (const dep of graph.get(name) ?? []) {
+      if (dep !== name) visit(dep, visiting);
     }
     visiting.delete(name);
-    visited.add(name);
+    done.add(name);
     result.push(name);
   }
 
@@ -599,69 +611,6 @@ function analyzeDependencies(
   }
 
   return result;
-}
-
-// Collect all $ref dependencies from a schema
-function collectRefs(
-  schema: unknown,
-  refs: Set<string>,
-  ctx: GlobalContext,
-  visited: Set<string>,
-): void {
-  if (!isObject(schema)) return;
-
-  // Handle $ref
-  if ('$ref' in schema && typeof schema.$ref === 'string') {
-    const refName = getRefName(schema.$ref);
-    if (!visited.has(schema.$ref)) {
-      refs.add(refName);
-      visited.add(schema.$ref);
-
-      // Recursively collect from the resolved schema
-      const resolved = ctx.resolve(schema.$ref);
-      if (resolved) {
-        collectRefs(resolved, refs, ctx, visited);
-      }
-    }
-    return;
-  }
-
-  // Recurse into nested schemas
-  if ('properties' in schema && isObject(schema.properties)) {
-    for (const prop of Object.values(schema.properties)) {
-      collectRefs(prop, refs, ctx, visited);
-    }
-  }
-  if ('items' in schema && schema.items) {
-    if (Array.isArray(schema.items)) {
-      for (const item of schema.items) {
-        collectRefs(item, refs, ctx, visited);
-      }
-    } else {
-      collectRefs(schema.items, refs, ctx, visited);
-    }
-  }
-  if ('allOf' in schema && Array.isArray(schema.allOf)) {
-    for (const sub of schema.allOf) {
-      collectRefs(sub, refs, ctx, visited);
-    }
-  }
-  if ('anyOf' in schema && Array.isArray(schema.anyOf)) {
-    for (const sub of schema.anyOf) {
-      collectRefs(sub, refs, ctx, visited);
-    }
-  }
-  if ('oneOf' in schema && Array.isArray(schema.oneOf)) {
-    for (const sub of schema.oneOf) {
-      collectRefs(sub, refs, ctx, visited);
-    }
-  }
-  if (
-    'additionalProperties' in schema &&
-    isObject(schema.additionalProperties)
-  ) {
-    collectRefs(schema.additionalProperties, refs, ctx, visited);
-  }
 }
 
 // Main generation logic
@@ -706,22 +655,17 @@ async function generateValidators() {
     },
   };
 
-  const lines: string[] = [
-    '/**',
-    ' * Auto-generated Valibot validators from OpenAPI spec.',
-    ' * Do not edit by hand.',
-    ' */',
-    '',
-    "import * as v from 'valibot';",
-    '',
-  ];
+  // Collect all schema definitions
+  const rawSchemas: Array<{ name: string; expr: string }> = [];
+  const validatorExports: Array<{
+    name: string;
+    target: string;
+    rawSchemaName: string;
+  }> = [];
 
-  // Generate schemas from components/schemas with dependency ordering
+  // Generate schemas from components/schemas (dependency order: $ref targets first)
   const schemas = schema.components?.schemas || {};
-  const sortedSchemaNames = analyzeDependencies(schemas, ctx);
-
-  const schemaDefinitions = new Map<string, string>();
-
+  const sortedSchemaNames = analyzeComponentSchemaOrder(schemas, ctx);
   for (const schemaName of sortedSchemaNames) {
     const schemaObj = schemas[schemaName];
     if (!schemaObj) continue;
@@ -731,22 +675,29 @@ async function generateValidators() {
       propertyPath: ['components', 'schemas', schemaName],
     });
 
-    const exportName = toIdentifier(schemaName + 'Schema');
-    schemaDefinitions.set(schemaName, exportName);
-    lines.push(`export const ${exportName} = ${valibotExpr};`);
-    lines.push('');
+    const rawName = getRawSchemaName(schemaName);
+    const validatorName = getValidatorName(schemaName);
+
+    rawSchemas.push({ name: rawName, expr: valibotExpr });
+    validatorExports.push({
+      name: validatorName,
+      target: 'json',
+      rawSchemaName: rawName,
+    });
   }
 
   // Generate parameter schemas from components/parameters
   const parameters = schema.components?.parameters || {};
-  const sortedParamNames = Object.keys(parameters).sort();
-
-  for (const paramName of sortedParamNames) {
-    const paramObj = parameters[paramName];
+  for (const [paramName, paramObj] of Object.entries(parameters)) {
     if (!paramObj) continue;
 
     const resolved = resolveMaybeRef(paramObj, ctx) as
-      | { name?: string; in?: string; schema?: SchemaObject; required?: boolean }
+      | {
+          name?: string;
+          in?: string;
+          schema?: SchemaObject;
+          required?: boolean;
+        }
       | undefined;
     if (!resolved?.schema) continue;
 
@@ -755,15 +706,24 @@ async function generateValidators() {
       propertyPath: ['components', 'parameters', paramName, 'schema'],
     });
 
-    const exportName = toIdentifier(paramName + 'ParamSchema');
-    schemaDefinitions.set(`param:${paramName}`, exportName);
-    lines.push(`export const ${exportName} = ${valibotExpr};`);
-    lines.push('');
+    const rawName = getRawSchemaName(paramName + 'Param');
+    const validatorName = getValidatorName(paramName);
+
+    // Determine target based on parameter location
+    const paramIn = resolved.in ?? 'query';
+    const target =
+      paramIn === 'path' ? 'param' : paramIn === 'header' ? 'header' : paramIn;
+
+    rawSchemas.push({ name: rawName, expr: valibotExpr });
+    validatorExports.push({
+      name: validatorName,
+      target,
+      rawSchemaName: rawName,
+    });
   }
 
   // Generate request/response body schemas for operations
   const paths = schema.paths || {};
-  const operationBodies = new Map<string, string>();
 
   // First pass: analyze operations to count request/response schemas per operation
   const operationInfo = new Map<
@@ -774,7 +734,7 @@ async function generateValidators() {
     }
   >();
 
-  for (const [pathPattern, pathItemRaw] of Object.entries(paths)) {
+  for (const [, pathItemRaw] of Object.entries(paths)) {
     const pathItem = resolveMaybeRef(pathItemRaw, ctx) as
       | Record<string, unknown>
       | undefined;
@@ -789,7 +749,10 @@ async function generateValidators() {
       if (!operation?.operationId) continue;
 
       const operationId = operation.operationId;
-      const info: { requestContentTypes: string[]; responseStatusCodes: string[] } = {
+      const info: {
+        requestContentTypes: string[];
+        responseStatusCodes: string[];
+      } = {
         requestContentTypes: [],
         responseStatusCodes: [],
       };
@@ -824,7 +787,6 @@ async function generateValidators() {
               | { content?: Record<string, { schema?: SchemaObject }> }
               | undefined;
             if (responseResolved?.content) {
-              // Check if at least one content type has a schema
               const hasSchema = Object.values(responseResolved.content).some(
                 (mediaType) => {
                   const mediaResolved = resolveMaybeRef(mediaType, ctx) as
@@ -845,8 +807,8 @@ async function generateValidators() {
     }
   }
 
-  // Second pass: generate schemas with simplified names when possible
-  for (const [pathPattern, pathItemRaw] of Object.entries(paths)) {
+  // Second pass: generate operation request/response schemas
+  for (const [, pathItemRaw] of Object.entries(paths)) {
     const pathItem = resolveMaybeRef(pathItemRaw, ctx) as
       | Record<string, unknown>
       | undefined;
@@ -885,7 +847,7 @@ async function generateValidators() {
                   schemaName: `${operationId}Request`,
                   propertyPath: [
                     'paths',
-                    pathPattern,
+                    '',
                     method,
                     'requestBody',
                     'content',
@@ -895,25 +857,33 @@ async function generateValidators() {
                 },
               );
 
-              // Use simple name if only one request schema, otherwise include content type hint
-              let exportName: string;
+              // Determine target based on content type
+              const target = contentType.includes('form') ? 'form' : 'json';
+
+              // Determine naming
+              let rawName: string;
+              let validatorName: string;
               if (hasSingleRequest) {
-                const suffix = contentType.includes('form')
-                  ? 'FormSchema'
-                  : 'RequestSchema';
-                exportName = toIdentifier(operationId + suffix);
+                rawName = getRawSchemaName(operationId + 'Request');
+                validatorName = getValidatorName(operationId + 'Request');
               } else {
                 const contentHint = contentType
                   .replace(/[^a-zA-Z0-9]/g, '_')
                   .replace(/_+/g, '_');
-                exportName = toIdentifier(
-                  operationId + contentHint + 'RequestSchema',
+                rawName = getRawSchemaName(
+                  operationId + contentHint + 'Request',
+                );
+                validatorName = getValidatorName(
+                  operationId + contentHint + 'Request',
                 );
               }
 
-              operationBodies.set(`${operationId}:request:${contentType}`, exportName);
-              lines.push(`export const ${exportName} = ${valibotExpr};`);
-              lines.push('');
+              rawSchemas.push({ name: rawName, expr: valibotExpr });
+              validatorExports.push({
+                name: validatorName,
+                target,
+                rawSchemaName: rawName,
+              });
             }
           }
         }
@@ -947,7 +917,7 @@ async function generateValidators() {
                       schemaName: `${operationId}Response${statusCode}`,
                       propertyPath: [
                         'paths',
-                        pathPattern,
+                        '',
                         method,
                         'responses',
                         statusCode,
@@ -958,38 +928,30 @@ async function generateValidators() {
                     },
                   );
 
-                  // Use simple name if only one response schema, otherwise include status code
-                  let exportName: string;
+                  // Determine target based on content type
+                  const target = contentType.includes('form') ? 'form' : 'json';
+
+                  // Determine naming
+                  let rawName: string;
+                  let validatorName: string;
                   if (hasSingleResponse) {
-                    exportName = toIdentifier(operationId + 'ResponseSchema');
+                    rawName = getRawSchemaName(operationId + 'Response');
+                    validatorName = getValidatorName(operationId + 'Response');
                   } else {
-                    exportName = toIdentifier(
-                      operationId + statusCode + 'ResponseSchema',
+                    rawName = getRawSchemaName(
+                      operationId + statusCode + 'Response',
+                    );
+                    validatorName = getValidatorName(
+                      operationId + statusCode + 'Response',
                     );
                   }
 
-                  operationBodies.set(
-                    `${operationId}:response:${statusCode}:${contentType}`,
-                    exportName,
-                  );
-
-                  // Check if this is just an alias to another schema
-                  const resolvedSchema = resolveMaybeRef(
-                    mediaResolved.schema,
-                    ctx,
-                  );
-                  if (
-                    isObject(resolvedSchema) &&
-                    '$ref' in resolvedSchema &&
-                    typeof resolvedSchema.$ref === 'string'
-                  ) {
-                    const refName = getRefName(resolvedSchema.$ref);
-                    const targetSchema = toIdentifier(refName + 'Schema');
-                    lines.push(`export const ${exportName} = ${targetSchema};`);
-                  } else {
-                    lines.push(`export const ${exportName} = ${valibotExpr};`);
-                  }
-                  lines.push('');
+                  rawSchemas.push({ name: rawName, expr: valibotExpr });
+                  validatorExports.push({
+                    name: validatorName,
+                    target,
+                    rawSchemaName: rawName,
+                  });
                 }
               }
             }
@@ -999,10 +961,36 @@ async function generateValidators() {
     }
   }
 
+  // Generate output file
+  const lines: string[] = [
+    '/**',
+    ' * Auto-generated Valibot validators from OpenAPI spec.',
+    ' * Do not edit by hand.',
+    ' */',
+    '',
+    "import * as v from 'valibot';",
+    "import { sValidator } from '@hono/standard-validator';",
+    '',
+  ];
+
+  lines.push('');
+  for (const { name, expr } of rawSchemas) {
+    lines.push(`const ${name} = ${expr};`);
+  }
+  lines.push('');
+
+  for (const { name, target, rawSchemaName } of validatorExports) {
+    lines.push(
+      `export const ${name} = sValidator('${target}', {`,
+      `  '~standard': ${rawSchemaName}['~standard'],`,
+      `});`,
+    );
+  }
+
   await fs.writeFile(outPath, lines.join('\n'), 'utf-8');
   console.log(`Wrote ${path.relative(repoRoot, outPath)}`);
-  console.log(`Generated ${schemaDefinitions.size} schema definitions`);
-  console.log(`Generated ${operationBodies.size} operation body schemas`);
+  console.log(`Generated ${rawSchemas.length} raw schemas`);
+  console.log(`Generated ${validatorExports.length} validator exports`);
 }
 
 generateValidators().catch((err) => {

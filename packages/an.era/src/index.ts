@@ -44,5 +44,5 @@ export class Arena {
   }
 }
 
-// oxlint-disable-next-line no-unsafe-declaration-merging
+//
 export interface Arena extends ReturnType<typeof operations> {}

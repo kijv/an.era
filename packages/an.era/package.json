@@ -15,10 +15,6 @@
     "dist"
   ],
   "type": "module",
-  "scripts": {
-    "generate:validator": "node --experimental-strip-types scripts/generate-validator.ts",
-    "generate:hono-app": "node --experimental-strip-types scripts/generate-hono-app.ts"
-  },
   "main": "./dist/index.mjs",
   "types": "./dist/index.d.mts",
   "exports": {
@@ -33,7 +29,6 @@
     "./package.json": "./package.json"
   },
   "devDependencies": {
-    "@hono/standard-validator": "^0.2.2",
     "hono": "^4.12.8",
     "openapi-typescript": "^7.13.0",
     "valibot": "^1.3.1"
