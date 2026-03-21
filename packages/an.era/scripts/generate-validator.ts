@@ -81,9 +81,7 @@ function isObject(x: unknown): x is Record<string, unknown> {
 
 // Generate a valid TypeScript identifier from a name
 function toIdentifier(name: string): string {
-  let ident = name
-    .replace(/[^a-zA-Z0-9_$]/g, '_')
-    .replace(/^[0-9]/, '_$&');
+  let ident = name.replace(/[^a-zA-Z0-9_$]/g, '_').replace(/^[0-9]/, '_$&');
   if (!/^[a-zA-Z_$]/.test(ident)) {
     ident = '$' + ident;
   }
@@ -92,11 +90,46 @@ function toIdentifier(name: string): string {
 
 // Reserved words that can't be used as bare property names
 const RESERVED_WORDS = new Set([
-  'break', 'case', 'catch', 'class', 'const', 'continue', 'debugger', 'default',
-  'delete', 'do', 'else', 'enum', 'export', 'extends', 'false', 'finally',
-  'for', 'function', 'if', 'import', 'in', 'instanceof', 'new', 'null',
-  'return', 'super', 'switch', 'this', 'throw', 'true', 'try', 'typeof',
-  'var', 'void', 'while', 'with', 'let', 'static', 'yield', 'await',
+  'break',
+  'case',
+  'catch',
+  'class',
+  'const',
+  'continue',
+  'debugger',
+  'default',
+  'delete',
+  'do',
+  'else',
+  'enum',
+  'export',
+  'extends',
+  'false',
+  'finally',
+  'for',
+  'function',
+  'if',
+  'import',
+  'in',
+  'instanceof',
+  'new',
+  'null',
+  'return',
+  'super',
+  'switch',
+  'this',
+  'throw',
+  'true',
+  'try',
+  'typeof',
+  'var',
+  'void',
+  'while',
+  'with',
+  'let',
+  'static',
+  'yield',
+  'await',
 ]);
 
 function escapeProperty(name: string): string {
@@ -112,27 +145,11 @@ function getRefName($ref: string): string {
   return parts[parts.length - 1] ?? 'Unknown';
 }
 
-// Detect if a schema is a plain $ref (just { $ref: ... })
-function isPlainRef(
-  schema: SchemaObject | ReferenceObject | boolean | undefined,
-): schema is ReferenceObject {
-  return isObject(schema) && '$ref' in schema && Object.keys(schema).length === 1;
-}
-
 // Simplify nested optional wrappers by tracking optionality
 interface SchemaResult {
   expr: string;
   isOptional: boolean;
   isNullable: boolean;
-}
-
-function mergeResults(a: SchemaResult, b: SchemaResult): SchemaResult {
-  // Merge two results - for intersect/union
-  return {
-    expr: '', // Will be filled by caller
-    isOptional: a.isOptional && b.isOptional,
-    isNullable: a.isNullable && b.isNullable,
-  };
 }
 
 // Convert JSON schema to Valibot schema expression
@@ -312,10 +329,16 @@ function jsonSchemaToValibot(
       if (s.maximum !== undefined) {
         pipes.push(`v.maxValue(${s.maximum})`);
       }
-      if (s.exclusiveMinimum !== undefined && typeof s.exclusiveMinimum === 'number') {
+      if (
+        s.exclusiveMinimum !== undefined &&
+        typeof s.exclusiveMinimum === 'number'
+      ) {
         pipes.push(`v.gtValue(${s.exclusiveMinimum})`);
       }
-      if (s.exclusiveMaximum !== undefined && typeof s.exclusiveMaximum === 'number') {
+      if (
+        s.exclusiveMaximum !== undefined &&
+        typeof s.exclusiveMaximum === 'number'
+      ) {
         pipes.push(`v.ltValue(${s.exclusiveMaximum})`);
       }
 
@@ -339,7 +362,11 @@ function jsonSchemaToValibot(
           const tupleItems = s.items.map((item, i) =>
             jsonSchemaToValibot(item, ctx, {
               ...options,
-              propertyPath: [...(options.propertyPath ?? []), 'items', String(i)],
+              propertyPath: [
+                ...(options.propertyPath ?? []),
+                'items',
+                String(i),
+              ],
             }),
           );
           baseSchema = `v.tuple([${tupleItems.join(', ')}])`;
@@ -376,7 +403,11 @@ function jsonSchemaToValibot(
         // Get the raw schema without considering optionality yet
         let propExpr = jsonSchemaToValibot(propSchema, ctx, {
           ...options,
-          propertyPath: [...(options.propertyPath ?? []), 'properties', propName],
+          propertyPath: [
+            ...(options.propertyPath ?? []),
+            'properties',
+            propName,
+          ],
         });
 
         // Check if already nullable (wrapped with v.nullable)
@@ -386,10 +417,16 @@ function jsonSchemaToValibot(
         // OpenAPI often uses oneOf/anyOf with null for optional nullable fields
         if (!isRequired) {
           // Check if it's a union containing null
-          const resolvedProp = resolveMaybeRef(propSchema, ctx) as SchemaObject | undefined;
+          const resolvedProp = resolveMaybeRef(propSchema, ctx) as
+            | SchemaObject
+            | undefined;
           const hasNullInUnion =
-            resolvedProp?.anyOf?.some((s) => (s as SchemaObject).type === 'null') ??
-            resolvedProp?.oneOf?.some((s) => (s as SchemaObject).type === 'null') ??
+            resolvedProp?.anyOf?.some(
+              (s) => (s as SchemaObject).type === 'null',
+            ) ??
+            resolvedProp?.oneOf?.some(
+              (s) => (s as SchemaObject).type === 'null',
+            ) ??
             resolvedProp?.nullable === true;
 
           if (hasNullInUnion && !isAlreadyNullable) {
@@ -409,7 +446,10 @@ function jsonSchemaToValibot(
       } else if (isObject(s.additionalProperties)) {
         const restSchema = jsonSchemaToValibot(s.additionalProperties, ctx, {
           ...options,
-          propertyPath: [...(options.propertyPath ?? []), 'additionalProperties'],
+          propertyPath: [
+            ...(options.propertyPath ?? []),
+            'additionalProperties',
+          ],
         });
         baseSchema = `v.objectWithRest({ ${propEntries.join(', ')} }, ${restSchema})`;
       } else {
@@ -420,7 +460,10 @@ function jsonSchemaToValibot(
       if (s.propertyNames && isObject(s.additionalProperties)) {
         const valueSchema = jsonSchemaToValibot(s.additionalProperties, ctx, {
           ...options,
-          propertyPath: [...(options.propertyPath ?? []), 'additionalProperties'],
+          propertyPath: [
+            ...(options.propertyPath ?? []),
+            'additionalProperties',
+          ],
         });
         baseSchema = `v.record(v.string(), ${valueSchema})`;
       }
@@ -458,10 +501,7 @@ function jsonSchemaToValibot(
   return result;
 }
 
-function resolveMaybeRef(
-  obj: unknown,
-  ctx: GlobalContext,
-): unknown {
+function resolveMaybeRef(obj: unknown, ctx: GlobalContext): unknown {
   if (isObject(obj) && '$ref' in obj && typeof obj.$ref === 'string') {
     return ctx.resolve(obj.$ref);
   }
@@ -567,7 +607,10 @@ function collectRefs(
       collectRefs(sub, refs, ctx, visited);
     }
   }
-  if ('additionalProperties' in schema && isObject(schema.additionalProperties)) {
+  if (
+    'additionalProperties' in schema &&
+    isObject(schema.additionalProperties)
+  ) {
     collectRefs(schema.additionalProperties, refs, ctx, visited);
   }
 }
@@ -654,7 +697,12 @@ async function generateValidators() {
     if (!paramObj) continue;
 
     const resolved = resolveMaybeRef(paramObj, ctx) as
-      | { name?: string; in?: string; schema?: SchemaObject; required?: boolean }
+      | {
+          name?: string;
+          in?: string;
+          schema?: SchemaObject;
+          required?: boolean;
+        }
       | undefined;
     if (!resolved?.schema) continue;
 
@@ -695,27 +743,38 @@ async function generateValidators() {
           | { content?: Record<string, { schema?: SchemaObject }> }
           | undefined;
         if (requestBody?.content) {
-          for (const [contentType, mediaType] of Object.entries(requestBody.content)) {
+          for (const [contentType, mediaType] of Object.entries(
+            requestBody.content,
+          )) {
             const mediaResolved = resolveMaybeRef(mediaType, ctx) as
               | { schema?: SchemaObject }
               | undefined;
             if (mediaResolved?.schema) {
-              const valibotExpr = jsonSchemaToValibot(mediaResolved.schema, ctx, {
-                schemaName: `${operationId}Request`,
-                propertyPath: [
-                  'paths',
-                  pathPattern,
-                  method,
-                  'requestBody',
-                  'content',
-                  contentType,
-                  'schema',
-                ],
-              });
+              const valibotExpr = jsonSchemaToValibot(
+                mediaResolved.schema,
+                ctx,
+                {
+                  schemaName: `${operationId}Request`,
+                  propertyPath: [
+                    'paths',
+                    pathPattern,
+                    method,
+                    'requestBody',
+                    'content',
+                    contentType,
+                    'schema',
+                  ],
+                },
+              );
 
-              const suffix = contentType.includes('form') ? 'FormSchema' : 'RequestSchema';
+              const suffix = contentType.includes('form')
+                ? 'FormSchema'
+                : 'RequestSchema';
               const exportName = toIdentifier(operationId + suffix);
-              operationBodies.set(`${operationId}:request:${contentType}`, exportName);
+              operationBodies.set(
+                `${operationId}:request:${contentType}`,
+                exportName,
+              );
               lines.push(`export const ${exportName} = ${valibotExpr};`);
               lines.push('');
             }
@@ -723,53 +782,70 @@ async function generateValidators() {
         }
       }
 
-      // Response schemas
+      // Response schemas - only generate for 2xx success responses
       if (operation.responses) {
         const responses = resolveMaybeRef(operation.responses, ctx) as
           | Record<string, unknown>
           | undefined;
         if (responses) {
           for (const [statusCode, response] of Object.entries(responses)) {
+            // Skip non-2xx status codes (4xx/5xx errors)
+            if (!statusCode.startsWith('2')) continue;
+
             const responseResolved = resolveMaybeRef(response, ctx) as
               | { content?: Record<string, { schema?: SchemaObject }> }
               | undefined;
             if (responseResolved?.content) {
-              for (const [contentType, mediaType] of Object.entries(responseResolved.content)) {
+              for (const [contentType, mediaType] of Object.entries(
+                responseResolved.content,
+              )) {
                 const mediaResolved = resolveMaybeRef(mediaType, ctx) as
                   | { schema?: SchemaObject }
                   | undefined;
                 if (mediaResolved?.schema) {
                   // Skip if it's just a reference to a schema we already defined
-                  const valibotExpr = jsonSchemaToValibot(mediaResolved.schema, ctx, {
-                    schemaName: `${operationId}Response${statusCode}`,
-                    propertyPath: [
-                      'paths',
-                      pathPattern,
-                      method,
-                      'responses',
-                      statusCode,
-                      'content',
-                      contentType,
-                      'schema',
-                    ],
-                  });
+                  const valibotExpr = jsonSchemaToValibot(
+                    mediaResolved.schema,
+                    ctx,
+                    {
+                      schemaName: `${operationId}Response${statusCode}`,
+                      propertyPath: [
+                        'paths',
+                        pathPattern,
+                        method,
+                        'responses',
+                        statusCode,
+                        'content',
+                        contentType,
+                        'schema',
+                      ],
+                    },
+                  );
 
-                const exportName = toIdentifier(operationId + statusCode + 'ResponseSchema');
-                operationBodies.set(`${operationId}:response:${statusCode}:${contentType}`, exportName);
+                  const exportName = toIdentifier(
+                    operationId + statusCode + 'ResponseSchema',
+                  );
+                  operationBodies.set(
+                    `${operationId}:response:${statusCode}:${contentType}`,
+                    exportName,
+                  );
 
-                // Check if this is just an alias to another schema
-                const resolvedSchema = resolveMaybeRef(mediaResolved.schema, ctx);
-                if (
-                  isObject(resolvedSchema) &&
-                  '$ref' in resolvedSchema &&
-                  typeof resolvedSchema.$ref === 'string'
-                ) {
-                  const refName = getRefName(resolvedSchema.$ref);
-                  const targetSchema = toIdentifier(refName + 'Schema');
-                  lines.push(`export const ${exportName} = ${targetSchema};`);
-                } else {
-                  lines.push(`export const ${exportName} = ${valibotExpr};`);
-                }
+                  // Check if this is just an alias to another schema
+                  const resolvedSchema = resolveMaybeRef(
+                    mediaResolved.schema,
+                    ctx,
+                  );
+                  if (
+                    isObject(resolvedSchema) &&
+                    '$ref' in resolvedSchema &&
+                    typeof resolvedSchema.$ref === 'string'
+                  ) {
+                    const refName = getRefName(resolvedSchema.$ref);
+                    const targetSchema = toIdentifier(refName + 'Schema');
+                    lines.push(`export const ${exportName} = ${targetSchema};`);
+                  } else {
+                    lines.push(`export const ${exportName} = ${valibotExpr};`);
+                  }
                   lines.push('');
                 }
               }
@@ -778,18 +854,6 @@ async function generateValidators() {
         }
       }
     }
-  }
-
-  // Add type exports at the end
-  lines.push('// Types inferred from schemas');
-  lines.push('');
-
-  for (const [schemaName, exportName] of schemaDefinitions) {
-    if (schemaName.startsWith('param:')) continue;
-    const typeName = toIdentifier(schemaName);
-    lines.push(
-      `export type ${typeName} = v.InferInput<typeof ${exportName}>;`,
-    );
   }
 
   await fs.writeFile(outPath, lines.join('\n'), 'utf-8');

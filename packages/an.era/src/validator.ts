@@ -173,429 +173,80 @@ export const createOAuthTokenFormSchema = v.object({ grant_type: v.picklist(["au
 
 export const createOAuthToken200ResponseSchema = v.object({ access_token: v.string(), token_type: v.literal("Bearer"), scope: v.string(), created_at: v.pipe(v.number(), v.integer()) });
 
-export const createOAuthToken400ResponseSchema = v.object({ error: v.optional(v.picklist(["invalid_request", "invalid_client", "invalid_grant", "unauthorized_client", "unsupported_grant_type"])), error_description: v.optional(v.string()) });
-
-export const createOAuthToken401ResponseSchema = v.object({ error: v.optional(v.string()), error_description: v.optional(v.string()) });
-
 export const getOpenapiSpec200ResponseSchema = v.string();
-
-export const getOpenapiSpec404ResponseSchema = ErrorSchema;
 
 export const getOpenapiSpecJson200ResponseSchema = v.object({  });
 
-export const getOpenapiSpecJson404ResponseSchema = ErrorSchema;
-
 export const getPing200ResponseSchema = PingResponseSchema;
-
-export const getPing429ResponseSchema = RateLimitErrorSchema;
 
 export const presignUploadRequestSchema = v.object({ files: v.pipe(v.array(v.object({ filename: v.string(), content_type: v.string() })), v.minLength(1), v.maxLength(50)) });
 
 export const presignUpload201ResponseSchema = PresignResponseSchema;
 
-export const presignUpload400ResponseSchema = ErrorSchema;
-
-export const presignUpload401ResponseSchema = ErrorSchema;
-
-export const presignUpload429ResponseSchema = RateLimitErrorSchema;
-
 export const createBlockRequestSchema = v.intersect([BlockInputSchema, v.object({ channel_ids: ChannelIdsSchema, insert_at: v.optional(v.pipe(v.number(), v.integer())) })]);
 
 export const createBlock201ResponseSchema = BlockSchema;
-
-export const createBlock400ResponseSchema = ErrorSchema;
-
-export const createBlock401ResponseSchema = ErrorSchema;
-
-export const createBlock403ResponseSchema = ErrorSchema;
-
-export const createBlock404ResponseSchema = ErrorSchema;
-
-export const createBlock429ResponseSchema = RateLimitErrorSchema;
 
 export const batchCreateBlocksRequestSchema = v.object({ channel_ids: ChannelIdsSchema, blocks: v.pipe(v.array(BlockInputSchema), v.minLength(1), v.maxLength(50)) });
 
 export const batchCreateBlocks202ResponseSchema = BatchResponseSchema;
 
-export const batchCreateBlocks400ResponseSchema = ErrorSchema;
-
-export const batchCreateBlocks401ResponseSchema = ErrorSchema;
-
-export const batchCreateBlocks403ResponseSchema = ErrorSchema;
-
-export const batchCreateBlocks404ResponseSchema = ErrorSchema;
-
-export const batchCreateBlocks422ResponseSchema = ErrorSchema;
-
-export const batchCreateBlocks429ResponseSchema = RateLimitErrorSchema;
-
 export const getBatchStatus200ResponseSchema = BatchStatusSchema;
 
-export const getBatchStatus401ResponseSchema = ErrorSchema;
-
-export const getBatchStatus403ResponseSchema = ErrorSchema;
-
-export const getBatchStatus404ResponseSchema = ErrorSchema;
-
-export const getBatchStatus429ResponseSchema = RateLimitErrorSchema;
-
 export const getBlock200ResponseSchema = BlockSchema;
-
-export const getBlock401ResponseSchema = ErrorSchema;
-
-export const getBlock403ResponseSchema = ErrorSchema;
-
-export const getBlock404ResponseSchema = ErrorSchema;
-
-export const getBlock429ResponseSchema = RateLimitErrorSchema;
 
 export const updateBlockRequestSchema = v.object({ title: v.optional(v.string()), description: v.optional(v.string()), content: v.optional(v.string()), alt_text: v.optional(v.string()) });
 
 export const updateBlock200ResponseSchema = BlockSchema;
 
-export const updateBlock400ResponseSchema = ErrorSchema;
-
-export const updateBlock401ResponseSchema = ErrorSchema;
-
-export const updateBlock403ResponseSchema = ErrorSchema;
-
-export const updateBlock404ResponseSchema = ErrorSchema;
-
-export const updateBlock422ResponseSchema = ErrorSchema;
-
-export const updateBlock429ResponseSchema = RateLimitErrorSchema;
-
 export const getBlockConnections200ResponseSchema = ChannelListResponseSchema;
 
-export const getBlockConnections401ResponseSchema = ErrorSchema;
-
-export const getBlockConnections403ResponseSchema = ErrorSchema;
-
-export const getBlockConnections404ResponseSchema = ErrorSchema;
-
-export const getBlockConnections429ResponseSchema = RateLimitErrorSchema;
-
 export const getBlockComments200ResponseSchema = CommentListResponseSchema;
-
-export const getBlockComments401ResponseSchema = ErrorSchema;
-
-export const getBlockComments403ResponseSchema = ErrorSchema;
-
-export const getBlockComments404ResponseSchema = ErrorSchema;
-
-export const getBlockComments429ResponseSchema = RateLimitErrorSchema;
 
 export const createBlockCommentRequestSchema = v.object({ body: v.string() });
 
 export const createBlockComment201ResponseSchema = CommentSchema;
 
-export const createBlockComment400ResponseSchema = ErrorSchema;
-
-export const createBlockComment401ResponseSchema = ErrorSchema;
-
-export const createBlockComment403ResponseSchema = ErrorSchema;
-
-export const createBlockComment404ResponseSchema = ErrorSchema;
-
-export const createBlockComment422ResponseSchema = ErrorSchema;
-
-export const createBlockComment429ResponseSchema = RateLimitErrorSchema;
-
-export const deleteComment401ResponseSchema = ErrorSchema;
-
-export const deleteComment403ResponseSchema = ErrorSchema;
-
-export const deleteComment404ResponseSchema = ErrorSchema;
-
-export const deleteComment429ResponseSchema = RateLimitErrorSchema;
-
 export const createChannelRequestSchema = v.object({ title: v.string(), visibility: v.optional(ChannelVisibilitySchema), description: v.optional(v.string()), group_id: v.optional(v.pipe(v.number(), v.integer())) });
 
 export const createChannel201ResponseSchema = ChannelSchema;
 
-export const createChannel400ResponseSchema = ErrorSchema;
-
-export const createChannel401ResponseSchema = ErrorSchema;
-
-export const createChannel403ResponseSchema = ErrorSchema;
-
-export const createChannel422ResponseSchema = ErrorSchema;
-
-export const createChannel429ResponseSchema = RateLimitErrorSchema;
-
 export const getChannel200ResponseSchema = ChannelSchema;
-
-export const getChannel401ResponseSchema = ErrorSchema;
-
-export const getChannel403ResponseSchema = ErrorSchema;
-
-export const getChannel404ResponseSchema = ErrorSchema;
-
-export const getChannel429ResponseSchema = RateLimitErrorSchema;
 
 export const updateChannelRequestSchema = v.object({ title: v.optional(v.string()), visibility: v.optional(ChannelVisibilitySchema), description: v.optional(v.unknown()) });
 
 export const updateChannel200ResponseSchema = ChannelSchema;
 
-export const updateChannel400ResponseSchema = ErrorSchema;
-
-export const updateChannel401ResponseSchema = ErrorSchema;
-
-export const updateChannel403ResponseSchema = ErrorSchema;
-
-export const updateChannel404ResponseSchema = ErrorSchema;
-
-export const updateChannel422ResponseSchema = ErrorSchema;
-
-export const updateChannel429ResponseSchema = RateLimitErrorSchema;
-
-export const deleteChannel401ResponseSchema = ErrorSchema;
-
-export const deleteChannel403ResponseSchema = ErrorSchema;
-
-export const deleteChannel404ResponseSchema = ErrorSchema;
-
-export const deleteChannel429ResponseSchema = RateLimitErrorSchema;
-
 export const createConnectionRequestSchema = v.object({ connectable_id: v.pipe(v.number(), v.integer()), connectable_type: ConnectableTypeSchema, channel_ids: ChannelIdsSchema, position: v.optional(v.pipe(v.number(), v.integer())) });
 
 export const createConnection201ResponseSchema = v.object({ data: v.optional(v.array(ConnectionSchema)) });
 
-export const createConnection400ResponseSchema = ErrorSchema;
-
-export const createConnection401ResponseSchema = ErrorSchema;
-
-export const createConnection403ResponseSchema = ErrorSchema;
-
-export const createConnection404ResponseSchema = ErrorSchema;
-
-export const createConnection422ResponseSchema = ErrorSchema;
-
-export const createConnection429ResponseSchema = RateLimitErrorSchema;
-
 export const getConnection200ResponseSchema = ConnectionSchema;
-
-export const getConnection401ResponseSchema = ErrorSchema;
-
-export const getConnection403ResponseSchema = ErrorSchema;
-
-export const getConnection404ResponseSchema = ErrorSchema;
-
-export const getConnection429ResponseSchema = RateLimitErrorSchema;
-
-export const deleteConnection401ResponseSchema = ErrorSchema;
-
-export const deleteConnection403ResponseSchema = ErrorSchema;
-
-export const deleteConnection404ResponseSchema = ErrorSchema;
-
-export const deleteConnection429ResponseSchema = RateLimitErrorSchema;
 
 export const moveConnectionRequestSchema = v.object({ movement: v.optional(MovementSchema), position: v.optional(v.pipe(v.number(), v.integer())) });
 
 export const moveConnection200ResponseSchema = ConnectionSchema;
 
-export const moveConnection400ResponseSchema = ErrorSchema;
-
-export const moveConnection401ResponseSchema = ErrorSchema;
-
-export const moveConnection403ResponseSchema = ErrorSchema;
-
-export const moveConnection404ResponseSchema = ErrorSchema;
-
-export const moveConnection422ResponseSchema = ErrorSchema;
-
-export const moveConnection429ResponseSchema = RateLimitErrorSchema;
-
 export const getChannelContents200ResponseSchema = ConnectableListResponseSchema;
-
-export const getChannelContents401ResponseSchema = ErrorSchema;
-
-export const getChannelContents403ResponseSchema = ErrorSchema;
-
-export const getChannelContents404ResponseSchema = ErrorSchema;
-
-export const getChannelContents429ResponseSchema = RateLimitErrorSchema;
 
 export const getChannelConnections200ResponseSchema = ChannelListResponseSchema;
 
-export const getChannelConnections401ResponseSchema = ErrorSchema;
-
-export const getChannelConnections403ResponseSchema = ErrorSchema;
-
-export const getChannelConnections404ResponseSchema = ErrorSchema;
-
-export const getChannelConnections429ResponseSchema = RateLimitErrorSchema;
-
 export const getChannelFollowers200ResponseSchema = UserListResponseSchema;
-
-export const getChannelFollowers401ResponseSchema = ErrorSchema;
-
-export const getChannelFollowers403ResponseSchema = ErrorSchema;
-
-export const getChannelFollowers404ResponseSchema = ErrorSchema;
-
-export const getChannelFollowers429ResponseSchema = RateLimitErrorSchema;
 
 export const getCurrentUser200ResponseSchema = UserSchema;
 
-export const getCurrentUser401ResponseSchema = ErrorSchema;
-
-export const getCurrentUser429ResponseSchema = RateLimitErrorSchema;
-
 export const getUser200ResponseSchema = UserSchema;
-
-export const getUser401ResponseSchema = ErrorSchema;
-
-export const getUser403ResponseSchema = ErrorSchema;
-
-export const getUser404ResponseSchema = ErrorSchema;
-
-export const getUser429ResponseSchema = RateLimitErrorSchema;
 
 export const getUserContents200ResponseSchema = ConnectableListResponseSchema;
 
-export const getUserContents401ResponseSchema = ErrorSchema;
-
-export const getUserContents403ResponseSchema = ErrorSchema;
-
-export const getUserContents404ResponseSchema = ErrorSchema;
-
-export const getUserContents429ResponseSchema = RateLimitErrorSchema;
-
 export const getUserFollowers200ResponseSchema = UserListResponseSchema;
-
-export const getUserFollowers401ResponseSchema = ErrorSchema;
-
-export const getUserFollowers403ResponseSchema = ErrorSchema;
-
-export const getUserFollowers404ResponseSchema = ErrorSchema;
-
-export const getUserFollowers429ResponseSchema = RateLimitErrorSchema;
 
 export const getUserFollowing200ResponseSchema = FollowableListResponseSchema;
 
-export const getUserFollowing401ResponseSchema = ErrorSchema;
-
-export const getUserFollowing403ResponseSchema = ErrorSchema;
-
-export const getUserFollowing404ResponseSchema = ErrorSchema;
-
-export const getUserFollowing429ResponseSchema = RateLimitErrorSchema;
-
 export const getGroup200ResponseSchema = GroupSchema;
-
-export const getGroup401ResponseSchema = ErrorSchema;
-
-export const getGroup403ResponseSchema = ErrorSchema;
-
-export const getGroup404ResponseSchema = ErrorSchema;
-
-export const getGroup429ResponseSchema = RateLimitErrorSchema;
 
 export const getGroupContents200ResponseSchema = ConnectableListResponseSchema;
 
-export const getGroupContents401ResponseSchema = ErrorSchema;
-
-export const getGroupContents403ResponseSchema = ErrorSchema;
-
-export const getGroupContents404ResponseSchema = ErrorSchema;
-
-export const getGroupContents429ResponseSchema = RateLimitErrorSchema;
-
 export const getGroupFollowers200ResponseSchema = UserListResponseSchema;
 
-export const getGroupFollowers401ResponseSchema = ErrorSchema;
-
-export const getGroupFollowers403ResponseSchema = ErrorSchema;
-
-export const getGroupFollowers404ResponseSchema = ErrorSchema;
-
-export const getGroupFollowers429ResponseSchema = RateLimitErrorSchema;
-
 export const search200ResponseSchema = EverythingListResponseSchema;
-
-export const search400ResponseSchema = ErrorSchema;
-
-export const search401ResponseSchema = ErrorSchema;
-
-export const search403ResponseSchema = ErrorSchema;
-
-export const search429ResponseSchema = RateLimitErrorSchema;
-
-// Types inferred from schemas
-
-export type Error = v.InferInput<typeof ErrorSchema>;
-export type UserTier = v.InferInput<typeof UserTierSchema>;
-export type RateLimitError = v.InferInput<typeof RateLimitErrorSchema>;
-export type Link = v.InferInput<typeof LinkSchema>;
-export type Links = v.InferInput<typeof LinksSchema>;
-export type MarkdownContent = v.InferInput<typeof MarkdownContentSchema>;
-export type EmbeddedUser = v.InferInput<typeof EmbeddedUserSchema>;
-export type EmbeddedConnection = v.InferInput<typeof EmbeddedConnectionSchema>;
-export type ConnectionAbilities = v.InferInput<typeof ConnectionAbilitiesSchema>;
-export type Connection = v.InferInput<typeof ConnectionSchema>;
-export type EmbeddedGroup = v.InferInput<typeof EmbeddedGroupSchema>;
-export type UserBadge = v.InferInput<typeof UserBadgeSchema>;
-export type UserCounts = v.InferInput<typeof UserCountsSchema>;
-export type User = v.InferInput<typeof UserSchema>;
-export type GroupCounts = v.InferInput<typeof GroupCountsSchema>;
-export type Group = v.InferInput<typeof GroupSchema>;
-export type BlockState = v.InferInput<typeof BlockStateSchema>;
-export type BlockVisibility = v.InferInput<typeof BlockVisibilitySchema>;
-export type ChannelState = v.InferInput<typeof ChannelStateSchema>;
-export type ConnectionFilter = v.InferInput<typeof ConnectionFilterSchema>;
-export type FollowableType = v.InferInput<typeof FollowableTypeSchema>;
-export type ConnectableType = v.InferInput<typeof ConnectableTypeSchema>;
-export type ContentTypeFilter = v.InferInput<typeof ContentTypeFilterSchema>;
-export type SearchTypeFilter = v.InferInput<typeof SearchTypeFilterSchema>;
-export type FileExtension = v.InferInput<typeof FileExtensionSchema>;
-export type ConnectionSort = v.InferInput<typeof ConnectionSortSchema>;
-export type ChannelContentSort = v.InferInput<typeof ChannelContentSortSchema>;
-export type ContentSort = v.InferInput<typeof ContentSortSchema>;
-export type SearchScope = v.InferInput<typeof SearchScopeSchema>;
-export type SearchSort = v.InferInput<typeof SearchSortSchema>;
-export type ChannelVisibility = v.InferInput<typeof ChannelVisibilitySchema>;
-export type Movement = v.InferInput<typeof MovementSchema>;
-export type ChannelIds = v.InferInput<typeof ChannelIdsSchema>;
-export type PresignedFile = v.InferInput<typeof PresignedFileSchema>;
-export type PresignResponse = v.InferInput<typeof PresignResponseSchema>;
-export type BlockInput = v.InferInput<typeof BlockInputSchema>;
-export type BatchResponse = v.InferInput<typeof BatchResponseSchema>;
-export type BatchStatus = v.InferInput<typeof BatchStatusSchema>;
-export type BlockProvider = v.InferInput<typeof BlockProviderSchema>;
-export type BlockSource = v.InferInput<typeof BlockSourceSchema>;
-export type BlockAbilities = v.InferInput<typeof BlockAbilitiesSchema>;
-export type BaseBlockProperties = v.InferInput<typeof BaseBlockPropertiesSchema>;
-export type TextBlock = v.InferInput<typeof TextBlockSchema>;
-export type ImageVersion = v.InferInput<typeof ImageVersionSchema>;
-export type BlockImage = v.InferInput<typeof BlockImageSchema>;
-export type ImageBlock = v.InferInput<typeof ImageBlockSchema>;
-export type LinkBlock = v.InferInput<typeof LinkBlockSchema>;
-export type BlockAttachment = v.InferInput<typeof BlockAttachmentSchema>;
-export type AttachmentBlock = v.InferInput<typeof AttachmentBlockSchema>;
-export type BlockEmbed = v.InferInput<typeof BlockEmbedSchema>;
-export type EmbedBlock = v.InferInput<typeof EmbedBlockSchema>;
-export type PendingBlock = v.InferInput<typeof PendingBlockSchema>;
-export type Block = v.InferInput<typeof BlockSchema>;
-export type Comment = v.InferInput<typeof CommentSchema>;
-export type ChannelOwner = v.InferInput<typeof ChannelOwnerSchema>;
-export type ChannelCounts = v.InferInput<typeof ChannelCountsSchema>;
-export type ChannelCollaborator = v.InferInput<typeof ChannelCollaboratorSchema>;
-export type ChannelAbilities = v.InferInput<typeof ChannelAbilitiesSchema>;
-export type Channel = v.InferInput<typeof ChannelSchema>;
-export type PaginationMeta = v.InferInput<typeof PaginationMetaSchema>;
-export type PaginatedResponse = v.InferInput<typeof PaginatedResponseSchema>;
-export type UserList = v.InferInput<typeof UserListSchema>;
-export type ChannelList = v.InferInput<typeof ChannelListSchema>;
-export type ConnectableList = v.InferInput<typeof ConnectableListSchema>;
-export type FollowableList = v.InferInput<typeof FollowableListSchema>;
-export type EverythingList = v.InferInput<typeof EverythingListSchema>;
-export type UserListResponse = v.InferInput<typeof UserListResponseSchema>;
-export type ChannelListResponse = v.InferInput<typeof ChannelListResponseSchema>;
-export type ConnectableListResponse = v.InferInput<typeof ConnectableListResponseSchema>;
-export type FollowableListResponse = v.InferInput<typeof FollowableListResponseSchema>;
-export type EverythingListResponse = v.InferInput<typeof EverythingListResponseSchema>;
-export type CommentList = v.InferInput<typeof CommentListSchema>;
-export type CommentListResponse = v.InferInput<typeof CommentListResponseSchema>;
-export type PingResponse = v.InferInput<typeof PingResponseSchema>;
