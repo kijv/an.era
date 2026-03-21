@@ -171,82 +171,82 @@ export const SlugOrIdParamParamSchema = v.string();
 
 export const createOAuthTokenFormSchema = v.object({ grant_type: v.picklist(["authorization_code", "client_credentials"]), client_id: v.optional(v.string()), client_secret: v.optional(v.string()), code: v.optional(v.string()), redirect_uri: v.optional(v.pipe(v.string(), v.url())), code_verifier: v.optional(v.string()) });
 
-export const createOAuthToken200ResponseSchema = v.object({ access_token: v.string(), token_type: v.literal("Bearer"), scope: v.string(), created_at: v.pipe(v.number(), v.integer()) });
+export const createOAuthTokenResponseSchema = v.object({ access_token: v.string(), token_type: v.literal("Bearer"), scope: v.string(), created_at: v.pipe(v.number(), v.integer()) });
 
-export const getOpenapiSpec200ResponseSchema = v.string();
+export const getOpenapiSpecResponseSchema = v.string();
 
-export const getOpenapiSpecJson200ResponseSchema = v.object({  });
+export const getOpenapiSpecJsonResponseSchema = v.object({  });
 
-export const getPing200ResponseSchema = PingResponseSchema;
+export const getPingResponseSchema = PingResponseSchema;
 
 export const presignUploadRequestSchema = v.object({ files: v.pipe(v.array(v.object({ filename: v.string(), content_type: v.string() })), v.minLength(1), v.maxLength(50)) });
 
-export const presignUpload201ResponseSchema = PresignResponseSchema;
+export const presignUploadResponseSchema = PresignResponseSchema;
 
 export const createBlockRequestSchema = v.intersect([BlockInputSchema, v.object({ channel_ids: ChannelIdsSchema, insert_at: v.optional(v.pipe(v.number(), v.integer())) })]);
 
-export const createBlock201ResponseSchema = BlockSchema;
+export const createBlockResponseSchema = BlockSchema;
 
 export const batchCreateBlocksRequestSchema = v.object({ channel_ids: ChannelIdsSchema, blocks: v.pipe(v.array(BlockInputSchema), v.minLength(1), v.maxLength(50)) });
 
-export const batchCreateBlocks202ResponseSchema = BatchResponseSchema;
+export const batchCreateBlocksResponseSchema = BatchResponseSchema;
 
-export const getBatchStatus200ResponseSchema = BatchStatusSchema;
+export const getBatchStatusResponseSchema = BatchStatusSchema;
 
-export const getBlock200ResponseSchema = BlockSchema;
+export const getBlockResponseSchema = BlockSchema;
 
 export const updateBlockRequestSchema = v.object({ title: v.optional(v.string()), description: v.optional(v.string()), content: v.optional(v.string()), alt_text: v.optional(v.string()) });
 
-export const updateBlock200ResponseSchema = BlockSchema;
+export const updateBlockResponseSchema = BlockSchema;
 
-export const getBlockConnections200ResponseSchema = ChannelListResponseSchema;
+export const getBlockConnectionsResponseSchema = ChannelListResponseSchema;
 
-export const getBlockComments200ResponseSchema = CommentListResponseSchema;
+export const getBlockCommentsResponseSchema = CommentListResponseSchema;
 
 export const createBlockCommentRequestSchema = v.object({ body: v.string() });
 
-export const createBlockComment201ResponseSchema = CommentSchema;
+export const createBlockCommentResponseSchema = CommentSchema;
 
 export const createChannelRequestSchema = v.object({ title: v.string(), visibility: v.optional(ChannelVisibilitySchema), description: v.optional(v.string()), group_id: v.optional(v.pipe(v.number(), v.integer())) });
 
-export const createChannel201ResponseSchema = ChannelSchema;
+export const createChannelResponseSchema = ChannelSchema;
 
-export const getChannel200ResponseSchema = ChannelSchema;
+export const getChannelResponseSchema = ChannelSchema;
 
 export const updateChannelRequestSchema = v.object({ title: v.optional(v.string()), visibility: v.optional(ChannelVisibilitySchema), description: v.optional(v.unknown()) });
 
-export const updateChannel200ResponseSchema = ChannelSchema;
+export const updateChannelResponseSchema = ChannelSchema;
 
 export const createConnectionRequestSchema = v.object({ connectable_id: v.pipe(v.number(), v.integer()), connectable_type: ConnectableTypeSchema, channel_ids: ChannelIdsSchema, position: v.optional(v.pipe(v.number(), v.integer())) });
 
-export const createConnection201ResponseSchema = v.object({ data: v.optional(v.array(ConnectionSchema)) });
+export const createConnectionResponseSchema = v.object({ data: v.optional(v.array(ConnectionSchema)) });
 
-export const getConnection200ResponseSchema = ConnectionSchema;
+export const getConnectionResponseSchema = ConnectionSchema;
 
 export const moveConnectionRequestSchema = v.object({ movement: v.optional(MovementSchema), position: v.optional(v.pipe(v.number(), v.integer())) });
 
-export const moveConnection200ResponseSchema = ConnectionSchema;
+export const moveConnectionResponseSchema = ConnectionSchema;
 
-export const getChannelContents200ResponseSchema = ConnectableListResponseSchema;
+export const getChannelContentsResponseSchema = ConnectableListResponseSchema;
 
-export const getChannelConnections200ResponseSchema = ChannelListResponseSchema;
+export const getChannelConnectionsResponseSchema = ChannelListResponseSchema;
 
-export const getChannelFollowers200ResponseSchema = UserListResponseSchema;
+export const getChannelFollowersResponseSchema = UserListResponseSchema;
 
-export const getCurrentUser200ResponseSchema = UserSchema;
+export const getCurrentUserResponseSchema = UserSchema;
 
-export const getUser200ResponseSchema = UserSchema;
+export const getUserResponseSchema = UserSchema;
 
-export const getUserContents200ResponseSchema = ConnectableListResponseSchema;
+export const getUserContentsResponseSchema = ConnectableListResponseSchema;
 
-export const getUserFollowers200ResponseSchema = UserListResponseSchema;
+export const getUserFollowersResponseSchema = UserListResponseSchema;
 
-export const getUserFollowing200ResponseSchema = FollowableListResponseSchema;
+export const getUserFollowingResponseSchema = FollowableListResponseSchema;
 
-export const getGroup200ResponseSchema = GroupSchema;
+export const getGroupResponseSchema = GroupSchema;
 
-export const getGroupContents200ResponseSchema = ConnectableListResponseSchema;
+export const getGroupContentsResponseSchema = ConnectableListResponseSchema;
 
-export const getGroupFollowers200ResponseSchema = UserListResponseSchema;
+export const getGroupFollowersResponseSchema = UserListResponseSchema;
 
-export const search200ResponseSchema = EverythingListResponseSchema;
+export const searchResponseSchema = EverythingListResponseSchema;

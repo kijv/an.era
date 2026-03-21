@@ -765,6 +765,15 @@ async function generateValidators() {
   const paths = schema.paths || {};
   const operationBodies = new Map<string, string>();
 
+  // First pass: analyze operations to count request/response schemas per operation
+  const operationInfo = new Map<
+    string,
+    {
+      requestContentTypes: string[];
+      responseStatusCodes: string[];
+    }
+  >();
+
   for (const [pathPattern, pathItemRaw] of Object.entries(paths)) {
     const pathItem = resolveMaybeRef(pathItemRaw, ctx) as
       | Record<string, unknown>
@@ -780,6 +789,81 @@ async function generateValidators() {
       if (!operation?.operationId) continue;
 
       const operationId = operation.operationId;
+      const info: { requestContentTypes: string[]; responseStatusCodes: string[] } = {
+        requestContentTypes: [],
+        responseStatusCodes: [],
+      };
+
+      // Count request body content types
+      if (operation.requestBody) {
+        const requestBody = resolveMaybeRef(operation.requestBody, ctx) as
+          | { content?: Record<string, { schema?: SchemaObject }> }
+          | undefined;
+        if (requestBody?.content) {
+          for (const contentType of Object.keys(requestBody.content)) {
+            const mediaResolved = resolveMaybeRef(
+              requestBody.content[contentType],
+              ctx,
+            ) as { schema?: SchemaObject } | undefined;
+            if (mediaResolved?.schema) {
+              info.requestContentTypes.push(contentType);
+            }
+          }
+        }
+      }
+
+      // Count 2xx response status codes
+      if (operation.responses) {
+        const responses = resolveMaybeRef(operation.responses, ctx) as
+          | Record<string, unknown>
+          | undefined;
+        if (responses) {
+          for (const [statusCode, response] of Object.entries(responses)) {
+            if (!statusCode.startsWith('2')) continue;
+            const responseResolved = resolveMaybeRef(response, ctx) as
+              | { content?: Record<string, { schema?: SchemaObject }> }
+              | undefined;
+            if (responseResolved?.content) {
+              // Check if at least one content type has a schema
+              const hasSchema = Object.values(responseResolved.content).some(
+                (mediaType) => {
+                  const mediaResolved = resolveMaybeRef(mediaType, ctx) as
+                    | { schema?: SchemaObject }
+                    | undefined;
+                  return !!mediaResolved?.schema;
+                },
+              );
+              if (hasSchema) {
+                info.responseStatusCodes.push(statusCode);
+              }
+            }
+          }
+        }
+      }
+
+      operationInfo.set(operationId, info);
+    }
+  }
+
+  // Second pass: generate schemas with simplified names when possible
+  for (const [pathPattern, pathItemRaw] of Object.entries(paths)) {
+    const pathItem = resolveMaybeRef(pathItemRaw, ctx) as
+      | Record<string, unknown>
+      | undefined;
+    if (!pathItem) continue;
+
+    const methods = ['get', 'post', 'put', 'patch', 'delete'] as const;
+
+    for (const method of methods) {
+      const operation = pathItem[method] as
+        | { operationId?: string; requestBody?: unknown; responses?: unknown }
+        | undefined;
+      if (!operation?.operationId) continue;
+
+      const operationId = operation.operationId;
+      const info = operationInfo.get(operationId)!;
+      const hasSingleRequest = info.requestContentTypes.length === 1;
+      const hasSingleResponse = info.responseStatusCodes.length === 1;
 
       // Request body schema
       if (operation.requestBody) {
@@ -811,10 +895,22 @@ async function generateValidators() {
                 },
               );
 
-              const suffix = contentType.includes('form')
-                ? 'FormSchema'
-                : 'RequestSchema';
-              const exportName = toIdentifier(operationId + suffix);
+              // Use simple name if only one request schema, otherwise include content type hint
+              let exportName: string;
+              if (hasSingleRequest) {
+                const suffix = contentType.includes('form')
+                  ? 'FormSchema'
+                  : 'RequestSchema';
+                exportName = toIdentifier(operationId + suffix);
+              } else {
+                const contentHint = contentType
+                  .replace(/[^a-zA-Z0-9]/g, '_')
+                  .replace(/_+/g, '_');
+                exportName = toIdentifier(
+                  operationId + contentHint + 'RequestSchema',
+                );
+              }
+
               operationBodies.set(`${operationId}:request:${contentType}`, exportName);
               lines.push(`export const ${exportName} = ${valibotExpr};`);
               lines.push('');
@@ -844,7 +940,6 @@ async function generateValidators() {
                   | { schema?: SchemaObject }
                   | undefined;
                 if (mediaResolved?.schema) {
-                  // Skip if it's just a reference to a schema we already defined
                   const valibotExpr = jsonSchemaToValibot(
                     mediaResolved.schema,
                     ctx,
@@ -863,9 +958,16 @@ async function generateValidators() {
                     },
                   );
 
-                  const exportName = toIdentifier(
-                    operationId + statusCode + 'ResponseSchema',
-                  );
+                  // Use simple name if only one response schema, otherwise include status code
+                  let exportName: string;
+                  if (hasSingleResponse) {
+                    exportName = toIdentifier(operationId + 'ResponseSchema');
+                  } else {
+                    exportName = toIdentifier(
+                      operationId + statusCode + 'ResponseSchema',
+                    );
+                  }
+
                   operationBodies.set(
                     `${operationId}:response:${statusCode}:${contentType}`,
                     exportName,
