@@ -1,7 +1,4 @@
-import {
-  type Operations as GeneratedOperations,
-  OPERATIONS,
-} from './generated';
+import * as generated from './generated';
 import type { OptionalPropertyForFirstArgumentOfFunction } from './types';
 import type { UnionToIntersection } from 'hono/utils/types';
 import type { ac } from '../client';
@@ -144,11 +141,11 @@ export const operations = (client: Client) => {
     ]);
 
     const operationName = Array.from(potentialOperationNames).find((name) =>
-      OPERATIONS.has(name),
+      generated.OPERATIONS.has(name),
     );
     if (!operationName) return;
 
-    const path = OPERATIONS.get(operationName)!;
+    const path = generated.OPERATIONS.get(operationName)!;
     const fetch = path.reduce(
       (acc, part) => acc[part],
       client as Record<string, any>,
@@ -159,5 +156,12 @@ export const operations = (client: Client) => {
       .reduce((acc, arg) => deepAssign(acc, arg), {});
 
     return fetch(args, opts.args[1]);
-  }, []) as UnionToIntersection<Operations<GeneratedOperations>>;
+  }, []) as UnionToIntersection<
+    | Operations<
+        Omit<generated.OperationsMappedToPathParam, keyof generated.Operations>
+      >
+    | {
+        [K in keyof generated.Operations as `$${K}`]: generated.Operations[K];
+      }
+  >;
 };
