@@ -30,31 +30,11 @@ const channel = await parseResponse(res);
 Redestributes [`hono/client`](https://hono.dev/docs/guides/rpc#client)'s `hc` with necessary types:
 
 ```js
-import { ac } from 'an.era/client';
+import { ac, parseResponse } from 'an.era/client';
 
 // Base URL is required
 const arena = ac('https://api.are.na');
 
 const res = arena.v3.channels[':id'].$get({ param: { id: 'arena' } });
-```
-
-### Validator
-
-The provided validator uses valibot, but any validation library using the [Standard Schema](https://standardschema.dev/) will work.
-
-```js
-import { Arena } from 'an.era';
-import { parseResponse } from 'an.era/client';
-import { validator } from 'an.era/validator';
-
-const arena = new Arena();
-
-const res = arena.channel.id('arena').$get();
-const result = await parseResponse(res, validator.channel);
-
-if (result.success) {
-  const channel = result.data;
-} else {
-  const { issues } = result;
-}
+const channel = await parseResponse(res);
 ```
