@@ -50,7 +50,7 @@ export default defineConfig({
         oxc: true,
       },
       deps: {
-        onlyBundle: ['hono', 'valibot'],
+        onlyBundle: ['hono'],
       },
     },
   ],
