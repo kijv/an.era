@@ -8,8 +8,9 @@ export type ArenaOptions = Prettify<
     baseUrl?: string;
     accessToken?: string;
   } & ClientRequestOptions
-  >;
+>;
 
+// oxlint-disable-next-line no-unsafe-declaration-merging
 export class Arena {
   constructor(options: ArenaOptions = {}) {
     const {
@@ -39,9 +40,9 @@ export class Arena {
           : headers,
     });
 
-    Object.assign(this, operations(client))
+    return operations(client) as Arena;
   }
 }
 
-// Augment the instance type with the fully-typed proxy returned by `operations(client)`.
+// oxlint-disable-next-line no-unsafe-declaration-merging
 export interface Arena extends ReturnType<typeof operations> {}

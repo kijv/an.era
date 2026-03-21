@@ -128,7 +128,8 @@ for (const [pathname, pathItem] of Object.entries(paths)) {
 // Keep insertion order from OpenAPI traversal (more stable vs intent).
 const sortedIds = [...byId.keys()];
 
-type Categories = Map<string, Map<string, Map<string, string>>>; // category -> param -> leafKey -> methodType
+type LeafInfo = { params: Set<string>; methods: Set<string> };
+type Categories = Map<string, Map<string, LeafInfo>>; // category -> remainingString -> { param, method }
 const categories: Categories = new Map();
 const noParamOps = new Map<string, string>(); // operationId -> methodType
 
@@ -142,7 +143,7 @@ for (const id of sortedIds) {
     continue;
   }
 
-  const paramName = paramNames[0]!;
+  const firstParamName = paramNames[0]!;
   const tokens = splitCamelCase(id);
 
   const categoryKey =
@@ -155,35 +156,45 @@ for (const id of sortedIds) {
     leafTokens.length === 0
       ? lowerFirst(id)
       : lowerFirst(leafTokens[0]!) +
-        leafTokens.slice(1).map((t) => capitalize(lowerFirst(t))).join('');
+        leafTokens
+          .slice(1)
+          .map((t) => capitalize(lowerFirst(t)))
+          .join('');
 
-  let paramMap = categories.get(categoryKey);
-  if (!paramMap) {
-    paramMap = new Map();
-    categories.set(categoryKey, paramMap);
-  }
-
-  let leafMap = paramMap.get(paramName);
+  let leafMap = categories.get(categoryKey);
   if (!leafMap) {
     leafMap = new Map();
-    paramMap.set(paramName, leafMap);
+    categories.set(categoryKey, leafMap);
   }
 
-  leafMap.set(leafKey, methodType);
+  let leafInfo = leafMap.get(leafKey);
+  if (!leafInfo) {
+    leafInfo = { params: new Set(), methods: new Set() };
+    leafMap.set(leafKey, leafInfo);
+  }
+  leafInfo.params.add(firstParamName);
+  leafInfo.methods.add(methodType);
 }
 
 const operationsTypeLines: string[] = ['export type Operations = {'];
 
-for (const [categoryKey, paramMap] of categories) {
+for (const [categoryKey, leafMap] of categories) {
   operationsTypeLines.push(`  ${tsInterfacePropertyKey(categoryKey)}: {`);
-  for (const [paramName, leafMap] of paramMap) {
-    operationsTypeLines.push(`    ${tsInterfacePropertyKey(paramName)}: {`);
-    for (const [leafKey, methodType] of leafMap) {
-      operationsTypeLines.push(
-        `      ${tsInterfacePropertyKey(leafKey)}: ${methodType},`,
-      );
+  for (const [leafKey, leafInfo] of leafMap) {
+    const params = [...leafInfo.params].sort((a, b) => a.localeCompare(b));
+    const methods = [...leafInfo.methods].sort((a, b) => a.localeCompare(b));
+    const variantCount = Math.max(params.length, methods.length);
+
+    const variants: string[] = [];
+    for (let i = 0; i < variantCount; i++) {
+      const p = params[Math.min(i, params.length - 1)]!;
+      const m = methods[Math.min(i, methods.length - 1)]!;
+      variants.push(`{ param: ${JSON.stringify(p)}; method: ${m} }`);
     }
-    operationsTypeLines.push('    }');
+
+    operationsTypeLines.push(
+      `    ${tsInterfacePropertyKey(leafKey)}: ${variants.join(' | ')};`,
+    );
   }
   operationsTypeLines.push('  }');
 }
@@ -202,13 +213,13 @@ const lines: string[] = [
   ' * Do not edit by hand.',
   ' */',
   '',
-  "import { ac } from '../client';",
+  "import type { ac } from '../client';",
   '',
   'type Client = ReturnType<typeof ac>;',
   '',
   ...operationsTypeLines,
   '',
-  'export const OPERATIONS = new Map([',
+  'export const OPERATIONS: Map<string, readonly string[]> = new Map([',
   ...sortedIds.map((id) => {
     const segs = byId.get(id)!;
     const inner = segs.map((s) => JSON.stringify(s)).join(', ');
@@ -224,4 +235,4 @@ if (warnings.length) {
 
 await fs.mkdir(path.dirname(outPath), { recursive: true });
 await fs.writeFile(outPath, lines.join('\n'), 'utf-8');
-console.log(`Wrote ${outPath}`);
+console.log(`Wrote ${path.relative(pkgRoot, outPath)}`);
