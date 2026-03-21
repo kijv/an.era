@@ -11,19 +11,10 @@ npm install an.era
 # Usage
 
 ```js
-import { arenaClient, parseResponse } from 'an.era';
+import { Arena } from 'an.era';
+import { parseResponse } from 'an.era/client';
 
-const arena = arenaClient();
+const arena = new Arena();
 
-const channel = await parseResponse(
-  arena.v3.channels[':id'].$get({ param: { id: 'arena' } }),
-);
+const channel = await parseResponse(arena.channels.id('arena').getChannel());
 ```
-
-# Configuration
-
-- baseUrl: `string` (default: `https://api.are.na`)
-- fetch: `fetch`-like function
-- init: `RequestInit`
-- buildSearchParams: `(query: Record<string, string | string[]>) => URLSearchParams`
-- headers: Same as `init`'s `headers` property, but can alternatively provide a function that returns the same type

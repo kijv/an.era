@@ -1,5 +1,5 @@
 {
-  "ignorePatterns": [".changeset/**", "packages/an.era/src/schema.ts"],
+  "ignorePatterns": [".changeset/**", "packages/an.era/src/schema.d.ts"],
   "endOfLine": "lf",
   "tabWidth": 2,
   "printWidth": 80,

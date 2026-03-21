@@ -20,6 +20,5 @@ jobs:
           cache: true
           run-install: false
       - run: vp i --frozen-lockfile
-      - run: vp run build
       - run: vp check --fix
       - uses: autofix-ci/action@7a166d7532b277f34e16238930461bf77f9d7ed8

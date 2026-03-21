@@ -2,7 +2,7 @@ import { defineConfig } from 'vite-plus';
 import { defineConfig as defineOxlintConfig } from 'oxlint';
 
 const fmt = {
-  ignorePatterns: ['.changeset/**', 'packages/an.era/src/schema.ts'],
+  ignorePatterns: ['.changeset/**', 'packages/an.era/src/schema.d.ts'],
   endOfLine: 'lf',
   tabWidth: 2,
   printWidth: 80,

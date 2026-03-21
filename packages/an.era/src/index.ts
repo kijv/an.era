@@ -1,82 +1,44 @@
-import type * as openapi from './schema';
-import type { ClientRequestOptions, Hono } from 'hono';
-import { hc } from 'hono/client';
+import { Builder } from './builder';
+import type { ClientRequestOptions } from 'hono';
+import type { Prettify } from './types';
+import { ac } from './client';
 
-type RemoveUndefinedProps<T> = {
-  [K in keyof T as undefined extends T[K] ? never : K]: T[K];
-};
-
-type Responses<
-  T extends {
-    [statusCode: number]: {
-      content: {
-        [outputFormat: string]: unknown;
-      };
-    };
-  },
-  Extend extends {},
-> = {
-  [S in keyof T]: {
-    // @ts-expect-error Object is valid
-    [F in keyof T[S]['content']]: {
-      // @ts-expect-error Ditto
-      output: T[S]['content'][F];
-      status: S;
-      outputFormat: 'json';
-    } & Extend;
-    // @ts-expect-error Ditto
-  }[keyof T[S]['content']];
-}[keyof T];
-
-type RequestBody<T extends { [inputFormat: string]: unknown }> = {
-  [F in keyof T]: {
-    [K in F extends 'application/x-www-form-urlencoded'
-      ? 'form'
-      : 'json']: T[F];
-  };
-}[keyof T];
-
-type ReplaceParams<S extends string> =
-  S extends `${infer Before}{${infer Param}}${infer After}`
-    ? `${Before}:${Param}${ReplaceParams<After>}`
-    : S;
-
-type App = Hono<
-  {},
+export type ArenaOptions = Prettify<
   {
-    [K in keyof openapi.paths as ReplaceParams<K>]: {
-      [M in keyof RemoveUndefinedProps<
-        Omit<openapi.paths[K], 'parameters'>
-      > as `$${M}`]: Responses<
-        // @ts-expect-error Object is valid
-        openapi.paths[K][M]['responses'],
-        {
-          // @ts-expect-error Object is valid
-          input: (openapi.paths[K][M]['requestBody'] extends {}
-            ? // @ts-expect-error Object is valid
-              RequestBody<openapi.paths[K][M]['requestBody']['content']>
-            : {}) &
-            // @ts-expect-error Object is valid
-            (openapi.paths[K][M]['parameters']['path'] extends {}
-              ? // @ts-expect-error Object is valid
-                { param: openapi.paths[K][M]['parameters']['path'] }
-              : {});
-        }
-      >;
-    };
-  }
+    baseUrl?: string;
+    accessToken?: string;
+  } & ClientRequestOptions
 >;
 
-export type ArenaClientOptions = {
-  baseUrl?: string;
-};
+export class Arena extends Builder {
+  constructor(options: ArenaOptions = {}) {
+    const {
+      baseUrl = 'https://api.are.na',
+      accessToken,
+      headers,
+      ...rest
+    } = options;
+    const client = ac(baseUrl, {
+      ...rest,
+      headers:
+        typeof accessToken === 'string'
+          ? typeof headers === 'function'
+            ? async () => {
+                const resolvedHeaders = await (
+                  headers as () => Promise<Record<string, string>>
+                )();
+                return {
+                  ...resolvedHeaders,
+                  Authorization: `Bearer ${accessToken}`,
+                };
+              }
+            : {
+                ...headers,
+                Authorization: `Bearer ${accessToken}`,
+              }
+          : headers,
+    });
 
-export function arenaClient<Client extends Hono = App>(
-  options: ArenaClientOptions & ClientRequestOptions = {},
-) {
-  const { baseUrl = 'https://api.are.na', ...clientRequestOptions } = options;
-
-  return hc<Client>(baseUrl, clientRequestOptions);
+    super(client);
+  }
 }
-
-export { parseResponse } from 'hono/client';
