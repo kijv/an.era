@@ -1,7 +1,7 @@
-import { Builder } from './builder';
 import type { ClientRequestOptions } from 'hono';
 import type { Prettify } from './types';
 import { ac } from './client';
+import { operations } from './operations';
 
 export type ArenaOptions = Prettify<
   {
@@ -10,7 +10,8 @@ export type ArenaOptions = Prettify<
   } & ClientRequestOptions
 >;
 
-export class Arena extends Builder {
+// oxlint-disable-next-line no-unsafe-declaration-merging
+export class Arena {
   constructor(options: ArenaOptions = {}) {
     const {
       baseUrl = 'https://api.are.na',
@@ -39,6 +40,9 @@ export class Arena extends Builder {
           : headers,
     });
 
-    super(client);
+    return operations(client) as Arena;
   }
 }
+
+//
+export interface Arena extends ReturnType<typeof operations> {}

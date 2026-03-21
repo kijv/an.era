@@ -176,6 +176,34 @@ function parameterListToPathParams(
   return out;
 }
 
+function parameterListToQueryParams(
+  pathItem: PathItemObject,
+  operation: OperationObject,
+) {
+  const out: Array<{ name: string; schema?: SchemaObject }> = [];
+  const all = [
+    ...(pathItem?.parameters ?? []),
+    ...(operation?.parameters ?? []),
+  ];
+
+  for (const p of all) {
+    const resolved = resolveMaybeRef(p);
+    if (!resolved || typeof resolved !== 'object') continue;
+    const parameter = resolved as {
+      in?: string;
+      name?: string;
+      schema?: SchemaObject;
+    };
+    if (parameter.in !== 'query') continue;
+    if (!parameter.name) continue;
+    out.push({
+      name: String(parameter.name),
+      schema: parameter.schema ?? undefined,
+    });
+  }
+  return out;
+}
+
 function requestBodyToInputUnionExpr(
   requestBody?: RequestBodyObject | ReferenceObject | boolean,
 ) {
@@ -210,11 +238,13 @@ function requestBodyToInputUnionExpr(
 function buildInputExpr({
   inputBodyExpr,
   pathParams,
+  queryParams,
 }: {
   inputBodyExpr: string;
   pathParams: Array<{ name: string; schema?: SchemaObject }>;
+  queryParams: Array<{ name: string; schema?: SchemaObject }>;
 }) {
-  const parts = [];
+  const parts: string[] = [];
   if (inputBodyExpr && inputBodyExpr !== '{}')
     parts.push(wrapIfUnion(inputBodyExpr));
   if (pathParams.length) {
@@ -228,10 +258,21 @@ function buildInputExpr({
       .join('; ');
     parts.push(`{ param: { ${record} } }`);
   }
+  if (queryParams.length) {
+    const record = queryParams
+      .map((p) => {
+        const paramExpr = schemaToTypeExpr(p.schema, {
+          path: createRef(['parameters', 'query', p.name]),
+        });
+        return `${p.name}: ${paramExpr}`;
+      })
+      .join('; ');
+    parts.push(`{ query: { ${record} } }`);
+  }
 
   if (!parts.length) return `{}`;
-  if (parts.length === 1) return parts[0];
-  return `${parts[0]} & ${parts[1]}`;
+  if (parts.length === 1) return parts[0]!;
+  return parts.map((p) => wrapIfUnion(p)).join(' & ');
 }
 
 function operationToEndpointUnionExpr({
@@ -242,8 +283,9 @@ function operationToEndpointUnionExpr({
   pathItem: PathItemObject;
 }) {
   const pathParams = parameterListToPathParams(pathItem, operation);
+  const queryParams = parameterListToQueryParams(pathItem, operation);
   const inputBodyExpr = requestBodyToInputUnionExpr(operation?.requestBody);
-  const inputExpr = buildInputExpr({ inputBodyExpr, pathParams });
+  const inputExpr = buildInputExpr({ inputBodyExpr, pathParams, queryParams });
 
   const responses = operation?.responses ?? {};
   if (!isObject(responses)) return `{}`;

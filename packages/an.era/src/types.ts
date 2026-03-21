@@ -3,5 +3,5 @@ export type Prettify<T> = {
 } & {};
 
 export type PrettifyMany<T> = {
-  [K in keyof T]: Prettify<T[K]>;
+  [K in keyof T]: PrettifyMany<T[K]>;
 } & {};

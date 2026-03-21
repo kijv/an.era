@@ -1,9 +1,13 @@
+import { DetailedError, hc, parseResponse as pr } from 'hono/client';
 import type { App as DefaultApp } from './app';
-import { hc } from 'hono/client';
 
 export type App = DefaultApp;
 
-export { parseResponse, DetailedError } from 'hono/client';
+export { DetailedError };
+
+export const parseResponse = (
+  ...args: Parameters<typeof pr>
+): ReturnType<typeof pr> => pr(...args);
 
 export const ac = (
   ...args: Parameters<typeof hc<App>>

@@ -1,9 +1,7 @@
 {
   "extends": "../../tsconfig.json",
   "compilerOptions": {
-    "paths": {
-      "@/*": ["./src/*"]
-    },
     "lib": ["ESNext", "DOM", "DOM.Iterable"]
-  }
+  },
+  "exclude": ["scripts/**/*", "dist/**/*"]
 }
