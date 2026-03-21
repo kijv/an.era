@@ -79,6 +79,41 @@ function isObject(x: unknown): x is Record<string, unknown> {
   return x !== null && typeof x === 'object' && !Array.isArray(x);
 }
 
+// Check if a schema has actual type constraints (not just metadata like description)
+function hasActualConstraints(schema: unknown): boolean {
+  if (!isObject(schema)) return false;
+
+  // $ref always points to a real schema
+  if ('$ref' in schema) return true;
+
+  // These properties indicate actual type constraints
+  const constraintKeys = [
+    'type',
+    'properties',
+    'items',
+    'additionalProperties',
+    'enum',
+    'const',
+    'allOf',
+    'anyOf',
+    'oneOf',
+    'nullable',
+    'format',
+    'pattern',
+    'minLength',
+    'maxLength',
+    'minimum',
+    'maximum',
+    'multipleOf',
+    'minItems',
+    'maxItems',
+    'required',
+    'discriminator',
+  ];
+
+  return constraintKeys.some((key) => key in schema);
+}
+
 // Generate a valid TypeScript identifier from a name
 function toIdentifier(name: string): string {
   let ident = name.replace(/[^a-zA-Z0-9_$]/g, '_').replace(/^[0-9]/, '_$&');
@@ -185,12 +220,29 @@ function jsonSchemaToValibot(
   // Handle type or anyOf/oneOf/allOf
   if (s.allOf && Array.isArray(s.allOf)) {
     // allOf -> v.intersect()
-    const schemas = s.allOf.map((sub, i) =>
-      jsonSchemaToValibot(sub, ctx, {
-        ...options,
-        propertyPath: [...(options.propertyPath ?? []), 'allOf', String(i)],
-      }),
-    );
+    // Filter out schemas that have only metadata (description, title, etc.) and no actual type constraints
+    const schemas = s.allOf
+      .filter((sub) => hasActualConstraints(sub))
+      .map((sub, i) =>
+        jsonSchemaToValibot(sub, ctx, {
+          ...options,
+          propertyPath: [...(options.propertyPath ?? []), 'allOf', String(i)],
+        }),
+      );
+
+    // If only one schema remains after filtering, return it directly
+    if (schemas.length === 1) {
+      let result = schemas[0]!;
+      if (isNullable) {
+        result = `v.nullable(${result})`;
+      }
+      return result;
+    }
+
+    // If no schemas remain, treat as unknown
+    if (schemas.length === 0) {
+      return isNullable ? 'v.nullable(v.unknown())' : 'v.unknown()';
+    }
 
     // Remove duplicates (same schema appearing multiple times)
     const uniqueSchemas = [...new Set(schemas)];

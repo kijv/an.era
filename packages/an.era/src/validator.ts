@@ -111,7 +111,7 @@ export const PendingBlockSchema = v.intersect([BaseBlockPropertiesSchema, v.obje
 
 export const BlockSchema = v.union([TextBlockSchema, ImageBlockSchema, LinkBlockSchema, AttachmentBlockSchema, EmbedBlockSchema, PendingBlockSchema]);
 
-export const CommentSchema = v.object({ id: v.pipe(v.number(), v.integer()), type: v.literal("Comment"), body: v.optional(v.nullable(v.union([MarkdownContentSchema, v.null()]))), created_at: v.pipe(v.string(), v.isoTimestamp()), updated_at: v.pipe(v.string(), v.isoTimestamp()), user: EmbeddedUserSchema, _links: v.intersect([LinksSchema, v.unknown()]) });
+export const CommentSchema = v.object({ id: v.pipe(v.number(), v.integer()), type: v.literal("Comment"), body: v.optional(v.nullable(v.union([MarkdownContentSchema, v.null()]))), created_at: v.pipe(v.string(), v.isoTimestamp()), updated_at: v.pipe(v.string(), v.isoTimestamp()), user: EmbeddedUserSchema, _links: LinksSchema });
 
 export const ChannelOwnerSchema = v.union([EmbeddedUserSchema, EmbeddedGroupSchema]);
 
@@ -121,7 +121,7 @@ export const ChannelCollaboratorSchema = v.union([EmbeddedUserSchema, EmbeddedGr
 
 export const ChannelAbilitiesSchema = v.object({ add_to: v.boolean(), update: v.boolean(), destroy: v.boolean(), manage_collaborators: v.boolean() });
 
-export const ChannelSchema = v.object({ id: v.pipe(v.number(), v.integer()), type: v.literal("Channel"), slug: v.string(), title: v.string(), description: v.optional(v.nullable(v.union([MarkdownContentSchema, v.null()]))), state: ChannelStateSchema, visibility: ChannelVisibilitySchema, created_at: v.pipe(v.string(), v.isoTimestamp()), updated_at: v.pipe(v.string(), v.isoTimestamp()), owner: ChannelOwnerSchema, counts: ChannelCountsSchema, collaborators: v.optional(v.array(ChannelCollaboratorSchema)), _links: v.intersect([LinksSchema, v.unknown()]), connection: v.optional(v.nullable(v.union([EmbeddedConnectionSchema, v.null()]))), can: v.optional(v.nullable(v.union([ChannelAbilitiesSchema, v.null()]))) });
+export const ChannelSchema = v.object({ id: v.pipe(v.number(), v.integer()), type: v.literal("Channel"), slug: v.string(), title: v.string(), description: v.optional(v.nullable(v.union([MarkdownContentSchema, v.null()]))), state: ChannelStateSchema, visibility: ChannelVisibilitySchema, created_at: v.pipe(v.string(), v.isoTimestamp()), updated_at: v.pipe(v.string(), v.isoTimestamp()), owner: ChannelOwnerSchema, counts: ChannelCountsSchema, collaborators: v.optional(v.array(ChannelCollaboratorSchema)), _links: LinksSchema, connection: v.optional(v.nullable(v.union([EmbeddedConnectionSchema, v.null()]))), can: v.optional(v.nullable(v.union([ChannelAbilitiesSchema, v.null()]))) });
 
 export const PaginationMetaSchema = v.object({ current_page: v.pipe(v.number(), v.integer()), next_page: v.optional(v.unknown()), prev_page: v.optional(v.unknown()), per_page: v.pipe(v.number(), v.integer()), total_pages: v.pipe(v.number(), v.integer()), total_count: v.pipe(v.number(), v.integer()), has_more_pages: v.boolean() });
 
