@@ -6,6 +6,7 @@ on:
     - cron: '0 0 * * */1'
   # Allow manual runs
   workflow_dispatch:
+
 jobs:
   update_openapi:
     runs-on: ubuntu-slim

@@ -295,17 +295,6 @@ function buildInputExpr({
       .join('; ');
     sharedProps.push(`query: { ${record} }`);
   }
-  if (queryParams.length) {
-    const record = queryParams
-      .map((p) => {
-        const paramExpr = schemaToTypeExpr(p.schema, {
-          path: createRef(['parameters', 'query', p.name]),
-        });
-        return `${p.name}: ${paramExpr}`;
-      })
-      .join('; ');
-    parts.push(`{ query: { ${record} } }`);
-  }
 
   if (bodyMembers.length === 0) {
     return sharedProps.length ? `{ ${sharedProps.join('; ')} }` : `{}`;
