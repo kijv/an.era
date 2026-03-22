@@ -1,4 +1,4 @@
-import openapiTS, { astToString } from 'openapi-typescript';
+import openapiTS, { type OpenAPI3, astToString } from 'openapi-typescript';
 import fs from 'node:fs/promises';
 import ts from 'typescript';
 
@@ -9,11 +9,10 @@ await (async () => {
 
   const contents = astToString(
     (
-      await openapiTS(
-        Object.assign({}, openapiJson, {
-          paths: {},
-        }),
-      )
+      await openapiTS({
+        ...(openapiJson as OpenAPI3),
+        paths: {},
+      })
     ).filter((node) => {
       if (node.kind === ts.SyntaxKind.TypeAliasDeclaration) {
         const typeAliasDecl = node as ts.TypeAliasDeclaration;

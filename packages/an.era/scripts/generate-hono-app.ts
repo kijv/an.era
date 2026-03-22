@@ -225,7 +225,11 @@ function collectParametersByLocation(
   for (const p of all) {
     const resolved = resolveMaybeRef(p);
     if (!resolved || typeof resolved !== 'object') continue;
-    const parameter = resolved as { in?: string; name?: string; required?: boolean };
+    const parameter = resolved as {
+      in?: string;
+      name?: string;
+      required?: boolean;
+    };
     if (parameter.in !== paramIn) continue;
     if (!parameter.name) continue;
     out.push({
@@ -303,7 +307,6 @@ function buildInputExpr({
     parts.push(`{ query: { ${record} } }`);
   }
 
-<<<<<<< HEAD
   if (bodyMembers.length === 0) {
     return sharedProps.length ? `{ ${sharedProps.join('; ')} }` : `{}`;
   }
@@ -316,11 +319,6 @@ function buildInputExpr({
       return `{ ${[...sharedProps, `${target}: ${typeExpr}`].join('; ')} }`;
     })
     .join(' | ');
-=======
-  if (!parts.length) return `{}`;
-  if (parts.length === 1) return parts[0]!;
-  return parts.map((p) => wrapIfUnion(p)).join(' & ');
->>>>>>> main
 }
 
 function operationToEndpointUnionExpr({
