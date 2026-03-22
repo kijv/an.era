@@ -1,5 +1,5 @@
-import { DetailedError, hc, parseResponse as pr } from 'hono/client';
 import type { App as DefaultApp } from './app';
+import { hc } from 'hono/client';
 
 export { DetailedError, parseResponse } from 'hono/client';
 
