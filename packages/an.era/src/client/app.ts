@@ -519,6 +519,7 @@ type Endpoints = {
     $put:
       | {
           input: {
+            param: { id: number };
             json: {
               /**
                * @description Alt text for images (for Image blocks)
@@ -541,13 +542,14 @@ type Endpoints = {
                */
               title?: string;
             };
-          } & { param: { id: number } };
+          };
           output: components['schemas']['Block'];
           outputFormat: 'json';
           status: 200;
         }
       | {
           input: {
+            param: { id: number };
             json: {
               /**
                * @description Alt text for images (for Image blocks)
@@ -570,13 +572,14 @@ type Endpoints = {
                */
               title?: string;
             };
-          } & { param: { id: number } };
+          };
           output: components['schemas']['Error'];
           outputFormat: 'json';
           status: 400;
         }
       | {
           input: {
+            param: { id: number };
             json: {
               /**
                * @description Alt text for images (for Image blocks)
@@ -599,13 +602,14 @@ type Endpoints = {
                */
               title?: string;
             };
-          } & { param: { id: number } };
+          };
           output: components['schemas']['Error'];
           outputFormat: 'json';
           status: 401;
         }
       | {
           input: {
+            param: { id: number };
             json: {
               /**
                * @description Alt text for images (for Image blocks)
@@ -628,13 +632,14 @@ type Endpoints = {
                */
               title?: string;
             };
-          } & { param: { id: number } };
+          };
           output: components['schemas']['Error'];
           outputFormat: 'json';
           status: 403;
         }
       | {
           input: {
+            param: { id: number };
             json: {
               /**
                * @description Alt text for images (for Image blocks)
@@ -657,13 +662,14 @@ type Endpoints = {
                */
               title?: string;
             };
-          } & { param: { id: number } };
+          };
           output: components['schemas']['Error'];
           outputFormat: 'json';
           status: 404;
         }
       | {
           input: {
+            param: { id: number };
             json: {
               /**
                * @description Alt text for images (for Image blocks)
@@ -686,13 +692,14 @@ type Endpoints = {
                */
               title?: string;
             };
-          } & { param: { id: number } };
+          };
           output: components['schemas']['Error'];
           outputFormat: 'json';
           status: 422;
         }
       | {
           input: {
+            param: { id: number };
             json: {
               /**
                * @description Alt text for images (for Image blocks)
@@ -715,7 +722,7 @@ type Endpoints = {
                */
               title?: string;
             };
-          } & { param: { id: number } };
+          };
           output: components['schemas']['RateLimitError'];
           outputFormat: 'json';
           status: 429;
@@ -724,12 +731,13 @@ type Endpoints = {
   '/v3/blocks/:id/connections': {
     $get:
       | {
-          input: { param: { id: number } } & {
+          input: {
+            param: { id: number };
             query: {
-              page: number;
-              per: number;
-              sort: components['schemas']['ConnectionSort'];
-              filter: components['schemas']['ConnectionFilter'];
+              page?: number;
+              per?: number;
+              sort?: components['schemas']['ConnectionSort'];
+              filter?: components['schemas']['ConnectionFilter'];
             };
           };
           output: components['schemas']['ChannelListResponse'];
@@ -737,12 +745,13 @@ type Endpoints = {
           status: 200;
         }
       | {
-          input: { param: { id: number } } & {
+          input: {
+            param: { id: number };
             query: {
-              page: number;
-              per: number;
-              sort: components['schemas']['ConnectionSort'];
-              filter: components['schemas']['ConnectionFilter'];
+              page?: number;
+              per?: number;
+              sort?: components['schemas']['ConnectionSort'];
+              filter?: components['schemas']['ConnectionFilter'];
             };
           };
           output: components['schemas']['Error'];
@@ -750,12 +759,13 @@ type Endpoints = {
           status: 401;
         }
       | {
-          input: { param: { id: number } } & {
+          input: {
+            param: { id: number };
             query: {
-              page: number;
-              per: number;
-              sort: components['schemas']['ConnectionSort'];
-              filter: components['schemas']['ConnectionFilter'];
+              page?: number;
+              per?: number;
+              sort?: components['schemas']['ConnectionSort'];
+              filter?: components['schemas']['ConnectionFilter'];
             };
           };
           output: components['schemas']['Error'];
@@ -763,12 +773,13 @@ type Endpoints = {
           status: 403;
         }
       | {
-          input: { param: { id: number } } & {
+          input: {
+            param: { id: number };
             query: {
-              page: number;
-              per: number;
-              sort: components['schemas']['ConnectionSort'];
-              filter: components['schemas']['ConnectionFilter'];
+              page?: number;
+              per?: number;
+              sort?: components['schemas']['ConnectionSort'];
+              filter?: components['schemas']['ConnectionFilter'];
             };
           };
           output: components['schemas']['Error'];
@@ -776,12 +787,13 @@ type Endpoints = {
           status: 404;
         }
       | {
-          input: { param: { id: number } } & {
+          input: {
+            param: { id: number };
             query: {
-              page: number;
-              per: number;
-              sort: components['schemas']['ConnectionSort'];
-              filter: components['schemas']['ConnectionFilter'];
+              page?: number;
+              per?: number;
+              sort?: components['schemas']['ConnectionSort'];
+              filter?: components['schemas']['ConnectionFilter'];
             };
           };
           output: components['schemas']['RateLimitError'];
@@ -792,11 +804,12 @@ type Endpoints = {
   '/v3/blocks/:id/comments': {
     $get:
       | {
-          input: { param: { id: number } } & {
+          input: {
+            param: { id: number };
             query: {
-              page: number;
-              per: number;
-              sort: components['schemas']['ConnectionSort'];
+              page?: number;
+              per?: number;
+              sort?: components['schemas']['ConnectionSort'];
             };
           };
           output: components['schemas']['CommentListResponse'];
@@ -804,11 +817,12 @@ type Endpoints = {
           status: 200;
         }
       | {
-          input: { param: { id: number } } & {
+          input: {
+            param: { id: number };
             query: {
-              page: number;
-              per: number;
-              sort: components['schemas']['ConnectionSort'];
+              page?: number;
+              per?: number;
+              sort?: components['schemas']['ConnectionSort'];
             };
           };
           output: components['schemas']['Error'];
@@ -816,11 +830,12 @@ type Endpoints = {
           status: 401;
         }
       | {
-          input: { param: { id: number } } & {
+          input: {
+            param: { id: number };
             query: {
-              page: number;
-              per: number;
-              sort: components['schemas']['ConnectionSort'];
+              page?: number;
+              per?: number;
+              sort?: components['schemas']['ConnectionSort'];
             };
           };
           output: components['schemas']['Error'];
@@ -828,11 +843,12 @@ type Endpoints = {
           status: 403;
         }
       | {
-          input: { param: { id: number } } & {
+          input: {
+            param: { id: number };
             query: {
-              page: number;
-              per: number;
-              sort: components['schemas']['ConnectionSort'];
+              page?: number;
+              per?: number;
+              sort?: components['schemas']['ConnectionSort'];
             };
           };
           output: components['schemas']['Error'];
@@ -840,11 +856,12 @@ type Endpoints = {
           status: 404;
         }
       | {
-          input: { param: { id: number } } & {
+          input: {
+            param: { id: number };
             query: {
-              page: number;
-              per: number;
-              sort: components['schemas']['ConnectionSort'];
+              page?: number;
+              per?: number;
+              sort?: components['schemas']['ConnectionSort'];
             };
           };
           output: components['schemas']['RateLimitError'];
@@ -854,6 +871,7 @@ type Endpoints = {
     $post:
       | {
           input: {
+            param: { id: number };
             json: {
               /**
                * @description Comment body (supports @mentions)
@@ -861,13 +879,14 @@ type Endpoints = {
                */
               body: string;
             };
-          } & { param: { id: number } };
+          };
           output: components['schemas']['Comment'];
           outputFormat: 'json';
           status: 201;
         }
       | {
           input: {
+            param: { id: number };
             json: {
               /**
                * @description Comment body (supports @mentions)
@@ -875,13 +894,14 @@ type Endpoints = {
                */
               body: string;
             };
-          } & { param: { id: number } };
+          };
           output: components['schemas']['Error'];
           outputFormat: 'json';
           status: 400;
         }
       | {
           input: {
+            param: { id: number };
             json: {
               /**
                * @description Comment body (supports @mentions)
@@ -889,13 +909,14 @@ type Endpoints = {
                */
               body: string;
             };
-          } & { param: { id: number } };
+          };
           output: components['schemas']['Error'];
           outputFormat: 'json';
           status: 401;
         }
       | {
           input: {
+            param: { id: number };
             json: {
               /**
                * @description Comment body (supports @mentions)
@@ -903,13 +924,14 @@ type Endpoints = {
                */
               body: string;
             };
-          } & { param: { id: number } };
+          };
           output: components['schemas']['Error'];
           outputFormat: 'json';
           status: 403;
         }
       | {
           input: {
+            param: { id: number };
             json: {
               /**
                * @description Comment body (supports @mentions)
@@ -917,13 +939,14 @@ type Endpoints = {
                */
               body: string;
             };
-          } & { param: { id: number } };
+          };
           output: components['schemas']['Error'];
           outputFormat: 'json';
           status: 404;
         }
       | {
           input: {
+            param: { id: number };
             json: {
               /**
                * @description Comment body (supports @mentions)
@@ -931,13 +954,14 @@ type Endpoints = {
                */
               body: string;
             };
-          } & { param: { id: number } };
+          };
           output: components['schemas']['Error'];
           outputFormat: 'json';
           status: 422;
         }
       | {
           input: {
+            param: { id: number };
             json: {
               /**
                * @description Comment body (supports @mentions)
@@ -945,7 +969,7 @@ type Endpoints = {
                */
               body: string;
             };
-          } & { param: { id: number } };
+          };
           output: components['schemas']['RateLimitError'];
           outputFormat: 'json';
           status: 429;
@@ -1184,6 +1208,7 @@ type Endpoints = {
     $put:
       | {
           input: {
+            param: { id: string };
             json: {
               /**
                * @description Channel description (supports markdown). Pass null to clear.
@@ -1197,13 +1222,14 @@ type Endpoints = {
               title?: string;
               visibility?: components['schemas']['ChannelVisibility'];
             };
-          } & { param: { id: string } };
+          };
           output: components['schemas']['Channel'];
           outputFormat: 'json';
           status: 200;
         }
       | {
           input: {
+            param: { id: string };
             json: {
               /**
                * @description Channel description (supports markdown). Pass null to clear.
@@ -1217,13 +1243,14 @@ type Endpoints = {
               title?: string;
               visibility?: components['schemas']['ChannelVisibility'];
             };
-          } & { param: { id: string } };
+          };
           output: components['schemas']['Error'];
           outputFormat: 'json';
           status: 400;
         }
       | {
           input: {
+            param: { id: string };
             json: {
               /**
                * @description Channel description (supports markdown). Pass null to clear.
@@ -1237,13 +1264,14 @@ type Endpoints = {
               title?: string;
               visibility?: components['schemas']['ChannelVisibility'];
             };
-          } & { param: { id: string } };
+          };
           output: components['schemas']['Error'];
           outputFormat: 'json';
           status: 401;
         }
       | {
           input: {
+            param: { id: string };
             json: {
               /**
                * @description Channel description (supports markdown). Pass null to clear.
@@ -1257,13 +1285,14 @@ type Endpoints = {
               title?: string;
               visibility?: components['schemas']['ChannelVisibility'];
             };
-          } & { param: { id: string } };
+          };
           output: components['schemas']['Error'];
           outputFormat: 'json';
           status: 403;
         }
       | {
           input: {
+            param: { id: string };
             json: {
               /**
                * @description Channel description (supports markdown). Pass null to clear.
@@ -1277,13 +1306,14 @@ type Endpoints = {
               title?: string;
               visibility?: components['schemas']['ChannelVisibility'];
             };
-          } & { param: { id: string } };
+          };
           output: components['schemas']['Error'];
           outputFormat: 'json';
           status: 404;
         }
       | {
           input: {
+            param: { id: string };
             json: {
               /**
                * @description Channel description (supports markdown). Pass null to clear.
@@ -1297,13 +1327,14 @@ type Endpoints = {
               title?: string;
               visibility?: components['schemas']['ChannelVisibility'];
             };
-          } & { param: { id: string } };
+          };
           output: components['schemas']['Error'];
           outputFormat: 'json';
           status: 422;
         }
       | {
           input: {
+            param: { id: string };
             json: {
               /**
                * @description Channel description (supports markdown). Pass null to clear.
@@ -1317,7 +1348,7 @@ type Endpoints = {
               title?: string;
               visibility?: components['schemas']['ChannelVisibility'];
             };
-          } & { param: { id: string } };
+          };
           output: components['schemas']['RateLimitError'];
           outputFormat: 'json';
           status: 429;
@@ -1560,91 +1591,98 @@ type Endpoints = {
     $post:
       | {
           input: {
+            param: { id: number };
             json: {
               /** @default insert_at */
               movement?: components['schemas']['Movement'];
               /** @description Target position (required when movement is insert_at) */
               position?: number;
             };
-          } & { param: { id: number } };
+          };
           output: components['schemas']['Connection'];
           outputFormat: 'json';
           status: 200;
         }
       | {
           input: {
+            param: { id: number };
             json: {
               /** @default insert_at */
               movement?: components['schemas']['Movement'];
               /** @description Target position (required when movement is insert_at) */
               position?: number;
             };
-          } & { param: { id: number } };
+          };
           output: components['schemas']['Error'];
           outputFormat: 'json';
           status: 400;
         }
       | {
           input: {
+            param: { id: number };
             json: {
               /** @default insert_at */
               movement?: components['schemas']['Movement'];
               /** @description Target position (required when movement is insert_at) */
               position?: number;
             };
-          } & { param: { id: number } };
+          };
           output: components['schemas']['Error'];
           outputFormat: 'json';
           status: 401;
         }
       | {
           input: {
+            param: { id: number };
             json: {
               /** @default insert_at */
               movement?: components['schemas']['Movement'];
               /** @description Target position (required when movement is insert_at) */
               position?: number;
             };
-          } & { param: { id: number } };
+          };
           output: components['schemas']['Error'];
           outputFormat: 'json';
           status: 403;
         }
       | {
           input: {
+            param: { id: number };
             json: {
               /** @default insert_at */
               movement?: components['schemas']['Movement'];
               /** @description Target position (required when movement is insert_at) */
               position?: number;
             };
-          } & { param: { id: number } };
+          };
           output: components['schemas']['Error'];
           outputFormat: 'json';
           status: 404;
         }
       | {
           input: {
+            param: { id: number };
             json: {
               /** @default insert_at */
               movement?: components['schemas']['Movement'];
               /** @description Target position (required when movement is insert_at) */
               position?: number;
             };
-          } & { param: { id: number } };
+          };
           output: components['schemas']['Error'];
           outputFormat: 'json';
           status: 422;
         }
       | {
           input: {
+            param: { id: number };
             json: {
               /** @default insert_at */
               movement?: components['schemas']['Movement'];
               /** @description Target position (required when movement is insert_at) */
               position?: number;
             };
-          } & { param: { id: number } };
+          };
           output: components['schemas']['RateLimitError'];
           outputFormat: 'json';
           status: 429;
@@ -1653,12 +1691,13 @@ type Endpoints = {
   '/v3/channels/:id/contents': {
     $get:
       | {
-          input: { param: { id: string } } & {
+          input: {
+            param: { id: string };
             query: {
-              page: number;
-              per: number;
-              sort: components['schemas']['ChannelContentSort'];
-              user_id: number;
+              page?: number;
+              per?: number;
+              sort?: components['schemas']['ChannelContentSort'];
+              user_id?: number;
             };
           };
           output: components['schemas']['ConnectableListResponse'];
@@ -1666,12 +1705,13 @@ type Endpoints = {
           status: 200;
         }
       | {
-          input: { param: { id: string } } & {
+          input: {
+            param: { id: string };
             query: {
-              page: number;
-              per: number;
-              sort: components['schemas']['ChannelContentSort'];
-              user_id: number;
+              page?: number;
+              per?: number;
+              sort?: components['schemas']['ChannelContentSort'];
+              user_id?: number;
             };
           };
           output: components['schemas']['Error'];
@@ -1679,12 +1719,13 @@ type Endpoints = {
           status: 401;
         }
       | {
-          input: { param: { id: string } } & {
+          input: {
+            param: { id: string };
             query: {
-              page: number;
-              per: number;
-              sort: components['schemas']['ChannelContentSort'];
-              user_id: number;
+              page?: number;
+              per?: number;
+              sort?: components['schemas']['ChannelContentSort'];
+              user_id?: number;
             };
           };
           output: components['schemas']['Error'];
@@ -1692,12 +1733,13 @@ type Endpoints = {
           status: 403;
         }
       | {
-          input: { param: { id: string } } & {
+          input: {
+            param: { id: string };
             query: {
-              page: number;
-              per: number;
-              sort: components['schemas']['ChannelContentSort'];
-              user_id: number;
+              page?: number;
+              per?: number;
+              sort?: components['schemas']['ChannelContentSort'];
+              user_id?: number;
             };
           };
           output: components['schemas']['Error'];
@@ -1705,12 +1747,13 @@ type Endpoints = {
           status: 404;
         }
       | {
-          input: { param: { id: string } } & {
+          input: {
+            param: { id: string };
             query: {
-              page: number;
-              per: number;
-              sort: components['schemas']['ChannelContentSort'];
-              user_id: number;
+              page?: number;
+              per?: number;
+              sort?: components['schemas']['ChannelContentSort'];
+              user_id?: number;
             };
           };
           output: components['schemas']['RateLimitError'];
@@ -1721,11 +1764,12 @@ type Endpoints = {
   '/v3/channels/:id/connections': {
     $get:
       | {
-          input: { param: { id: string } } & {
+          input: {
+            param: { id: string };
             query: {
-              page: number;
-              per: number;
-              sort: components['schemas']['ConnectionSort'];
+              page?: number;
+              per?: number;
+              sort?: components['schemas']['ConnectionSort'];
             };
           };
           output: components['schemas']['ChannelListResponse'];
@@ -1733,11 +1777,12 @@ type Endpoints = {
           status: 200;
         }
       | {
-          input: { param: { id: string } } & {
+          input: {
+            param: { id: string };
             query: {
-              page: number;
-              per: number;
-              sort: components['schemas']['ConnectionSort'];
+              page?: number;
+              per?: number;
+              sort?: components['schemas']['ConnectionSort'];
             };
           };
           output: components['schemas']['Error'];
@@ -1745,11 +1790,12 @@ type Endpoints = {
           status: 401;
         }
       | {
-          input: { param: { id: string } } & {
+          input: {
+            param: { id: string };
             query: {
-              page: number;
-              per: number;
-              sort: components['schemas']['ConnectionSort'];
+              page?: number;
+              per?: number;
+              sort?: components['schemas']['ConnectionSort'];
             };
           };
           output: components['schemas']['Error'];
@@ -1757,11 +1803,12 @@ type Endpoints = {
           status: 403;
         }
       | {
-          input: { param: { id: string } } & {
+          input: {
+            param: { id: string };
             query: {
-              page: number;
-              per: number;
-              sort: components['schemas']['ConnectionSort'];
+              page?: number;
+              per?: number;
+              sort?: components['schemas']['ConnectionSort'];
             };
           };
           output: components['schemas']['Error'];
@@ -1769,11 +1816,12 @@ type Endpoints = {
           status: 404;
         }
       | {
-          input: { param: { id: string } } & {
+          input: {
+            param: { id: string };
             query: {
-              page: number;
-              per: number;
-              sort: components['schemas']['ConnectionSort'];
+              page?: number;
+              per?: number;
+              sort?: components['schemas']['ConnectionSort'];
             };
           };
           output: components['schemas']['RateLimitError'];
@@ -1784,11 +1832,12 @@ type Endpoints = {
   '/v3/channels/:id/followers': {
     $get:
       | {
-          input: { param: { id: string } } & {
+          input: {
+            param: { id: string };
             query: {
-              page: number;
-              per: number;
-              sort: components['schemas']['ConnectionSort'];
+              page?: number;
+              per?: number;
+              sort?: components['schemas']['ConnectionSort'];
             };
           };
           output: components['schemas']['UserListResponse'];
@@ -1796,11 +1845,12 @@ type Endpoints = {
           status: 200;
         }
       | {
-          input: { param: { id: string } } & {
+          input: {
+            param: { id: string };
             query: {
-              page: number;
-              per: number;
-              sort: components['schemas']['ConnectionSort'];
+              page?: number;
+              per?: number;
+              sort?: components['schemas']['ConnectionSort'];
             };
           };
           output: components['schemas']['Error'];
@@ -1808,11 +1858,12 @@ type Endpoints = {
           status: 401;
         }
       | {
-          input: { param: { id: string } } & {
+          input: {
+            param: { id: string };
             query: {
-              page: number;
-              per: number;
-              sort: components['schemas']['ConnectionSort'];
+              page?: number;
+              per?: number;
+              sort?: components['schemas']['ConnectionSort'];
             };
           };
           output: components['schemas']['Error'];
@@ -1820,11 +1871,12 @@ type Endpoints = {
           status: 403;
         }
       | {
-          input: { param: { id: string } } & {
+          input: {
+            param: { id: string };
             query: {
-              page: number;
-              per: number;
-              sort: components['schemas']['ConnectionSort'];
+              page?: number;
+              per?: number;
+              sort?: components['schemas']['ConnectionSort'];
             };
           };
           output: components['schemas']['Error'];
@@ -1832,11 +1884,12 @@ type Endpoints = {
           status: 404;
         }
       | {
-          input: { param: { id: string } } & {
+          input: {
+            param: { id: string };
             query: {
-              page: number;
-              per: number;
-              sort: components['schemas']['ConnectionSort'];
+              page?: number;
+              per?: number;
+              sort?: components['schemas']['ConnectionSort'];
             };
           };
           output: components['schemas']['RateLimitError'];
@@ -1901,12 +1954,13 @@ type Endpoints = {
   '/v3/users/:id/contents': {
     $get:
       | {
-          input: { param: { id: string } } & {
+          input: {
+            param: { id: string };
             query: {
-              page: number;
-              per: number;
-              sort: components['schemas']['ContentSort'];
-              type: components['schemas']['ContentTypeFilter'];
+              page?: number;
+              per?: number;
+              sort?: components['schemas']['ContentSort'];
+              type?: components['schemas']['ContentTypeFilter'];
             };
           };
           output: components['schemas']['ConnectableListResponse'];
@@ -1914,12 +1968,13 @@ type Endpoints = {
           status: 200;
         }
       | {
-          input: { param: { id: string } } & {
+          input: {
+            param: { id: string };
             query: {
-              page: number;
-              per: number;
-              sort: components['schemas']['ContentSort'];
-              type: components['schemas']['ContentTypeFilter'];
+              page?: number;
+              per?: number;
+              sort?: components['schemas']['ContentSort'];
+              type?: components['schemas']['ContentTypeFilter'];
             };
           };
           output: components['schemas']['Error'];
@@ -1927,12 +1982,13 @@ type Endpoints = {
           status: 401;
         }
       | {
-          input: { param: { id: string } } & {
+          input: {
+            param: { id: string };
             query: {
-              page: number;
-              per: number;
-              sort: components['schemas']['ContentSort'];
-              type: components['schemas']['ContentTypeFilter'];
+              page?: number;
+              per?: number;
+              sort?: components['schemas']['ContentSort'];
+              type?: components['schemas']['ContentTypeFilter'];
             };
           };
           output: components['schemas']['Error'];
@@ -1940,12 +1996,13 @@ type Endpoints = {
           status: 403;
         }
       | {
-          input: { param: { id: string } } & {
+          input: {
+            param: { id: string };
             query: {
-              page: number;
-              per: number;
-              sort: components['schemas']['ContentSort'];
-              type: components['schemas']['ContentTypeFilter'];
+              page?: number;
+              per?: number;
+              sort?: components['schemas']['ContentSort'];
+              type?: components['schemas']['ContentTypeFilter'];
             };
           };
           output: components['schemas']['Error'];
@@ -1953,12 +2010,13 @@ type Endpoints = {
           status: 404;
         }
       | {
-          input: { param: { id: string } } & {
+          input: {
+            param: { id: string };
             query: {
-              page: number;
-              per: number;
-              sort: components['schemas']['ContentSort'];
-              type: components['schemas']['ContentTypeFilter'];
+              page?: number;
+              per?: number;
+              sort?: components['schemas']['ContentSort'];
+              type?: components['schemas']['ContentTypeFilter'];
             };
           };
           output: components['schemas']['RateLimitError'];
@@ -1969,11 +2027,12 @@ type Endpoints = {
   '/v3/users/:id/followers': {
     $get:
       | {
-          input: { param: { id: string } } & {
+          input: {
+            param: { id: string };
             query: {
-              page: number;
-              per: number;
-              sort: components['schemas']['ConnectionSort'];
+              page?: number;
+              per?: number;
+              sort?: components['schemas']['ConnectionSort'];
             };
           };
           output: components['schemas']['UserListResponse'];
@@ -1981,11 +2040,12 @@ type Endpoints = {
           status: 200;
         }
       | {
-          input: { param: { id: string } } & {
+          input: {
+            param: { id: string };
             query: {
-              page: number;
-              per: number;
-              sort: components['schemas']['ConnectionSort'];
+              page?: number;
+              per?: number;
+              sort?: components['schemas']['ConnectionSort'];
             };
           };
           output: components['schemas']['Error'];
@@ -1993,11 +2053,12 @@ type Endpoints = {
           status: 401;
         }
       | {
-          input: { param: { id: string } } & {
+          input: {
+            param: { id: string };
             query: {
-              page: number;
-              per: number;
-              sort: components['schemas']['ConnectionSort'];
+              page?: number;
+              per?: number;
+              sort?: components['schemas']['ConnectionSort'];
             };
           };
           output: components['schemas']['Error'];
@@ -2005,11 +2066,12 @@ type Endpoints = {
           status: 403;
         }
       | {
-          input: { param: { id: string } } & {
+          input: {
+            param: { id: string };
             query: {
-              page: number;
-              per: number;
-              sort: components['schemas']['ConnectionSort'];
+              page?: number;
+              per?: number;
+              sort?: components['schemas']['ConnectionSort'];
             };
           };
           output: components['schemas']['Error'];
@@ -2017,11 +2079,12 @@ type Endpoints = {
           status: 404;
         }
       | {
-          input: { param: { id: string } } & {
+          input: {
+            param: { id: string };
             query: {
-              page: number;
-              per: number;
-              sort: components['schemas']['ConnectionSort'];
+              page?: number;
+              per?: number;
+              sort?: components['schemas']['ConnectionSort'];
             };
           };
           output: components['schemas']['RateLimitError'];
@@ -2032,12 +2095,13 @@ type Endpoints = {
   '/v3/users/:id/following': {
     $get:
       | {
-          input: { param: { id: string } } & {
+          input: {
+            param: { id: string };
             query: {
-              page: number;
-              per: number;
-              sort: components['schemas']['ConnectionSort'];
-              type: components['schemas']['FollowableType'];
+              page?: number;
+              per?: number;
+              sort?: components['schemas']['ConnectionSort'];
+              type?: components['schemas']['FollowableType'];
             };
           };
           output: components['schemas']['FollowableListResponse'];
@@ -2045,12 +2109,13 @@ type Endpoints = {
           status: 200;
         }
       | {
-          input: { param: { id: string } } & {
+          input: {
+            param: { id: string };
             query: {
-              page: number;
-              per: number;
-              sort: components['schemas']['ConnectionSort'];
-              type: components['schemas']['FollowableType'];
+              page?: number;
+              per?: number;
+              sort?: components['schemas']['ConnectionSort'];
+              type?: components['schemas']['FollowableType'];
             };
           };
           output: components['schemas']['Error'];
@@ -2058,12 +2123,13 @@ type Endpoints = {
           status: 401;
         }
       | {
-          input: { param: { id: string } } & {
+          input: {
+            param: { id: string };
             query: {
-              page: number;
-              per: number;
-              sort: components['schemas']['ConnectionSort'];
-              type: components['schemas']['FollowableType'];
+              page?: number;
+              per?: number;
+              sort?: components['schemas']['ConnectionSort'];
+              type?: components['schemas']['FollowableType'];
             };
           };
           output: components['schemas']['Error'];
@@ -2071,12 +2137,13 @@ type Endpoints = {
           status: 403;
         }
       | {
-          input: { param: { id: string } } & {
+          input: {
+            param: { id: string };
             query: {
-              page: number;
-              per: number;
-              sort: components['schemas']['ConnectionSort'];
-              type: components['schemas']['FollowableType'];
+              page?: number;
+              per?: number;
+              sort?: components['schemas']['ConnectionSort'];
+              type?: components['schemas']['FollowableType'];
             };
           };
           output: components['schemas']['Error'];
@@ -2084,12 +2151,13 @@ type Endpoints = {
           status: 404;
         }
       | {
-          input: { param: { id: string } } & {
+          input: {
+            param: { id: string };
             query: {
-              page: number;
-              per: number;
-              sort: components['schemas']['ConnectionSort'];
-              type: components['schemas']['FollowableType'];
+              page?: number;
+              per?: number;
+              sort?: components['schemas']['ConnectionSort'];
+              type?: components['schemas']['FollowableType'];
             };
           };
           output: components['schemas']['RateLimitError'];
@@ -2133,12 +2201,13 @@ type Endpoints = {
   '/v3/groups/:id/contents': {
     $get:
       | {
-          input: { param: { id: string } } & {
+          input: {
+            param: { id: string };
             query: {
-              page: number;
-              per: number;
-              sort: components['schemas']['ContentSort'];
-              type: components['schemas']['ContentTypeFilter'];
+              page?: number;
+              per?: number;
+              sort?: components['schemas']['ContentSort'];
+              type?: components['schemas']['ContentTypeFilter'];
             };
           };
           output: components['schemas']['ConnectableListResponse'];
@@ -2146,12 +2215,13 @@ type Endpoints = {
           status: 200;
         }
       | {
-          input: { param: { id: string } } & {
+          input: {
+            param: { id: string };
             query: {
-              page: number;
-              per: number;
-              sort: components['schemas']['ContentSort'];
-              type: components['schemas']['ContentTypeFilter'];
+              page?: number;
+              per?: number;
+              sort?: components['schemas']['ContentSort'];
+              type?: components['schemas']['ContentTypeFilter'];
             };
           };
           output: components['schemas']['Error'];
@@ -2159,12 +2229,13 @@ type Endpoints = {
           status: 401;
         }
       | {
-          input: { param: { id: string } } & {
+          input: {
+            param: { id: string };
             query: {
-              page: number;
-              per: number;
-              sort: components['schemas']['ContentSort'];
-              type: components['schemas']['ContentTypeFilter'];
+              page?: number;
+              per?: number;
+              sort?: components['schemas']['ContentSort'];
+              type?: components['schemas']['ContentTypeFilter'];
             };
           };
           output: components['schemas']['Error'];
@@ -2172,12 +2243,13 @@ type Endpoints = {
           status: 403;
         }
       | {
-          input: { param: { id: string } } & {
+          input: {
+            param: { id: string };
             query: {
-              page: number;
-              per: number;
-              sort: components['schemas']['ContentSort'];
-              type: components['schemas']['ContentTypeFilter'];
+              page?: number;
+              per?: number;
+              sort?: components['schemas']['ContentSort'];
+              type?: components['schemas']['ContentTypeFilter'];
             };
           };
           output: components['schemas']['Error'];
@@ -2185,12 +2257,13 @@ type Endpoints = {
           status: 404;
         }
       | {
-          input: { param: { id: string } } & {
+          input: {
+            param: { id: string };
             query: {
-              page: number;
-              per: number;
-              sort: components['schemas']['ContentSort'];
-              type: components['schemas']['ContentTypeFilter'];
+              page?: number;
+              per?: number;
+              sort?: components['schemas']['ContentSort'];
+              type?: components['schemas']['ContentTypeFilter'];
             };
           };
           output: components['schemas']['RateLimitError'];
@@ -2201,11 +2274,12 @@ type Endpoints = {
   '/v3/groups/:id/followers': {
     $get:
       | {
-          input: { param: { id: string } } & {
+          input: {
+            param: { id: string };
             query: {
-              page: number;
-              per: number;
-              sort: components['schemas']['ConnectionSort'];
+              page?: number;
+              per?: number;
+              sort?: components['schemas']['ConnectionSort'];
             };
           };
           output: components['schemas']['UserListResponse'];
@@ -2213,11 +2287,12 @@ type Endpoints = {
           status: 200;
         }
       | {
-          input: { param: { id: string } } & {
+          input: {
+            param: { id: string };
             query: {
-              page: number;
-              per: number;
-              sort: components['schemas']['ConnectionSort'];
+              page?: number;
+              per?: number;
+              sort?: components['schemas']['ConnectionSort'];
             };
           };
           output: components['schemas']['Error'];
@@ -2225,11 +2300,12 @@ type Endpoints = {
           status: 401;
         }
       | {
-          input: { param: { id: string } } & {
+          input: {
+            param: { id: string };
             query: {
-              page: number;
-              per: number;
-              sort: components['schemas']['ConnectionSort'];
+              page?: number;
+              per?: number;
+              sort?: components['schemas']['ConnectionSort'];
             };
           };
           output: components['schemas']['Error'];
@@ -2237,11 +2313,12 @@ type Endpoints = {
           status: 403;
         }
       | {
-          input: { param: { id: string } } & {
+          input: {
+            param: { id: string };
             query: {
-              page: number;
-              per: number;
-              sort: components['schemas']['ConnectionSort'];
+              page?: number;
+              per?: number;
+              sort?: components['schemas']['ConnectionSort'];
             };
           };
           output: components['schemas']['Error'];
@@ -2249,11 +2326,12 @@ type Endpoints = {
           status: 404;
         }
       | {
-          input: { param: { id: string } } & {
+          input: {
+            param: { id: string };
             query: {
-              page: number;
-              per: number;
-              sort: components['schemas']['ConnectionSort'];
+              page?: number;
+              per?: number;
+              sort?: components['schemas']['ConnectionSort'];
             };
           };
           output: components['schemas']['RateLimitError'];
@@ -2266,18 +2344,18 @@ type Endpoints = {
       | {
           input: {
             query: {
-              query: string;
-              type: components['schemas']['SearchTypeFilter'][];
-              scope: components['schemas']['SearchScope'];
-              user_id: number;
-              group_id: number;
-              channel_id: number;
-              ext: components['schemas']['FileExtension'][];
-              sort: components['schemas']['SearchSort'];
-              after: string;
-              seed: number;
-              page: number;
-              per: number;
+              query?: string;
+              type?: components['schemas']['SearchTypeFilter'][];
+              scope?: components['schemas']['SearchScope'];
+              user_id?: number;
+              group_id?: number;
+              channel_id?: number;
+              ext?: components['schemas']['FileExtension'][];
+              sort?: components['schemas']['SearchSort'];
+              after?: string;
+              seed?: number;
+              page?: number;
+              per?: number;
             };
           };
           output: components['schemas']['EverythingListResponse'];
@@ -2287,18 +2365,18 @@ type Endpoints = {
       | {
           input: {
             query: {
-              query: string;
-              type: components['schemas']['SearchTypeFilter'][];
-              scope: components['schemas']['SearchScope'];
-              user_id: number;
-              group_id: number;
-              channel_id: number;
-              ext: components['schemas']['FileExtension'][];
-              sort: components['schemas']['SearchSort'];
-              after: string;
-              seed: number;
-              page: number;
-              per: number;
+              query?: string;
+              type?: components['schemas']['SearchTypeFilter'][];
+              scope?: components['schemas']['SearchScope'];
+              user_id?: number;
+              group_id?: number;
+              channel_id?: number;
+              ext?: components['schemas']['FileExtension'][];
+              sort?: components['schemas']['SearchSort'];
+              after?: string;
+              seed?: number;
+              page?: number;
+              per?: number;
             };
           };
           output: components['schemas']['Error'];
@@ -2308,18 +2386,18 @@ type Endpoints = {
       | {
           input: {
             query: {
-              query: string;
-              type: components['schemas']['SearchTypeFilter'][];
-              scope: components['schemas']['SearchScope'];
-              user_id: number;
-              group_id: number;
-              channel_id: number;
-              ext: components['schemas']['FileExtension'][];
-              sort: components['schemas']['SearchSort'];
-              after: string;
-              seed: number;
-              page: number;
-              per: number;
+              query?: string;
+              type?: components['schemas']['SearchTypeFilter'][];
+              scope?: components['schemas']['SearchScope'];
+              user_id?: number;
+              group_id?: number;
+              channel_id?: number;
+              ext?: components['schemas']['FileExtension'][];
+              sort?: components['schemas']['SearchSort'];
+              after?: string;
+              seed?: number;
+              page?: number;
+              per?: number;
             };
           };
           output: components['schemas']['Error'];
@@ -2329,18 +2407,18 @@ type Endpoints = {
       | {
           input: {
             query: {
-              query: string;
-              type: components['schemas']['SearchTypeFilter'][];
-              scope: components['schemas']['SearchScope'];
-              user_id: number;
-              group_id: number;
-              channel_id: number;
-              ext: components['schemas']['FileExtension'][];
-              sort: components['schemas']['SearchSort'];
-              after: string;
-              seed: number;
-              page: number;
-              per: number;
+              query?: string;
+              type?: components['schemas']['SearchTypeFilter'][];
+              scope?: components['schemas']['SearchScope'];
+              user_id?: number;
+              group_id?: number;
+              channel_id?: number;
+              ext?: components['schemas']['FileExtension'][];
+              sort?: components['schemas']['SearchSort'];
+              after?: string;
+              seed?: number;
+              page?: number;
+              per?: number;
             };
           };
           output: components['schemas']['Error'];
@@ -2350,18 +2428,18 @@ type Endpoints = {
       | {
           input: {
             query: {
-              query: string;
-              type: components['schemas']['SearchTypeFilter'][];
-              scope: components['schemas']['SearchScope'];
-              user_id: number;
-              group_id: number;
-              channel_id: number;
-              ext: components['schemas']['FileExtension'][];
-              sort: components['schemas']['SearchSort'];
-              after: string;
-              seed: number;
-              page: number;
-              per: number;
+              query?: string;
+              type?: components['schemas']['SearchTypeFilter'][];
+              scope?: components['schemas']['SearchScope'];
+              user_id?: number;
+              group_id?: number;
+              channel_id?: number;
+              ext?: components['schemas']['FileExtension'][];
+              sort?: components['schemas']['SearchSort'];
+              after?: string;
+              seed?: number;
+              page?: number;
+              per?: number;
             };
           };
           output: components['schemas']['RateLimitError'];

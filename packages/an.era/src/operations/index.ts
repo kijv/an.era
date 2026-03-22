@@ -1,6 +1,5 @@
 import * as generated from './generated';
 import type { OptionalPropertyForFirstArgumentOfFunction } from './types';
-import type { UnionToIntersection } from 'hono/utils/types';
 import type { ac } from '../client';
 import { deepAssign } from './utils';
 
@@ -67,8 +66,10 @@ type Operation<
   [K in R[keyof R]['param']]: (
     param: Parameters<R[keyof R]['method']>[0]['param'][K],
   ) => {
+    // Must index by `L`, not `keyof R`: `R[keyof R]['method']` is the union of
+    // *all* methods here, so every `$…` property would incorrectly share one union.
     [L in keyof R as `$${L extends string ? L : never}`]: OptionalPropertyForFirstArgumentOfFunction<
-      R[keyof R]['method'],
+      R[L]['method'],
       'param',
       K
     >;
@@ -156,12 +157,9 @@ export const operations = (client: Client) => {
       .reduce((acc, arg) => deepAssign(acc, arg), {});
 
     return fetch(args, opts.args[1]);
-  }, []) as UnionToIntersection<
-    | Operations<
-        Omit<generated.OperationsMappedToPathParam, keyof generated.Operations>
-      >
-    | {
-        [K in keyof generated.Operations as `$${K}`]: generated.Operations[K];
-      }
-  >;
+  }, []) as Operations<
+    Omit<generated.OperationsMappedToPathParam, keyof generated.Operations>
+  > & {
+    [K in keyof generated.Operations as `$${K}`]: generated.Operations[K];
+  };
 };

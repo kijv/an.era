@@ -12,7 +12,7 @@ import {
   scanDiscriminators,
   transformSchemaObject,
 } from 'openapi-typescript';
-import { fileURLToPath } from 'node:url';
+import { URL, fileURLToPath } from 'node:url';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import type ts from 'typescript';
@@ -52,10 +52,6 @@ function isObject(x: unknown): x is Record<string, unknown> {
 function asString(node: ts.Node) {
   // openapi-typescript's astToString is stable enough to inline into type expressions.
   return astToString(node).trim();
-}
-
-function wrapIfUnion(typeExpr: string) {
-  return /\s\|\s/.test(typeExpr) ? `(${typeExpr})` : typeExpr;
 }
 
 async function resolveSource(input?: string) {
@@ -147,14 +143,83 @@ function schemaToTypeExpr(
   return asString(node);
 }
 
-function parameterListToPathParams(
+/** OpenAPI allows `parameters` as an array or (in some specs) a map of name → parameter. */
+function normalizeParametersList(
+  parameters: PathItemObject['parameters'],
+): unknown[] {
+  if (parameters == null) return [];
+  if (Array.isArray(parameters)) return parameters;
+  if (isObject(parameters)) return Object.values(parameters);
+  return [];
+}
+
+/**
+ * Parameter objects may use `schema` (typical) or `content` (per OpenAPI 3.x) for both
+ * `in: path` and `in: query` parameters.
+ */
+function parameterToTypeExpr(
+  parameter: unknown,
+  paramIn: 'path' | 'query',
+): string {
+  const resolved = resolveMaybeRef(parameter);
+  if (!resolved || typeof resolved !== 'object') return 'unknown';
+  const p = resolved as {
+    name?: string;
+    schema?: SchemaObject;
+    content?: Record<string, unknown>;
+  };
+  const paramName = String(p.name ?? 'unknown');
+
+  if (p.schema !== undefined) {
+    return schemaToTypeExpr(p.schema, {
+      path: createRef(['parameters', paramIn, paramName]),
+    });
+  }
+
+  if (p.content && typeof p.content === 'object') {
+    const entries = Object.entries(p.content);
+    if (entries.length === 0) return 'unknown';
+    const typeExprs = entries.map(([contentType, media]) => {
+      const mediaResolved = resolveMaybeRef(media) as
+        | { schema?: SchemaObject }
+        | undefined;
+      return schemaToTypeExpr(mediaResolved?.schema, {
+        path: createRef([
+          'parameters',
+          paramIn,
+          paramName,
+          'content',
+          contentType,
+        ]),
+      });
+    });
+    return typeExprs.length === 1
+      ? typeExprs[0]!
+      : `(${typeExprs.join(' | ')})`;
+  }
+
+  return 'unknown';
+}
+
+/**
+ * OpenAPI: `required` defaults to `false` for query/header/cookie; path params
+ * must be `true` in valid specs — we only mark path keys optional if explicitly
+ * `required: false`.
+ */
+function isParameterOptional(parameter: { in?: string; required?: boolean }) {
+  if (parameter.in === 'path') return parameter.required === false;
+  return parameter.required !== true;
+}
+
+function collectParametersByLocation(
   pathItem: PathItemObject,
   operation: OperationObject,
-) {
-  const out: Array<{ name: string; schema?: SchemaObject }> = [];
+  paramIn: 'path' | 'query',
+): Array<{ name: string; typeExpr: string; optional: boolean }> {
+  const out: Array<{ name: string; typeExpr: string; optional: boolean }> = [];
   const all = [
-    ...(pathItem?.parameters ?? []),
-    ...(operation?.parameters ?? []),
+    ...normalizeParametersList(pathItem?.parameters),
+    ...normalizeParametersList(operation?.parameters),
   ];
 
   for (const p of all) {
@@ -163,58 +228,32 @@ function parameterListToPathParams(
     const parameter = resolved as {
       in?: string;
       name?: string;
-      schema?: SchemaObject;
+      required?: boolean;
     };
-    if (parameter.in !== 'path') continue;
+    if (parameter.in !== paramIn) continue;
     if (!parameter.name) continue;
     out.push({
       name: String(parameter.name),
-      // Parameter objects can define `schema` (most common) or `content` (less common).
-      schema: parameter.schema ?? undefined,
+      typeExpr: parameterToTypeExpr(p, paramIn),
+      optional: isParameterOptional(parameter),
     });
   }
   return out;
 }
 
-function parameterListToQueryParams(
-  pathItem: PathItemObject,
-  operation: OperationObject,
-) {
-  const out: Array<{ name: string; schema?: SchemaObject }> = [];
-  const all = [
-    ...(pathItem?.parameters ?? []),
-    ...(operation?.parameters ?? []),
-  ];
+type BodyInputMember = { target: 'json' | 'form'; typeExpr: string };
 
-  for (const p of all) {
-    const resolved = resolveMaybeRef(p);
-    if (!resolved || typeof resolved !== 'object') continue;
-    const parameter = resolved as {
-      in?: string;
-      name?: string;
-      schema?: SchemaObject;
-    };
-    if (parameter.in !== 'query') continue;
-    if (!parameter.name) continue;
-    out.push({
-      name: String(parameter.name),
-      schema: parameter.schema ?? undefined,
-    });
-  }
-  return out;
-}
-
-function requestBodyToInputUnionExpr(
+function requestBodyToInputMembers(
   requestBody?: RequestBodyObject | ReferenceObject | boolean,
-) {
-  if (!requestBody || requestBody === true) return `{}`;
+): BodyInputMember[] {
+  if (!requestBody || requestBody === true) return [];
   const resolved = resolveMaybeRef(requestBody) as
     | { content?: Record<string, { schema?: SchemaObject }> }
     | undefined;
   if (!resolved || !resolved.content || typeof resolved.content !== 'object')
-    return `{}`;
+    return [];
 
-  const members: string[] = [];
+  const members: BodyInputMember[] = [];
   for (const [contentType, mediaType] of Object.entries(resolved.content)) {
     const resolvedMediaType = resolveMaybeRef(mediaType) as
       | { schema?: SchemaObject }
@@ -228,35 +267,33 @@ function requestBodyToInputUnionExpr(
 
     const target =
       contentType === 'application/x-www-form-urlencoded' ? 'form' : 'json';
-    members.push(`{ ${target}: ${typeExpr} }`);
+    members.push({ target, typeExpr });
   }
 
-  if (!members.length) return `{}`;
-  return members.length === 1 ? (members[0] ?? '{}') : members.join(' | ');
+  return members;
 }
 
 function buildInputExpr({
-  inputBodyExpr,
+  bodyMembers,
   pathParams,
   queryParams,
 }: {
-  inputBodyExpr: string;
-  pathParams: Array<{ name: string; schema?: SchemaObject }>;
-  queryParams: Array<{ name: string; schema?: SchemaObject }>;
+  bodyMembers: BodyInputMember[];
+  pathParams: Array<{ name: string; typeExpr: string; optional: boolean }>;
+  queryParams: Array<{ name: string; typeExpr: string; optional: boolean }>;
 }) {
-  const parts: string[] = [];
-  if (inputBodyExpr && inputBodyExpr !== '{}')
-    parts.push(wrapIfUnion(inputBodyExpr));
+  const sharedProps: string[] = [];
   if (pathParams.length) {
     const record = pathParams
-      .map((p) => {
-        const paramExpr = schemaToTypeExpr(p.schema, {
-          path: createRef(['parameters', 'path', p.name]),
-        });
-        return `${p.name}: ${paramExpr}`;
-      })
+      .map((p) => `${p.name}${p.optional ? '?' : ''}: ${p.typeExpr}`)
       .join('; ');
-    parts.push(`{ param: { ${record} } }`);
+    sharedProps.push(`param: { ${record} }`);
+  }
+  if (queryParams.length) {
+    const record = queryParams
+      .map((p) => `${p.name}${p.optional ? '?' : ''}: ${p.typeExpr}`)
+      .join('; ');
+    sharedProps.push(`query: { ${record} }`);
   }
   if (queryParams.length) {
     const record = queryParams
@@ -270,9 +307,18 @@ function buildInputExpr({
     parts.push(`{ query: { ${record} } }`);
   }
 
-  if (!parts.length) return `{}`;
-  if (parts.length === 1) return parts[0]!;
-  return parts.map((p) => wrapIfUnion(p)).join(' & ');
+  if (bodyMembers.length === 0) {
+    return sharedProps.length ? `{ ${sharedProps.join('; ')} }` : `{}`;
+  }
+  if (bodyMembers.length === 1) {
+    const { target, typeExpr } = bodyMembers[0]!;
+    return `{ ${[...sharedProps, `${target}: ${typeExpr}`].join('; ')} }`;
+  }
+  return bodyMembers
+    .map(({ target, typeExpr }) => {
+      return `{ ${[...sharedProps, `${target}: ${typeExpr}`].join('; ')} }`;
+    })
+    .join(' | ');
 }
 
 function operationToEndpointUnionExpr({
@@ -282,10 +328,10 @@ function operationToEndpointUnionExpr({
   operation: OperationObject;
   pathItem: PathItemObject;
 }) {
-  const pathParams = parameterListToPathParams(pathItem, operation);
-  const queryParams = parameterListToQueryParams(pathItem, operation);
-  const inputBodyExpr = requestBodyToInputUnionExpr(operation?.requestBody);
-  const inputExpr = buildInputExpr({ inputBodyExpr, pathParams, queryParams });
+  const pathParams = collectParametersByLocation(pathItem, operation, 'path');
+  const queryParams = collectParametersByLocation(pathItem, operation, 'query');
+  const bodyMembers = requestBodyToInputMembers(operation?.requestBody);
+  const inputExpr = buildInputExpr({ bodyMembers, pathParams, queryParams });
 
   const responses = operation?.responses ?? {};
   if (!isObject(responses)) return `{}`;
