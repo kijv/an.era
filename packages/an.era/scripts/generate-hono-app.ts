@@ -291,7 +291,19 @@ function buildInputExpr({
       .join('; ');
     sharedProps.push(`query: { ${record} }`);
   }
+  if (queryParams.length) {
+    const record = queryParams
+      .map((p) => {
+        const paramExpr = schemaToTypeExpr(p.schema, {
+          path: createRef(['parameters', 'query', p.name]),
+        });
+        return `${p.name}: ${paramExpr}`;
+      })
+      .join('; ');
+    parts.push(`{ query: { ${record} } }`);
+  }
 
+<<<<<<< HEAD
   if (bodyMembers.length === 0) {
     return sharedProps.length ? `{ ${sharedProps.join('; ')} }` : `{}`;
   }
@@ -304,6 +316,11 @@ function buildInputExpr({
       return `{ ${[...sharedProps, `${target}: ${typeExpr}`].join('; ')} }`;
     })
     .join(' | ');
+=======
+  if (!parts.length) return `{}`;
+  if (parts.length === 1) return parts[0]!;
+  return parts.map((p) => wrapIfUnion(p)).join(' & ');
+>>>>>>> main
 }
 
 function operationToEndpointUnionExpr({

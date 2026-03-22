@@ -60,8 +60,13 @@ export type HasRequiredKeys<T> = RequiredKeys<T> extends never ? false : true;
 
 export type OptionalPropertyForFirstArgumentOfFunction<
   T extends (...args: any[]) => any,
+<<<<<<< HEAD
   K extends PropertyKey,
   V extends PropertyKey,
+=======
+  K extends keyof Parameters<T>[0],
+  V extends keyof Parameters<T>[0][K],
+>>>>>>> main
 > = (
   ...args: DeepOptionalParents<
     OptionalProperty<Parameters<T>[0], K, V>
