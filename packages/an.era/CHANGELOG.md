@@ -1,5 +1,13 @@
 # an.era
 
+## 0.3.4
+
+### Patch Changes
+
+- [#37](https://github.com/kijv/an.era/pull/37) [`b03c739`](https://github.com/kijv/an.era/commit/b03c7394b97022db6d50a4f83086872cc30df210) Thanks [@kijv](https://github.com/kijv)! - fix: client endpoint types incorrectly merged into union
+
+- [#37](https://github.com/kijv/an.era/pull/37) [`b03c739`](https://github.com/kijv/an.era/commit/b03c7394b97022db6d50a4f83086872cc30df210) Thanks [@kijv](https://github.com/kijv)! - add hono/client like API (by default)
+
 ## 0.3.3
 
 ### Patch Changes
