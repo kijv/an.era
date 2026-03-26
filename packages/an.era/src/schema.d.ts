@@ -449,6 +449,17 @@ export interface components {
          */
         ContentSort: "created_at_asc" | "created_at_desc" | "updated_at_asc" | "updated_at_desc";
         /**
+         * @description Sort order for groups.
+         *     - `name_asc`: Alphabetical (default)
+         *     - `name_desc`: Reverse alphabetical
+         *     - `created_at_desc`: Newest first
+         *     - `created_at_asc`: Oldest first
+         *     - `updated_at_desc`: Recently updated first
+         *     - `updated_at_asc`: Least recently updated first
+         * @enum {string}
+         */
+        GroupSort: "name_asc" | "name_desc" | "created_at_asc" | "created_at_desc" | "updated_at_asc" | "updated_at_desc";
+        /**
          * @description Limit search to a specific context.
          *     - `all`: Everything accessible to the user (default)
          *     - `my`: Only the current user's own content
@@ -1223,6 +1234,13 @@ export interface components {
         UserListResponse: components["schemas"]["UserList"] & components["schemas"]["PaginatedResponse"];
         /** @description Paginated list of channels with total count */
         ChannelListResponse: components["schemas"]["ChannelList"] & components["schemas"]["PaginatedResponse"];
+        /** @description Data payload containing an array of groups */
+        GroupList: {
+            /** @description Array of groups */
+            data: components["schemas"]["Group"][];
+        };
+        /** @description Paginated list of groups with total count */
+        GroupListResponse: components["schemas"]["GroupList"] & components["schemas"]["PaginatedResponse"];
         /** @description Paginated list of connectable content (blocks and channels) */
         ConnectableListResponse: components["schemas"]["ConnectableList"] & components["schemas"]["PaginatedResponse"];
         /** @description Paginated list of followable items (users, channels, and groups) with total count */
@@ -1377,6 +1395,11 @@ export interface components {
          * @example created_at_desc
          */
         ContentSortParam: components["schemas"]["ContentSort"];
+        /**
+         * @description Sort groups by name or date.
+         * @example name_asc
+         */
+        GroupSortParam: components["schemas"]["GroupSort"];
         /**
          * @description Sort channel contents. Use `position` for the owner's manual
          *     arrangement, or sort by date. Defaults to `position_desc`.
