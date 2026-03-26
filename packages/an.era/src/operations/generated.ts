@@ -75,6 +75,10 @@ export type OperationsMappedToPathParam = {
       param: 'id';
       method: Client['v3']['users'][':id']['following']['$get'];
     };
+    getGroups: {
+      param: 'id';
+      method: Client['v3']['users'][':id']['groups']['$get'];
+    };
   };
   group: {
     get: { param: 'id'; method: Client['v3']['groups'][':id']['$get'] };
@@ -131,6 +135,7 @@ export type Operations = {
   getUserContents: Client['v3']['users'][':id']['contents']['$get'];
   getUserFollowers: Client['v3']['users'][':id']['followers']['$get'];
   getUserFollowing: Client['v3']['users'][':id']['following']['$get'];
+  getUserGroups: Client['v3']['users'][':id']['groups']['$get'];
   getGroup: Client['v3']['groups'][':id']['$get'];
   getGroupContents: Client['v3']['groups'][':id']['contents']['$get'];
   getGroupFollowers: Client['v3']['groups'][':id']['followers']['$get'];
@@ -168,6 +173,7 @@ export const OPERATIONS: Map<string, readonly string[]> = new Map([
   ['getUserContents', ['v3', 'users', ':id', 'contents', '$get']],
   ['getUserFollowers', ['v3', 'users', ':id', 'followers', '$get']],
   ['getUserFollowing', ['v3', 'users', ':id', 'following', '$get']],
+  ['getUserGroups', ['v3', 'users', ':id', 'groups', '$get']],
   ['getGroup', ['v3', 'groups', ':id', '$get']],
   ['getGroupContents', ['v3', 'groups', ':id', 'contents', '$get']],
   ['getGroupFollowers', ['v3', 'groups', ':id', 'followers', '$get']],

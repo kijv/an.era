@@ -2165,6 +2165,74 @@ type Endpoints = {
           status: 429;
         };
   };
+  '/v3/users/:id/groups': {
+    $get:
+      | {
+          input: {
+            param: { id: string };
+            query: {
+              page?: number;
+              per?: number;
+              sort?: components['schemas']['GroupSort'];
+            };
+          };
+          output: components['schemas']['GroupListResponse'];
+          outputFormat: 'json';
+          status: 200;
+        }
+      | {
+          input: {
+            param: { id: string };
+            query: {
+              page?: number;
+              per?: number;
+              sort?: components['schemas']['GroupSort'];
+            };
+          };
+          output: components['schemas']['Error'];
+          outputFormat: 'json';
+          status: 401;
+        }
+      | {
+          input: {
+            param: { id: string };
+            query: {
+              page?: number;
+              per?: number;
+              sort?: components['schemas']['GroupSort'];
+            };
+          };
+          output: components['schemas']['Error'];
+          outputFormat: 'json';
+          status: 403;
+        }
+      | {
+          input: {
+            param: { id: string };
+            query: {
+              page?: number;
+              per?: number;
+              sort?: components['schemas']['GroupSort'];
+            };
+          };
+          output: components['schemas']['Error'];
+          outputFormat: 'json';
+          status: 404;
+        }
+      | {
+          input: {
+            param: { id: string };
+            query: {
+              page?: number;
+              per?: number;
+              sort?: components['schemas']['GroupSort'];
+            };
+          };
+          output: components['schemas']['RateLimitError'];
+          outputFormat: 'json';
+          status: 429;
+        };
+  };
   '/v3/groups/:id': {
     $get:
       | {
