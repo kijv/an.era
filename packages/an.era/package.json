@@ -29,8 +29,7 @@
     "./package.json": "./package.json"
   },
   "devDependencies": {
-    "hono": "^4.12.8",
-    "openapi-typescript": "^7.13.0",
-    "valibot": "^1.3.1"
+    "hono": "4.12.12",
+    "openapi-typescript": "7.13.0"
   }
 }
