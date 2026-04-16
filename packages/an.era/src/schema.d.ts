@@ -175,6 +175,28 @@ export interface components {
              */
             initials: string;
         };
+        /**
+         * @description Arbitrary key-value pairs stored on an entity.
+         *     Keys are alphanumeric/underscore, max 40 characters.
+         *     Values are scalars (string, number, boolean). Max 50 keys, 32KB total.
+         * @example {
+         *       "status": "reviewed",
+         *       "score": 0.95,
+         *       "featured": true
+         *     }
+         */
+        Metadata: {
+            [key: string]: string | number | boolean;
+        };
+        /**
+         * @description Arbitrary key-value pairs to set on an entity. Uses merge semantics:
+         *     new keys are added, existing keys are updated, keys set to null are removed.
+         *     Keys must be alphanumeric/underscore, max 40 characters.
+         *     Values must be scalars (string, number, boolean) or null (to delete). Max 50 keys, 32KB total.
+         */
+        MetadataInput: {
+            [key: string]: string | number | boolean | null;
+        };
         /** @description Embedded connection representation used when connection is nested in other resources */
         EmbeddedConnection: {
             /**
@@ -183,7 +205,7 @@ export interface components {
              */
             id: number;
             /**
-             * @description Position of the item within the channel
+             * @description Position of the item within the channel (1-indexed)
              * @example 1
              */
             position: number;
@@ -192,6 +214,8 @@ export interface components {
              * @example false
              */
             pinned: boolean;
+            /** @description Custom key-value metadata */
+            metadata?: components["schemas"]["Metadata"] | null;
             /**
              * Format: date-time
              * @description When the item was connected
@@ -509,6 +533,15 @@ export interface components {
          *     ]
          */
         ChannelIds: (number | string)[];
+        /** @description A channel to connect to, with optional position and connection metadata. */
+        ConnectTo: {
+            /** @description Channel ID or slug. */
+            id: number | string;
+            /** @description Position to insert at within this channel (1-indexed). */
+            position?: number;
+            /** @description Connection metadata for this specific connection. */
+            metadata?: components["schemas"]["Metadata"];
+        };
         /** @description A presigned S3 upload URL for a single file */
         PresignedFile: {
             /**
@@ -575,6 +608,8 @@ export interface components {
              * @example Beige flags
              */
             alt_text?: string;
+            /** @description Custom key-value metadata to set on the new block. */
+            metadata?: components["schemas"]["Metadata"];
         };
         /** @description Response returned when a batch is accepted for processing */
         BatchResponse: {
@@ -688,6 +723,8 @@ export interface components {
              */
             updated_at: string;
             user: components["schemas"]["EmbeddedUser"];
+            /** @description Custom key-value metadata */
+            metadata?: components["schemas"]["Metadata"] | null;
             /** @description Source URL and metadata (if block was created from a URL) */
             source?: components["schemas"]["BlockSource"] | null;
             /** @description HATEOAS links for navigation */
@@ -1097,6 +1134,8 @@ export interface components {
              * @example 2023-01-15T14:45:00Z
              */
             updated_at: string;
+            /** @description Custom key-value metadata */
+            metadata?: components["schemas"]["Metadata"] | null;
             owner: components["schemas"]["ChannelOwner"];
             counts: components["schemas"]["ChannelCounts"];
             /**
