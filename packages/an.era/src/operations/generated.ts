@@ -52,6 +52,7 @@ export type OperationsMappedToPathParam = {
   };
   connection: {
     get: { param: 'id'; method: Client['v3']['connections'][':id']['$get'] };
+    update: { param: 'id'; method: Client['v3']['connections'][':id']['$put'] };
     delete: {
       param: 'id';
       method: Client['v3']['connections'][':id']['$delete'];
@@ -125,6 +126,7 @@ export type Operations = {
   deleteChannel: Client['v3']['channels'][':id']['$delete'];
   createConnection: Client['v3']['connections']['$post'];
   getConnection: Client['v3']['connections'][':id']['$get'];
+  updateConnection: Client['v3']['connections'][':id']['$put'];
   deleteConnection: Client['v3']['connections'][':id']['$delete'];
   moveConnection: Client['v3']['connections'][':id']['move']['$post'];
   getChannelContents: Client['v3']['channels'][':id']['contents']['$get'];
@@ -163,6 +165,7 @@ export const OPERATIONS: Map<string, readonly string[]> = new Map([
   ['deleteChannel', ['v3', 'channels', ':id', '$delete']],
   ['createConnection', ['v3', 'connections', '$post']],
   ['getConnection', ['v3', 'connections', ':id', '$get']],
+  ['updateConnection', ['v3', 'connections', ':id', '$put']],
   ['deleteConnection', ['v3', 'connections', ':id', '$delete']],
   ['moveConnection', ['v3', 'connections', ':id', 'move', '$post']],
   ['getChannelContents', ['v3', 'channels', ':id', 'contents', '$get']],

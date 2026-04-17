@@ -269,15 +269,22 @@ type Endpoints = {
     $post:
       | {
           input: {
-            json: components['schemas']['BlockInput'] & {
-              channel_ids: components['schemas']['ChannelIds'];
-              /**
-               * @description Position to insert the block in the channel.
-               *     Only valid when connecting to a single channel.
-               * @example 0
-               */
-              insert_at?: number;
-            };
+            json: components['schemas']['BlockInput'] &
+              (
+                | {
+                    channel_ids: components['schemas']['ChannelIds'];
+                    /**
+                     * @description Position to insert the block in the channel (1-indexed).
+                     *     Only valid when connecting to a single channel.
+                     * @example 1
+                     */
+                    insert_at?: number;
+                  }
+                | {
+                    /** @description Target channels with optional per-channel position and connection metadata. */
+                    channels: components['schemas']['ConnectTo'][];
+                  }
+              );
           };
           output: components['schemas']['Block'];
           outputFormat: 'json';
@@ -285,15 +292,22 @@ type Endpoints = {
         }
       | {
           input: {
-            json: components['schemas']['BlockInput'] & {
-              channel_ids: components['schemas']['ChannelIds'];
-              /**
-               * @description Position to insert the block in the channel.
-               *     Only valid when connecting to a single channel.
-               * @example 0
-               */
-              insert_at?: number;
-            };
+            json: components['schemas']['BlockInput'] &
+              (
+                | {
+                    channel_ids: components['schemas']['ChannelIds'];
+                    /**
+                     * @description Position to insert the block in the channel (1-indexed).
+                     *     Only valid when connecting to a single channel.
+                     * @example 1
+                     */
+                    insert_at?: number;
+                  }
+                | {
+                    /** @description Target channels with optional per-channel position and connection metadata. */
+                    channels: components['schemas']['ConnectTo'][];
+                  }
+              );
           };
           output: components['schemas']['Error'];
           outputFormat: 'json';
@@ -301,15 +315,22 @@ type Endpoints = {
         }
       | {
           input: {
-            json: components['schemas']['BlockInput'] & {
-              channel_ids: components['schemas']['ChannelIds'];
-              /**
-               * @description Position to insert the block in the channel.
-               *     Only valid when connecting to a single channel.
-               * @example 0
-               */
-              insert_at?: number;
-            };
+            json: components['schemas']['BlockInput'] &
+              (
+                | {
+                    channel_ids: components['schemas']['ChannelIds'];
+                    /**
+                     * @description Position to insert the block in the channel (1-indexed).
+                     *     Only valid when connecting to a single channel.
+                     * @example 1
+                     */
+                    insert_at?: number;
+                  }
+                | {
+                    /** @description Target channels with optional per-channel position and connection metadata. */
+                    channels: components['schemas']['ConnectTo'][];
+                  }
+              );
           };
           output: components['schemas']['Error'];
           outputFormat: 'json';
@@ -317,15 +338,22 @@ type Endpoints = {
         }
       | {
           input: {
-            json: components['schemas']['BlockInput'] & {
-              channel_ids: components['schemas']['ChannelIds'];
-              /**
-               * @description Position to insert the block in the channel.
-               *     Only valid when connecting to a single channel.
-               * @example 0
-               */
-              insert_at?: number;
-            };
+            json: components['schemas']['BlockInput'] &
+              (
+                | {
+                    channel_ids: components['schemas']['ChannelIds'];
+                    /**
+                     * @description Position to insert the block in the channel (1-indexed).
+                     *     Only valid when connecting to a single channel.
+                     * @example 1
+                     */
+                    insert_at?: number;
+                  }
+                | {
+                    /** @description Target channels with optional per-channel position and connection metadata. */
+                    channels: components['schemas']['ConnectTo'][];
+                  }
+              );
           };
           output: components['schemas']['Error'];
           outputFormat: 'json';
@@ -333,15 +361,22 @@ type Endpoints = {
         }
       | {
           input: {
-            json: components['schemas']['BlockInput'] & {
-              channel_ids: components['schemas']['ChannelIds'];
-              /**
-               * @description Position to insert the block in the channel.
-               *     Only valid when connecting to a single channel.
-               * @example 0
-               */
-              insert_at?: number;
-            };
+            json: components['schemas']['BlockInput'] &
+              (
+                | {
+                    channel_ids: components['schemas']['ChannelIds'];
+                    /**
+                     * @description Position to insert the block in the channel (1-indexed).
+                     *     Only valid when connecting to a single channel.
+                     * @example 1
+                     */
+                    insert_at?: number;
+                  }
+                | {
+                    /** @description Target channels with optional per-channel position and connection metadata. */
+                    channels: components['schemas']['ConnectTo'][];
+                  }
+              );
           };
           output: components['schemas']['Error'];
           outputFormat: 'json';
@@ -349,15 +384,22 @@ type Endpoints = {
         }
       | {
           input: {
-            json: components['schemas']['BlockInput'] & {
-              channel_ids: components['schemas']['ChannelIds'];
-              /**
-               * @description Position to insert the block in the channel.
-               *     Only valid when connecting to a single channel.
-               * @example 0
-               */
-              insert_at?: number;
-            };
+            json: components['schemas']['BlockInput'] &
+              (
+                | {
+                    channel_ids: components['schemas']['ChannelIds'];
+                    /**
+                     * @description Position to insert the block in the channel (1-indexed).
+                     *     Only valid when connecting to a single channel.
+                     * @example 1
+                     */
+                    insert_at?: number;
+                  }
+                | {
+                    /** @description Target channels with optional per-channel position and connection metadata. */
+                    channels: components['schemas']['ConnectTo'][];
+                  }
+              );
           };
           output: components['schemas']['RateLimitError'];
           outputFormat: 'json';
@@ -537,6 +579,11 @@ type Endpoints = {
                */
               description?: string;
               /**
+               * @description Custom key-value metadata. Uses merge semantics: new keys are added,
+               *     existing keys are updated, keys set to null are removed.
+               */
+              metadata?: components['schemas']['MetadataInput'];
+              /**
                * @description Block title
                * @example Updated Title
                */
@@ -566,6 +613,11 @@ type Endpoints = {
                * @example Updated description with **markdown**
                */
               description?: string;
+              /**
+               * @description Custom key-value metadata. Uses merge semantics: new keys are added,
+               *     existing keys are updated, keys set to null are removed.
+               */
+              metadata?: components['schemas']['MetadataInput'];
               /**
                * @description Block title
                * @example Updated Title
@@ -597,6 +649,11 @@ type Endpoints = {
                */
               description?: string;
               /**
+               * @description Custom key-value metadata. Uses merge semantics: new keys are added,
+               *     existing keys are updated, keys set to null are removed.
+               */
+              metadata?: components['schemas']['MetadataInput'];
+              /**
                * @description Block title
                * @example Updated Title
                */
@@ -626,6 +683,11 @@ type Endpoints = {
                * @example Updated description with **markdown**
                */
               description?: string;
+              /**
+               * @description Custom key-value metadata. Uses merge semantics: new keys are added,
+               *     existing keys are updated, keys set to null are removed.
+               */
+              metadata?: components['schemas']['MetadataInput'];
               /**
                * @description Block title
                * @example Updated Title
@@ -657,6 +719,11 @@ type Endpoints = {
                */
               description?: string;
               /**
+               * @description Custom key-value metadata. Uses merge semantics: new keys are added,
+               *     existing keys are updated, keys set to null are removed.
+               */
+              metadata?: components['schemas']['MetadataInput'];
+              /**
                * @description Block title
                * @example Updated Title
                */
@@ -687,6 +754,11 @@ type Endpoints = {
                */
               description?: string;
               /**
+               * @description Custom key-value metadata. Uses merge semantics: new keys are added,
+               *     existing keys are updated, keys set to null are removed.
+               */
+              metadata?: components['schemas']['MetadataInput'];
+              /**
                * @description Block title
                * @example Updated Title
                */
@@ -716,6 +788,11 @@ type Endpoints = {
                * @example Updated description with **markdown**
                */
               description?: string;
+              /**
+               * @description Custom key-value metadata. Uses merge semantics: new keys are added,
+               *     existing keys are updated, keys set to null are removed.
+               */
+              metadata?: components['schemas']['MetadataInput'];
               /**
                * @description Block title
                * @example Updated Title
@@ -1024,6 +1101,8 @@ type Endpoints = {
                * @example 12345
                */
               group_id?: number;
+              /** @description Custom key-value metadata to set on the new channel. */
+              metadata?: components['schemas']['Metadata'];
               /**
                * @description Channel title
                * @example My New Channel
@@ -1051,6 +1130,8 @@ type Endpoints = {
                * @example 12345
                */
               group_id?: number;
+              /** @description Custom key-value metadata to set on the new channel. */
+              metadata?: components['schemas']['Metadata'];
               /**
                * @description Channel title
                * @example My New Channel
@@ -1078,6 +1159,8 @@ type Endpoints = {
                * @example 12345
                */
               group_id?: number;
+              /** @description Custom key-value metadata to set on the new channel. */
+              metadata?: components['schemas']['Metadata'];
               /**
                * @description Channel title
                * @example My New Channel
@@ -1105,6 +1188,8 @@ type Endpoints = {
                * @example 12345
                */
               group_id?: number;
+              /** @description Custom key-value metadata to set on the new channel. */
+              metadata?: components['schemas']['Metadata'];
               /**
                * @description Channel title
                * @example My New Channel
@@ -1132,6 +1217,8 @@ type Endpoints = {
                * @example 12345
                */
               group_id?: number;
+              /** @description Custom key-value metadata to set on the new channel. */
+              metadata?: components['schemas']['Metadata'];
               /**
                * @description Channel title
                * @example My New Channel
@@ -1159,6 +1246,8 @@ type Endpoints = {
                * @example 12345
                */
               group_id?: number;
+              /** @description Custom key-value metadata to set on the new channel. */
+              metadata?: components['schemas']['Metadata'];
               /**
                * @description Channel title
                * @example My New Channel
@@ -1216,6 +1305,11 @@ type Endpoints = {
                */
               description?: string | null;
               /**
+               * @description Custom key-value metadata. Uses merge semantics: new keys are added,
+               *     existing keys are updated, keys set to null are removed.
+               */
+              metadata?: components['schemas']['MetadataInput'];
+              /**
                * @description Channel title
                * @example Updated Channel Title
                */
@@ -1236,6 +1330,11 @@ type Endpoints = {
                * @example Updated description
                */
               description?: string | null;
+              /**
+               * @description Custom key-value metadata. Uses merge semantics: new keys are added,
+               *     existing keys are updated, keys set to null are removed.
+               */
+              metadata?: components['schemas']['MetadataInput'];
               /**
                * @description Channel title
                * @example Updated Channel Title
@@ -1258,6 +1357,11 @@ type Endpoints = {
                */
               description?: string | null;
               /**
+               * @description Custom key-value metadata. Uses merge semantics: new keys are added,
+               *     existing keys are updated, keys set to null are removed.
+               */
+              metadata?: components['schemas']['MetadataInput'];
+              /**
                * @description Channel title
                * @example Updated Channel Title
                */
@@ -1278,6 +1382,11 @@ type Endpoints = {
                * @example Updated description
                */
               description?: string | null;
+              /**
+               * @description Custom key-value metadata. Uses merge semantics: new keys are added,
+               *     existing keys are updated, keys set to null are removed.
+               */
+              metadata?: components['schemas']['MetadataInput'];
               /**
                * @description Channel title
                * @example Updated Channel Title
@@ -1300,6 +1409,11 @@ type Endpoints = {
                */
               description?: string | null;
               /**
+               * @description Custom key-value metadata. Uses merge semantics: new keys are added,
+               *     existing keys are updated, keys set to null are removed.
+               */
+              metadata?: components['schemas']['MetadataInput'];
+              /**
                * @description Channel title
                * @example Updated Channel Title
                */
@@ -1321,6 +1435,11 @@ type Endpoints = {
                */
               description?: string | null;
               /**
+               * @description Custom key-value metadata. Uses merge semantics: new keys are added,
+               *     existing keys are updated, keys set to null are removed.
+               */
+              metadata?: components['schemas']['MetadataInput'];
+              /**
                * @description Channel title
                * @example Updated Channel Title
                */
@@ -1341,6 +1460,11 @@ type Endpoints = {
                * @example Updated description
                */
               description?: string | null;
+              /**
+               * @description Custom key-value metadata. Uses merge semantics: new keys are added,
+               *     existing keys are updated, keys set to null are removed.
+               */
+              metadata?: components['schemas']['MetadataInput'];
               /**
                * @description Channel title
                * @example Updated Channel Title
@@ -1390,17 +1514,24 @@ type Endpoints = {
       | {
           input: {
             json: {
-              channel_ids: components['schemas']['ChannelIds'];
               /** @description ID of the block or channel to connect. */
               connectable_id: number;
               /** @description Type of the connectable. */
               connectable_type: components['schemas']['ConnectableType'];
-              /**
-               * @description Position to insert at within the channel. Only valid
-               *     when connecting to a single channel.
-               */
-              position?: number;
-            };
+            } & (
+              | {
+                  channel_ids: components['schemas']['ChannelIds'];
+                  /**
+                   * @description Position to insert at within the channel (1-indexed).
+                   *     Only valid when connecting to a single channel.
+                   */
+                  position?: number;
+                }
+              | {
+                  /** @description Target channels with optional per-channel position and connection metadata. */
+                  channels: components['schemas']['ConnectTo'][];
+                }
+            );
           };
           output: {
             data?: components['schemas']['Connection'][];
@@ -1411,17 +1542,24 @@ type Endpoints = {
       | {
           input: {
             json: {
-              channel_ids: components['schemas']['ChannelIds'];
               /** @description ID of the block or channel to connect. */
               connectable_id: number;
               /** @description Type of the connectable. */
               connectable_type: components['schemas']['ConnectableType'];
-              /**
-               * @description Position to insert at within the channel. Only valid
-               *     when connecting to a single channel.
-               */
-              position?: number;
-            };
+            } & (
+              | {
+                  channel_ids: components['schemas']['ChannelIds'];
+                  /**
+                   * @description Position to insert at within the channel (1-indexed).
+                   *     Only valid when connecting to a single channel.
+                   */
+                  position?: number;
+                }
+              | {
+                  /** @description Target channels with optional per-channel position and connection metadata. */
+                  channels: components['schemas']['ConnectTo'][];
+                }
+            );
           };
           output: components['schemas']['Error'];
           outputFormat: 'json';
@@ -1430,17 +1568,24 @@ type Endpoints = {
       | {
           input: {
             json: {
-              channel_ids: components['schemas']['ChannelIds'];
               /** @description ID of the block or channel to connect. */
               connectable_id: number;
               /** @description Type of the connectable. */
               connectable_type: components['schemas']['ConnectableType'];
-              /**
-               * @description Position to insert at within the channel. Only valid
-               *     when connecting to a single channel.
-               */
-              position?: number;
-            };
+            } & (
+              | {
+                  channel_ids: components['schemas']['ChannelIds'];
+                  /**
+                   * @description Position to insert at within the channel (1-indexed).
+                   *     Only valid when connecting to a single channel.
+                   */
+                  position?: number;
+                }
+              | {
+                  /** @description Target channels with optional per-channel position and connection metadata. */
+                  channels: components['schemas']['ConnectTo'][];
+                }
+            );
           };
           output: components['schemas']['Error'];
           outputFormat: 'json';
@@ -1449,17 +1594,24 @@ type Endpoints = {
       | {
           input: {
             json: {
-              channel_ids: components['schemas']['ChannelIds'];
               /** @description ID of the block or channel to connect. */
               connectable_id: number;
               /** @description Type of the connectable. */
               connectable_type: components['schemas']['ConnectableType'];
-              /**
-               * @description Position to insert at within the channel. Only valid
-               *     when connecting to a single channel.
-               */
-              position?: number;
-            };
+            } & (
+              | {
+                  channel_ids: components['schemas']['ChannelIds'];
+                  /**
+                   * @description Position to insert at within the channel (1-indexed).
+                   *     Only valid when connecting to a single channel.
+                   */
+                  position?: number;
+                }
+              | {
+                  /** @description Target channels with optional per-channel position and connection metadata. */
+                  channels: components['schemas']['ConnectTo'][];
+                }
+            );
           };
           output: components['schemas']['Error'];
           outputFormat: 'json';
@@ -1468,17 +1620,24 @@ type Endpoints = {
       | {
           input: {
             json: {
-              channel_ids: components['schemas']['ChannelIds'];
               /** @description ID of the block or channel to connect. */
               connectable_id: number;
               /** @description Type of the connectable. */
               connectable_type: components['schemas']['ConnectableType'];
-              /**
-               * @description Position to insert at within the channel. Only valid
-               *     when connecting to a single channel.
-               */
-              position?: number;
-            };
+            } & (
+              | {
+                  channel_ids: components['schemas']['ChannelIds'];
+                  /**
+                   * @description Position to insert at within the channel (1-indexed).
+                   *     Only valid when connecting to a single channel.
+                   */
+                  position?: number;
+                }
+              | {
+                  /** @description Target channels with optional per-channel position and connection metadata. */
+                  channels: components['schemas']['ConnectTo'][];
+                }
+            );
           };
           output: components['schemas']['Error'];
           outputFormat: 'json';
@@ -1487,17 +1646,24 @@ type Endpoints = {
       | {
           input: {
             json: {
-              channel_ids: components['schemas']['ChannelIds'];
               /** @description ID of the block or channel to connect. */
               connectable_id: number;
               /** @description Type of the connectable. */
               connectable_type: components['schemas']['ConnectableType'];
-              /**
-               * @description Position to insert at within the channel. Only valid
-               *     when connecting to a single channel.
-               */
-              position?: number;
-            };
+            } & (
+              | {
+                  channel_ids: components['schemas']['ChannelIds'];
+                  /**
+                   * @description Position to insert at within the channel (1-indexed).
+                   *     Only valid when connecting to a single channel.
+                   */
+                  position?: number;
+                }
+              | {
+                  /** @description Target channels with optional per-channel position and connection metadata. */
+                  channels: components['schemas']['ConnectTo'][];
+                }
+            );
           };
           output: components['schemas']['Error'];
           outputFormat: 'json';
@@ -1506,17 +1672,24 @@ type Endpoints = {
       | {
           input: {
             json: {
-              channel_ids: components['schemas']['ChannelIds'];
               /** @description ID of the block or channel to connect. */
               connectable_id: number;
               /** @description Type of the connectable. */
               connectable_type: components['schemas']['ConnectableType'];
-              /**
-               * @description Position to insert at within the channel. Only valid
-               *     when connecting to a single channel.
-               */
-              position?: number;
-            };
+            } & (
+              | {
+                  channel_ids: components['schemas']['ChannelIds'];
+                  /**
+                   * @description Position to insert at within the channel (1-indexed).
+                   *     Only valid when connecting to a single channel.
+                   */
+                  position?: number;
+                }
+              | {
+                  /** @description Target channels with optional per-channel position and connection metadata. */
+                  channels: components['schemas']['ConnectTo'][];
+                }
+            );
           };
           output: components['schemas']['RateLimitError'];
           outputFormat: 'json';
@@ -1551,6 +1724,112 @@ type Endpoints = {
         }
       | {
           input: { param: { id: number } };
+          output: components['schemas']['RateLimitError'];
+          outputFormat: 'json';
+          status: 429;
+        };
+    $put:
+      | {
+          input: {
+            param: { id: number };
+            json: {
+              /**
+               * @description Custom key-value metadata. Uses merge semantics: new keys are added,
+               *     existing keys are updated, keys set to null are removed.
+               */
+              metadata?: components['schemas']['MetadataInput'];
+            };
+          };
+          output: components['schemas']['Connection'];
+          outputFormat: 'json';
+          status: 200;
+        }
+      | {
+          input: {
+            param: { id: number };
+            json: {
+              /**
+               * @description Custom key-value metadata. Uses merge semantics: new keys are added,
+               *     existing keys are updated, keys set to null are removed.
+               */
+              metadata?: components['schemas']['MetadataInput'];
+            };
+          };
+          output: components['schemas']['Error'];
+          outputFormat: 'json';
+          status: 400;
+        }
+      | {
+          input: {
+            param: { id: number };
+            json: {
+              /**
+               * @description Custom key-value metadata. Uses merge semantics: new keys are added,
+               *     existing keys are updated, keys set to null are removed.
+               */
+              metadata?: components['schemas']['MetadataInput'];
+            };
+          };
+          output: components['schemas']['Error'];
+          outputFormat: 'json';
+          status: 401;
+        }
+      | {
+          input: {
+            param: { id: number };
+            json: {
+              /**
+               * @description Custom key-value metadata. Uses merge semantics: new keys are added,
+               *     existing keys are updated, keys set to null are removed.
+               */
+              metadata?: components['schemas']['MetadataInput'];
+            };
+          };
+          output: components['schemas']['Error'];
+          outputFormat: 'json';
+          status: 403;
+        }
+      | {
+          input: {
+            param: { id: number };
+            json: {
+              /**
+               * @description Custom key-value metadata. Uses merge semantics: new keys are added,
+               *     existing keys are updated, keys set to null are removed.
+               */
+              metadata?: components['schemas']['MetadataInput'];
+            };
+          };
+          output: components['schemas']['Error'];
+          outputFormat: 'json';
+          status: 404;
+        }
+      | {
+          input: {
+            param: { id: number };
+            json: {
+              /**
+               * @description Custom key-value metadata. Uses merge semantics: new keys are added,
+               *     existing keys are updated, keys set to null are removed.
+               */
+              metadata?: components['schemas']['MetadataInput'];
+            };
+          };
+          output: components['schemas']['Error'];
+          outputFormat: 'json';
+          status: 422;
+        }
+      | {
+          input: {
+            param: { id: number };
+            json: {
+              /**
+               * @description Custom key-value metadata. Uses merge semantics: new keys are added,
+               *     existing keys are updated, keys set to null are removed.
+               */
+              metadata?: components['schemas']['MetadataInput'];
+            };
+          };
           output: components['schemas']['RateLimitError'];
           outputFormat: 'json';
           status: 429;
@@ -1595,7 +1874,7 @@ type Endpoints = {
             json: {
               /** @default insert_at */
               movement?: components['schemas']['Movement'];
-              /** @description Target position (required when movement is insert_at) */
+              /** @description Target position, 1-indexed (required when movement is insert_at) */
               position?: number;
             };
           };
@@ -1609,7 +1888,7 @@ type Endpoints = {
             json: {
               /** @default insert_at */
               movement?: components['schemas']['Movement'];
-              /** @description Target position (required when movement is insert_at) */
+              /** @description Target position, 1-indexed (required when movement is insert_at) */
               position?: number;
             };
           };
@@ -1623,7 +1902,7 @@ type Endpoints = {
             json: {
               /** @default insert_at */
               movement?: components['schemas']['Movement'];
-              /** @description Target position (required when movement is insert_at) */
+              /** @description Target position, 1-indexed (required when movement is insert_at) */
               position?: number;
             };
           };
@@ -1637,7 +1916,7 @@ type Endpoints = {
             json: {
               /** @default insert_at */
               movement?: components['schemas']['Movement'];
-              /** @description Target position (required when movement is insert_at) */
+              /** @description Target position, 1-indexed (required when movement is insert_at) */
               position?: number;
             };
           };
@@ -1651,7 +1930,7 @@ type Endpoints = {
             json: {
               /** @default insert_at */
               movement?: components['schemas']['Movement'];
-              /** @description Target position (required when movement is insert_at) */
+              /** @description Target position, 1-indexed (required when movement is insert_at) */
               position?: number;
             };
           };
@@ -1665,7 +1944,7 @@ type Endpoints = {
             json: {
               /** @default insert_at */
               movement?: components['schemas']['Movement'];
-              /** @description Target position (required when movement is insert_at) */
+              /** @description Target position, 1-indexed (required when movement is insert_at) */
               position?: number;
             };
           };
@@ -1679,7 +1958,7 @@ type Endpoints = {
             json: {
               /** @default insert_at */
               movement?: components['schemas']['Movement'];
-              /** @description Target position (required when movement is insert_at) */
+              /** @description Target position, 1-indexed (required when movement is insert_at) */
               position?: number;
             };
           };
