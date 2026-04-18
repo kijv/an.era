@@ -1,5 +1,11 @@
 # an.era
 
+## 0.3.6
+
+### Patch Changes
+
+- [`f3c539e`](https://github.com/kijv/an.era/commit/f3c539e532637c13bde62446b807ded0d20a39f1) Thanks [@kijv](https://github.com/kijv)! - Update OpenAPI Schema
+
 ## 0.3.5
 
 ### Patch Changes
