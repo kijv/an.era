@@ -14,13 +14,14 @@ const packConfig = definePackConfig({
     },
     treeshake: {
       moduleSideEffects: [{ test: /\/.*\.ts$/, sideEffects: false }],
-    },
+    }
   },
   outputOptions: {
-    chunkFileNames: (chunkInfo) => {
-      if (chunkInfo.name === 'hono') return 'hono.js';
-      return '[name]-[hash].js';
-    },
+    minify: {
+      mangle: true,
+      compress: true,
+      codegen: false
+    }
   },
 });
 

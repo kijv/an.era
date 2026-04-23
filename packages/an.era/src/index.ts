@@ -44,5 +44,4 @@ export class Arena {
   }
 }
 
-//
 export interface Arena extends ReturnType<typeof operations> {}
