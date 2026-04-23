@@ -14,14 +14,14 @@ const packConfig = definePackConfig({
     },
     treeshake: {
       moduleSideEffects: [{ test: /\/.*\.ts$/, sideEffects: false }],
-    }
+    },
   },
   outputOptions: {
     minify: {
       mangle: true,
       compress: true,
-      codegen: false
-    }
+      codegen: false,
+    },
   },
 });
 
