@@ -1,5 +1,11 @@
 # an.era
 
+## 0.3.7
+
+### Patch Changes
+
+- [`9f27074`](https://github.com/kijv/an.era/commit/9f2707430afebb5efac0060de013f539e20b992c) Thanks [@kijv](https://github.com/kijv)! - Modify bundle output
+
 ## 0.3.6
 
 ### Patch Changes
