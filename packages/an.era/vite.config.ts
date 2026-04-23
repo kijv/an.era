@@ -28,7 +28,7 @@ export default defineConfig({
   run: {
     tasks: {
       build: {
-        command: 'vp pack --minify',
+        command: 'vp pack',
       },
       dev: {
         command: 'vp pack --watch --sourcemap',
