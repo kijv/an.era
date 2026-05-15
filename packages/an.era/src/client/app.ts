@@ -169,6 +169,12 @@ type Endpoints = {
         }
       | {
           input: {};
+          output: components['schemas']['Error'];
+          outputFormat: 'json';
+          status: 408;
+        }
+      | {
+          input: {};
           output: components['schemas']['RateLimitError'];
           outputFormat: 'json';
           status: 429;
@@ -241,6 +247,28 @@ type Endpoints = {
           output: components['schemas']['Error'];
           outputFormat: 'json';
           status: 401;
+        }
+      | {
+          input: {
+            json: {
+              /** @description Array of files to generate presigned URLs for */
+              files: {
+                /**
+                 * @description MIME type of the file
+                 * @example image/jpeg
+                 */
+                content_type: string;
+                /**
+                 * @description Name of the file to upload
+                 * @example photo.jpg
+                 */
+                filename: string;
+              }[];
+            };
+          };
+          output: components['schemas']['Error'];
+          outputFormat: 'json';
+          status: 408;
         }
       | {
           input: {
@@ -401,6 +429,29 @@ type Endpoints = {
                   }
               );
           };
+          output: components['schemas']['Error'];
+          outputFormat: 'json';
+          status: 408;
+        }
+      | {
+          input: {
+            json: components['schemas']['BlockInput'] &
+              (
+                | {
+                    channel_ids: components['schemas']['ChannelIds'];
+                    /**
+                     * @description Position to insert the block in the channel (1-indexed).
+                     *     Only valid when connecting to a single channel.
+                     * @example 1
+                     */
+                    insert_at?: number;
+                  }
+                | {
+                    /** @description Target channels with optional per-channel position and connection metadata. */
+                    channels: components['schemas']['ConnectTo'][];
+                  }
+              );
+          };
           output: components['schemas']['RateLimitError'];
           outputFormat: 'json';
           status: 429;
@@ -478,6 +529,18 @@ type Endpoints = {
           };
           output: components['schemas']['Error'];
           outputFormat: 'json';
+          status: 408;
+        }
+      | {
+          input: {
+            json: {
+              /** @description Array of blocks to create */
+              blocks: components['schemas']['BlockInput'][];
+              channel_ids: components['schemas']['ChannelIds'];
+            };
+          };
+          output: components['schemas']['Error'];
+          outputFormat: 'json';
           status: 422;
         }
       | {
@@ -521,6 +584,12 @@ type Endpoints = {
         }
       | {
           input: { param: { batch_id: string } };
+          output: components['schemas']['Error'];
+          outputFormat: 'json';
+          status: 408;
+        }
+      | {
+          input: { param: { batch_id: string } };
           output: components['schemas']['RateLimitError'];
           outputFormat: 'json';
           status: 429;
@@ -551,6 +620,12 @@ type Endpoints = {
           output: components['schemas']['Error'];
           outputFormat: 'json';
           status: 404;
+        }
+      | {
+          input: { param: { id: number } };
+          output: components['schemas']['Error'];
+          outputFormat: 'json';
+          status: 408;
         }
       | {
           input: { param: { id: number } };
@@ -767,6 +842,41 @@ type Endpoints = {
           };
           output: components['schemas']['Error'];
           outputFormat: 'json';
+          status: 408;
+        }
+      | {
+          input: {
+            param: { id: number };
+            json: {
+              /**
+               * @description Alt text for images (for Image blocks)
+               * @example A descriptive alt text for accessibility
+               */
+              alt_text?: string;
+              /**
+               * @description Text content (for Text blocks only, supports markdown)
+               * @example Updated text content
+               */
+              content?: string;
+              /**
+               * @description Block description (supports markdown)
+               * @example Updated description with **markdown**
+               */
+              description?: string;
+              /**
+               * @description Custom key-value metadata. Uses merge semantics: new keys are added,
+               *     existing keys are updated, keys set to null are removed.
+               */
+              metadata?: components['schemas']['MetadataInput'];
+              /**
+               * @description Block title
+               * @example Updated Title
+               */
+              title?: string;
+            };
+          };
+          output: components['schemas']['Error'];
+          outputFormat: 'json';
           status: 422;
         }
       | {
@@ -873,6 +983,20 @@ type Endpoints = {
               filter?: components['schemas']['ConnectionFilter'];
             };
           };
+          output: components['schemas']['Error'];
+          outputFormat: 'json';
+          status: 408;
+        }
+      | {
+          input: {
+            param: { id: number };
+            query: {
+              page?: number;
+              per?: number;
+              sort?: components['schemas']['ConnectionSort'];
+              filter?: components['schemas']['ConnectionFilter'];
+            };
+          };
           output: components['schemas']['RateLimitError'];
           outputFormat: 'json';
           status: 429;
@@ -931,6 +1055,19 @@ type Endpoints = {
           output: components['schemas']['Error'];
           outputFormat: 'json';
           status: 404;
+        }
+      | {
+          input: {
+            param: { id: number };
+            query: {
+              page?: number;
+              per?: number;
+              sort?: components['schemas']['ConnectionSort'];
+            };
+          };
+          output: components['schemas']['Error'];
+          outputFormat: 'json';
+          status: 408;
         }
       | {
           input: {
@@ -1034,6 +1171,21 @@ type Endpoints = {
           };
           output: components['schemas']['Error'];
           outputFormat: 'json';
+          status: 408;
+        }
+      | {
+          input: {
+            param: { id: number };
+            json: {
+              /**
+               * @description Comment body (supports @mentions)
+               * @example This is a great block! @username
+               */
+              body: string;
+            };
+          };
+          output: components['schemas']['Error'];
+          outputFormat: 'json';
           status: 422;
         }
       | {
@@ -1077,6 +1229,12 @@ type Endpoints = {
           output: components['schemas']['Error'];
           outputFormat: 'json';
           status: 404;
+        }
+      | {
+          input: { param: { id: number } };
+          output: components['schemas']['Error'];
+          outputFormat: 'json';
+          status: 408;
         }
       | {
           input: { param: { id: number } };
@@ -1230,6 +1388,35 @@ type Endpoints = {
           };
           output: components['schemas']['Error'];
           outputFormat: 'json';
+          status: 408;
+        }
+      | {
+          input: {
+            json: {
+              /**
+               * @description Channel description (supports markdown)
+               * @example A collection of interesting links
+               */
+              description?: string;
+              /**
+               * @description Group ID to create the channel under. The authenticated user must be a member of the group.
+               *     If not provided, the channel is owned by the authenticated user.
+               * @example 12345
+               */
+              group_id?: number;
+              /** @description Custom key-value metadata to set on the new channel. */
+              metadata?: components['schemas']['Metadata'];
+              /**
+               * @description Channel title
+               * @example My New Channel
+               */
+              title: string;
+              /** @default closed */
+              visibility?: components['schemas']['ChannelVisibility'];
+            };
+          };
+          output: components['schemas']['Error'];
+          outputFormat: 'json';
           status: 422;
         }
       | {
@@ -1287,6 +1474,12 @@ type Endpoints = {
           output: components['schemas']['Error'];
           outputFormat: 'json';
           status: 404;
+        }
+      | {
+          input: { param: { id: string } };
+          output: components['schemas']['Error'];
+          outputFormat: 'json';
+          status: 408;
         }
       | {
           input: { param: { id: string } };
@@ -1449,6 +1642,32 @@ type Endpoints = {
           };
           output: components['schemas']['Error'];
           outputFormat: 'json';
+          status: 408;
+        }
+      | {
+          input: {
+            param: { id: string };
+            json: {
+              /**
+               * @description Channel description (supports markdown). Pass null to clear.
+               * @example Updated description
+               */
+              description?: string | null;
+              /**
+               * @description Custom key-value metadata. Uses merge semantics: new keys are added,
+               *     existing keys are updated, keys set to null are removed.
+               */
+              metadata?: components['schemas']['MetadataInput'];
+              /**
+               * @description Channel title
+               * @example Updated Channel Title
+               */
+              title?: string;
+              visibility?: components['schemas']['ChannelVisibility'];
+            };
+          };
+          output: components['schemas']['Error'];
+          outputFormat: 'json';
           status: 422;
         }
       | {
@@ -1501,6 +1720,12 @@ type Endpoints = {
           output: components['schemas']['Error'];
           outputFormat: 'json';
           status: 404;
+        }
+      | {
+          input: { param: { id: string } };
+          output: components['schemas']['Error'];
+          outputFormat: 'json';
+          status: 408;
         }
       | {
           input: { param: { id: string } };
@@ -1667,6 +1892,32 @@ type Endpoints = {
           };
           output: components['schemas']['Error'];
           outputFormat: 'json';
+          status: 408;
+        }
+      | {
+          input: {
+            json: {
+              /** @description ID of the block or channel to connect. */
+              connectable_id: number;
+              /** @description Type of the connectable. */
+              connectable_type: components['schemas']['ConnectableType'];
+            } & (
+              | {
+                  channel_ids: components['schemas']['ChannelIds'];
+                  /**
+                   * @description Position to insert at within the channel (1-indexed).
+                   *     Only valid when connecting to a single channel.
+                   */
+                  position?: number;
+                }
+              | {
+                  /** @description Target channels with optional per-channel position and connection metadata. */
+                  channels: components['schemas']['ConnectTo'][];
+                }
+            );
+          };
+          output: components['schemas']['Error'];
+          outputFormat: 'json';
           status: 422;
         }
       | {
@@ -1721,6 +1972,12 @@ type Endpoints = {
           output: components['schemas']['Error'];
           outputFormat: 'json';
           status: 404;
+        }
+      | {
+          input: { param: { id: number } };
+          output: components['schemas']['Error'];
+          outputFormat: 'json';
+          status: 408;
         }
       | {
           input: { param: { id: number } };
@@ -1817,6 +2074,21 @@ type Endpoints = {
           };
           output: components['schemas']['Error'];
           outputFormat: 'json';
+          status: 408;
+        }
+      | {
+          input: {
+            param: { id: number };
+            json: {
+              /**
+               * @description Custom key-value metadata. Uses merge semantics: new keys are added,
+               *     existing keys are updated, keys set to null are removed.
+               */
+              metadata?: components['schemas']['MetadataInput'];
+            };
+          };
+          output: components['schemas']['Error'];
+          outputFormat: 'json';
           status: 422;
         }
       | {
@@ -1858,6 +2130,12 @@ type Endpoints = {
           output: components['schemas']['Error'];
           outputFormat: 'json';
           status: 404;
+        }
+      | {
+          input: { param: { id: number } };
+          output: components['schemas']['Error'];
+          outputFormat: 'json';
+          status: 408;
         }
       | {
           input: { param: { id: number } };
@@ -1937,6 +2215,20 @@ type Endpoints = {
           output: components['schemas']['Error'];
           outputFormat: 'json';
           status: 404;
+        }
+      | {
+          input: {
+            param: { id: number };
+            json: {
+              /** @default insert_at */
+              movement?: components['schemas']['Movement'];
+              /** @description Target position, 1-indexed (required when movement is insert_at) */
+              position?: number;
+            };
+          };
+          output: components['schemas']['Error'];
+          outputFormat: 'json';
+          status: 408;
         }
       | {
           input: {
@@ -2035,6 +2327,20 @@ type Endpoints = {
               user_id?: number;
             };
           };
+          output: components['schemas']['Error'];
+          outputFormat: 'json';
+          status: 408;
+        }
+      | {
+          input: {
+            param: { id: string };
+            query: {
+              page?: number;
+              per?: number;
+              sort?: components['schemas']['ChannelContentSort'];
+              user_id?: number;
+            };
+          };
           output: components['schemas']['RateLimitError'];
           outputFormat: 'json';
           status: 429;
@@ -2093,6 +2399,19 @@ type Endpoints = {
           output: components['schemas']['Error'];
           outputFormat: 'json';
           status: 404;
+        }
+      | {
+          input: {
+            param: { id: string };
+            query: {
+              page?: number;
+              per?: number;
+              sort?: components['schemas']['ConnectionSort'];
+            };
+          };
+          output: components['schemas']['Error'];
+          outputFormat: 'json';
+          status: 408;
         }
       | {
           input: {
@@ -2171,6 +2490,19 @@ type Endpoints = {
               sort?: components['schemas']['ConnectionSort'];
             };
           };
+          output: components['schemas']['Error'];
+          outputFormat: 'json';
+          status: 408;
+        }
+      | {
+          input: {
+            param: { id: string };
+            query: {
+              page?: number;
+              per?: number;
+              sort?: components['schemas']['ConnectionSort'];
+            };
+          };
           output: components['schemas']['RateLimitError'];
           outputFormat: 'json';
           status: 429;
@@ -2189,6 +2521,12 @@ type Endpoints = {
           output: components['schemas']['Error'];
           outputFormat: 'json';
           status: 401;
+        }
+      | {
+          input: {};
+          output: components['schemas']['Error'];
+          outputFormat: 'json';
+          status: 408;
         }
       | {
           input: {};
@@ -2222,6 +2560,12 @@ type Endpoints = {
           output: components['schemas']['Error'];
           outputFormat: 'json';
           status: 404;
+        }
+      | {
+          input: { param: { id: string } };
+          output: components['schemas']['Error'];
+          outputFormat: 'json';
+          status: 408;
         }
       | {
           input: { param: { id: string } };
@@ -2298,6 +2642,20 @@ type Endpoints = {
               type?: components['schemas']['ContentTypeFilter'];
             };
           };
+          output: components['schemas']['Error'];
+          outputFormat: 'json';
+          status: 408;
+        }
+      | {
+          input: {
+            param: { id: string };
+            query: {
+              page?: number;
+              per?: number;
+              sort?: components['schemas']['ContentSort'];
+              type?: components['schemas']['ContentTypeFilter'];
+            };
+          };
           output: components['schemas']['RateLimitError'];
           outputFormat: 'json';
           status: 429;
@@ -2356,6 +2714,19 @@ type Endpoints = {
           output: components['schemas']['Error'];
           outputFormat: 'json';
           status: 404;
+        }
+      | {
+          input: {
+            param: { id: string };
+            query: {
+              page?: number;
+              per?: number;
+              sort?: components['schemas']['ConnectionSort'];
+            };
+          };
+          output: components['schemas']['Error'];
+          outputFormat: 'json';
+          status: 408;
         }
       | {
           input: {
@@ -2439,6 +2810,20 @@ type Endpoints = {
               type?: components['schemas']['FollowableType'];
             };
           };
+          output: components['schemas']['Error'];
+          outputFormat: 'json';
+          status: 408;
+        }
+      | {
+          input: {
+            param: { id: string };
+            query: {
+              page?: number;
+              per?: number;
+              sort?: components['schemas']['ConnectionSort'];
+              type?: components['schemas']['FollowableType'];
+            };
+          };
           output: components['schemas']['RateLimitError'];
           outputFormat: 'json';
           status: 429;
@@ -2507,6 +2892,19 @@ type Endpoints = {
               sort?: components['schemas']['GroupSort'];
             };
           };
+          output: components['schemas']['Error'];
+          outputFormat: 'json';
+          status: 408;
+        }
+      | {
+          input: {
+            param: { id: string };
+            query: {
+              page?: number;
+              per?: number;
+              sort?: components['schemas']['GroupSort'];
+            };
+          };
           output: components['schemas']['RateLimitError'];
           outputFormat: 'json';
           status: 429;
@@ -2537,6 +2935,12 @@ type Endpoints = {
           output: components['schemas']['Error'];
           outputFormat: 'json';
           status: 404;
+        }
+      | {
+          input: { param: { id: string } };
+          output: components['schemas']['Error'];
+          outputFormat: 'json';
+          status: 408;
         }
       | {
           input: { param: { id: string } };
@@ -2613,6 +3017,20 @@ type Endpoints = {
               type?: components['schemas']['ContentTypeFilter'];
             };
           };
+          output: components['schemas']['Error'];
+          outputFormat: 'json';
+          status: 408;
+        }
+      | {
+          input: {
+            param: { id: string };
+            query: {
+              page?: number;
+              per?: number;
+              sort?: components['schemas']['ContentSort'];
+              type?: components['schemas']['ContentTypeFilter'];
+            };
+          };
           output: components['schemas']['RateLimitError'];
           outputFormat: 'json';
           status: 429;
@@ -2671,6 +3089,19 @@ type Endpoints = {
           output: components['schemas']['Error'];
           outputFormat: 'json';
           status: 404;
+        }
+      | {
+          input: {
+            param: { id: string };
+            query: {
+              page?: number;
+              per?: number;
+              sort?: components['schemas']['ConnectionSort'];
+            };
+          };
+          output: components['schemas']['Error'];
+          outputFormat: 'json';
+          status: 408;
         }
       | {
           input: {
@@ -2771,6 +3202,27 @@ type Endpoints = {
           output: components['schemas']['Error'];
           outputFormat: 'json';
           status: 403;
+        }
+      | {
+          input: {
+            query: {
+              query?: string;
+              type?: components['schemas']['SearchTypeFilter'][];
+              scope?: components['schemas']['SearchScope'];
+              user_id?: number;
+              group_id?: number;
+              channel_id?: number;
+              ext?: components['schemas']['FileExtension'][];
+              sort?: components['schemas']['SearchSort'];
+              after?: string;
+              seed?: number;
+              page?: number;
+              per?: number;
+            };
+          };
+          output: components['schemas']['Error'];
+          outputFormat: 'json';
+          status: 408;
         }
       | {
           input: {

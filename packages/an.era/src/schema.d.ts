@@ -19,6 +19,10 @@ export interface components {
                  * @example The resource you are looking for does not exist.
                  */
                 message?: string;
+                /** @description Validation errors, when applicable */
+                errors?: string[] | {
+                    [key: string]: unknown;
+                };
             };
         };
         /** @description Rate limit exceeded error response with upgrade information and suggestions */
@@ -1336,6 +1340,15 @@ export interface components {
                 [name: string]: unknown;
             };
             content: {
+                /**
+                 * @example {
+                 *       "error": "Forbidden",
+                 *       "code": 403,
+                 *       "details": {
+                 *         "message": "You do not have permission to access this resource."
+                 *       }
+                 *     }
+                 */
                 "application/json": components["schemas"]["Error"];
             };
         };
@@ -1365,14 +1378,28 @@ export interface components {
             content: {
                 /**
                  * @example {
-                 *       "error": "Validation failed",
+                 *       "error": "Unprocessable Entity",
                  *       "code": 422,
                  *       "details": {
-                 *         "errors": {
-                 *           "title": [
-                 *             "can't be blank"
-                 *           ]
-                 *         }
+                 *         "message": "You've reached your limit of blocks"
+                 *       }
+                 *     }
+                 */
+                "application/json": components["schemas"]["Error"];
+            };
+        };
+        /** @description Request timeout - the request took too long to process and was canceled */
+        RequestTimeoutResponse: {
+            headers: {
+                [name: string]: unknown;
+            };
+            content: {
+                /**
+                 * @example {
+                 *       "error": "Request Timeout",
+                 *       "code": 408,
+                 *       "details": {
+                 *         "message": "The request took too long to process and was canceled. Please try again or narrow the request."
                  *       }
                  *     }
                  */
