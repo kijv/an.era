@@ -2910,6 +2910,184 @@ type Endpoints = {
           status: 429;
         };
   };
+  '/v3/groups': {
+    $post:
+      | {
+          input: {
+            json: {
+              /**
+               * Format: uri
+               * @description URL of an avatar image to fetch asynchronously.
+               * @example https://example.com/avatar.jpg
+               */
+              avatar_url?: string;
+              /**
+               * @description Group description (supports markdown)
+               * @example Shared research notes and channels
+               */
+              description?: string;
+              /**
+               * @description Group name
+               * @example Research Studio
+               */
+              name: string;
+            };
+          };
+          output: components['schemas']['Group'];
+          outputFormat: 'json';
+          status: 201;
+        }
+      | {
+          input: {
+            json: {
+              /**
+               * Format: uri
+               * @description URL of an avatar image to fetch asynchronously.
+               * @example https://example.com/avatar.jpg
+               */
+              avatar_url?: string;
+              /**
+               * @description Group description (supports markdown)
+               * @example Shared research notes and channels
+               */
+              description?: string;
+              /**
+               * @description Group name
+               * @example Research Studio
+               */
+              name: string;
+            };
+          };
+          output: components['schemas']['Error'];
+          outputFormat: 'json';
+          status: 400;
+        }
+      | {
+          input: {
+            json: {
+              /**
+               * Format: uri
+               * @description URL of an avatar image to fetch asynchronously.
+               * @example https://example.com/avatar.jpg
+               */
+              avatar_url?: string;
+              /**
+               * @description Group description (supports markdown)
+               * @example Shared research notes and channels
+               */
+              description?: string;
+              /**
+               * @description Group name
+               * @example Research Studio
+               */
+              name: string;
+            };
+          };
+          output: components['schemas']['Error'];
+          outputFormat: 'json';
+          status: 401;
+        }
+      | {
+          input: {
+            json: {
+              /**
+               * Format: uri
+               * @description URL of an avatar image to fetch asynchronously.
+               * @example https://example.com/avatar.jpg
+               */
+              avatar_url?: string;
+              /**
+               * @description Group description (supports markdown)
+               * @example Shared research notes and channels
+               */
+              description?: string;
+              /**
+               * @description Group name
+               * @example Research Studio
+               */
+              name: string;
+            };
+          };
+          output: components['schemas']['Error'];
+          outputFormat: 'json';
+          status: 403;
+        }
+      | {
+          input: {
+            json: {
+              /**
+               * Format: uri
+               * @description URL of an avatar image to fetch asynchronously.
+               * @example https://example.com/avatar.jpg
+               */
+              avatar_url?: string;
+              /**
+               * @description Group description (supports markdown)
+               * @example Shared research notes and channels
+               */
+              description?: string;
+              /**
+               * @description Group name
+               * @example Research Studio
+               */
+              name: string;
+            };
+          };
+          output: components['schemas']['Error'];
+          outputFormat: 'json';
+          status: 408;
+        }
+      | {
+          input: {
+            json: {
+              /**
+               * Format: uri
+               * @description URL of an avatar image to fetch asynchronously.
+               * @example https://example.com/avatar.jpg
+               */
+              avatar_url?: string;
+              /**
+               * @description Group description (supports markdown)
+               * @example Shared research notes and channels
+               */
+              description?: string;
+              /**
+               * @description Group name
+               * @example Research Studio
+               */
+              name: string;
+            };
+          };
+          output: components['schemas']['Error'];
+          outputFormat: 'json';
+          status: 422;
+        }
+      | {
+          input: {
+            json: {
+              /**
+               * Format: uri
+               * @description URL of an avatar image to fetch asynchronously.
+               * @example https://example.com/avatar.jpg
+               */
+              avatar_url?: string;
+              /**
+               * @description Group description (supports markdown)
+               * @example Shared research notes and channels
+               */
+              description?: string;
+              /**
+               * @description Group name
+               * @example Research Studio
+               */
+              name: string;
+            };
+          };
+          output: components['schemas']['RateLimitError'];
+          outputFormat: 'json';
+          status: 429;
+        };
+  };
   '/v3/groups/:id': {
     $get:
       | {
@@ -2917,6 +3095,252 @@ type Endpoints = {
           output: components['schemas']['Group'];
           outputFormat: 'json';
           status: 200;
+        }
+      | {
+          input: { param: { id: string } };
+          output: components['schemas']['Error'];
+          outputFormat: 'json';
+          status: 401;
+        }
+      | {
+          input: { param: { id: string } };
+          output: components['schemas']['Error'];
+          outputFormat: 'json';
+          status: 403;
+        }
+      | {
+          input: { param: { id: string } };
+          output: components['schemas']['Error'];
+          outputFormat: 'json';
+          status: 404;
+        }
+      | {
+          input: { param: { id: string } };
+          output: components['schemas']['Error'];
+          outputFormat: 'json';
+          status: 408;
+        }
+      | {
+          input: { param: { id: string } };
+          output: components['schemas']['RateLimitError'];
+          outputFormat: 'json';
+          status: 429;
+        };
+    $put:
+      | {
+          input: {
+            param: { id: string };
+            json: {
+              /**
+               * Format: uri
+               * @description URL of an avatar image to fetch asynchronously.
+               * @example https://example.com/avatar.jpg
+               */
+              avatar_url?: string;
+              /**
+               * @description Group description (supports markdown). Pass null to clear.
+               * @example Updated shared research notes
+               */
+              description?: string | null;
+              /**
+               * @description Group name
+               * @example Updated Research Studio
+               */
+              name?: string;
+            };
+          };
+          output: components['schemas']['Group'];
+          outputFormat: 'json';
+          status: 200;
+        }
+      | {
+          input: {
+            param: { id: string };
+            json: {
+              /**
+               * Format: uri
+               * @description URL of an avatar image to fetch asynchronously.
+               * @example https://example.com/avatar.jpg
+               */
+              avatar_url?: string;
+              /**
+               * @description Group description (supports markdown). Pass null to clear.
+               * @example Updated shared research notes
+               */
+              description?: string | null;
+              /**
+               * @description Group name
+               * @example Updated Research Studio
+               */
+              name?: string;
+            };
+          };
+          output: components['schemas']['Error'];
+          outputFormat: 'json';
+          status: 400;
+        }
+      | {
+          input: {
+            param: { id: string };
+            json: {
+              /**
+               * Format: uri
+               * @description URL of an avatar image to fetch asynchronously.
+               * @example https://example.com/avatar.jpg
+               */
+              avatar_url?: string;
+              /**
+               * @description Group description (supports markdown). Pass null to clear.
+               * @example Updated shared research notes
+               */
+              description?: string | null;
+              /**
+               * @description Group name
+               * @example Updated Research Studio
+               */
+              name?: string;
+            };
+          };
+          output: components['schemas']['Error'];
+          outputFormat: 'json';
+          status: 401;
+        }
+      | {
+          input: {
+            param: { id: string };
+            json: {
+              /**
+               * Format: uri
+               * @description URL of an avatar image to fetch asynchronously.
+               * @example https://example.com/avatar.jpg
+               */
+              avatar_url?: string;
+              /**
+               * @description Group description (supports markdown). Pass null to clear.
+               * @example Updated shared research notes
+               */
+              description?: string | null;
+              /**
+               * @description Group name
+               * @example Updated Research Studio
+               */
+              name?: string;
+            };
+          };
+          output: components['schemas']['Error'];
+          outputFormat: 'json';
+          status: 403;
+        }
+      | {
+          input: {
+            param: { id: string };
+            json: {
+              /**
+               * Format: uri
+               * @description URL of an avatar image to fetch asynchronously.
+               * @example https://example.com/avatar.jpg
+               */
+              avatar_url?: string;
+              /**
+               * @description Group description (supports markdown). Pass null to clear.
+               * @example Updated shared research notes
+               */
+              description?: string | null;
+              /**
+               * @description Group name
+               * @example Updated Research Studio
+               */
+              name?: string;
+            };
+          };
+          output: components['schemas']['Error'];
+          outputFormat: 'json';
+          status: 404;
+        }
+      | {
+          input: {
+            param: { id: string };
+            json: {
+              /**
+               * Format: uri
+               * @description URL of an avatar image to fetch asynchronously.
+               * @example https://example.com/avatar.jpg
+               */
+              avatar_url?: string;
+              /**
+               * @description Group description (supports markdown). Pass null to clear.
+               * @example Updated shared research notes
+               */
+              description?: string | null;
+              /**
+               * @description Group name
+               * @example Updated Research Studio
+               */
+              name?: string;
+            };
+          };
+          output: components['schemas']['Error'];
+          outputFormat: 'json';
+          status: 408;
+        }
+      | {
+          input: {
+            param: { id: string };
+            json: {
+              /**
+               * Format: uri
+               * @description URL of an avatar image to fetch asynchronously.
+               * @example https://example.com/avatar.jpg
+               */
+              avatar_url?: string;
+              /**
+               * @description Group description (supports markdown). Pass null to clear.
+               * @example Updated shared research notes
+               */
+              description?: string | null;
+              /**
+               * @description Group name
+               * @example Updated Research Studio
+               */
+              name?: string;
+            };
+          };
+          output: components['schemas']['Error'];
+          outputFormat: 'json';
+          status: 422;
+        }
+      | {
+          input: {
+            param: { id: string };
+            json: {
+              /**
+               * Format: uri
+               * @description URL of an avatar image to fetch asynchronously.
+               * @example https://example.com/avatar.jpg
+               */
+              avatar_url?: string;
+              /**
+               * @description Group description (supports markdown). Pass null to clear.
+               * @example Updated shared research notes
+               */
+              description?: string | null;
+              /**
+               * @description Group name
+               * @example Updated Research Studio
+               */
+              name?: string;
+            };
+          };
+          output: components['schemas']['RateLimitError'];
+          outputFormat: 'json';
+          status: 429;
+        };
+    $delete:
+      | {
+          input: { param: { id: string } };
+          output: {};
+          outputFormat: 'json';
+          status: 204;
         }
       | {
           input: { param: { id: string } };
