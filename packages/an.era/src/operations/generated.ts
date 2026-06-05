@@ -83,6 +83,8 @@ export type OperationsMappedToPathParam = {
   };
   group: {
     get: { param: 'id'; method: Client['v3']['groups'][':id']['$get'] };
+    update: { param: 'id'; method: Client['v3']['groups'][':id']['$put'] };
+    delete: { param: 'id'; method: Client['v3']['groups'][':id']['$delete'] };
     getContents: {
       param: 'id';
       method: Client['v3']['groups'][':id']['contents']['$get'];
@@ -102,6 +104,7 @@ export type OperationsMappedToPathParam = {
   createChannel: Client['v3']['channels']['$post'];
   createConnection: Client['v3']['connections']['$post'];
   getCurrentUser: Client['v3']['me']['$get'];
+  createGroup: Client['v3']['groups']['$post'];
   search: Client['v3']['search']['$get'];
 };
 
@@ -138,7 +141,10 @@ export type Operations = {
   getUserFollowers: Client['v3']['users'][':id']['followers']['$get'];
   getUserFollowing: Client['v3']['users'][':id']['following']['$get'];
   getUserGroups: Client['v3']['users'][':id']['groups']['$get'];
+  createGroup: Client['v3']['groups']['$post'];
   getGroup: Client['v3']['groups'][':id']['$get'];
+  updateGroup: Client['v3']['groups'][':id']['$put'];
+  deleteGroup: Client['v3']['groups'][':id']['$delete'];
   getGroupContents: Client['v3']['groups'][':id']['contents']['$get'];
   getGroupFollowers: Client['v3']['groups'][':id']['followers']['$get'];
   search: Client['v3']['search']['$get'];
@@ -177,7 +183,10 @@ export const OPERATIONS: Map<string, readonly string[]> = new Map([
   ['getUserFollowers', ['v3', 'users', ':id', 'followers', '$get']],
   ['getUserFollowing', ['v3', 'users', ':id', 'following', '$get']],
   ['getUserGroups', ['v3', 'users', ':id', 'groups', '$get']],
+  ['createGroup', ['v3', 'groups', '$post']],
   ['getGroup', ['v3', 'groups', ':id', '$get']],
+  ['updateGroup', ['v3', 'groups', ':id', '$put']],
+  ['deleteGroup', ['v3', 'groups', ':id', '$delete']],
   ['getGroupContents', ['v3', 'groups', ':id', 'contents', '$get']],
   ['getGroupFollowers', ['v3', 'groups', ':id', 'followers', '$get']],
   ['search', ['v3', 'search', '$get']],
