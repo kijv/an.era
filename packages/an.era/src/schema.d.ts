@@ -303,6 +303,20 @@ export interface components {
             /** @description HATEOAS links for navigation */
             _links: components["schemas"]["Links"];
         };
+        /**
+         * @description The authenticated user's own profile, returned by `GET /v3/me`.
+         *     Extends `User` with the token holder's email address. This field is
+         *     intentionally not present on `/v3/users/{id}` or on embedded `User`
+         *     references nested in other resources.
+         */
+        Me: components["schemas"]["User"] & {
+            /**
+             * Format: email
+             * @description The authenticated user's email address.
+             * @example jane@example.com
+             */
+            email: string;
+        };
         /** @description Counts of various items for the user */
         UserCounts: {
             /**
@@ -323,8 +337,8 @@ export interface components {
         };
         /** @description Full group representation */
         Group: components["schemas"]["EmbeddedGroup"] & {
-            /** @description Group biography with markdown, HTML, and plain text renderings */
-            bio?: components["schemas"]["MarkdownContent"] | null;
+            /** @description Group description with markdown, HTML, and plain text renderings */
+            description?: components["schemas"]["MarkdownContent"] | null;
             /**
              * Format: date-time
              * @description When the group was created
@@ -340,6 +354,8 @@ export interface components {
             /** @description User who owns/created the group */
             user: components["schemas"]["EmbeddedUser"];
             counts: components["schemas"]["GroupCounts"];
+            /** @description Actions the current user can perform on the group */
+            can: components["schemas"]["GroupAbilities"];
             /** @description HATEOAS links for navigation */
             _links: components["schemas"]["Links"];
         };
@@ -355,6 +371,162 @@ export interface components {
              * @example 5
              */
             users: number;
+        };
+        /**
+         * @description Pending invitation for a user to join a group.
+         *
+         *     Invitee acceptance and decline currently happen through the Are.na web
+         *     UI using tokenized invitation links sent by email. The web UI uses the
+         *     GraphQL `acceptMembershipInvitation` and `declineMembershipInvitation`
+         *     mutations; this REST surface only exposes group-manager list and revoke
+         *     operations.
+         */
+        MembershipInvitation: {
+            /**
+             * @description Unique identifier for the invitation
+             * @example 12345
+             */
+            id: number;
+            /**
+             * @example MembershipInvitation
+             * @enum {string}
+             */
+            type: "MembershipInvitation";
+            /** @description Group the invitee is invited to join */
+            target: components["schemas"]["EmbeddedGroup"];
+            /** @description User being invited, when available */
+            invitee: components["schemas"]["EmbeddedUser"] | null;
+            /**
+             * Format: email
+             * @description Email address being invited, visible to users who can manage invitations
+             * @example invitee@example.com
+             */
+            invitee_email: string | null;
+            /** @description User who created the invitation */
+            invited_by: components["schemas"]["EmbeddedUser"];
+            /**
+             * @example pending
+             * @enum {string}
+             */
+            state: "pending" | "accepted" | "declined" | "revoked";
+            /**
+             * Format: date-time
+             * @description When the invitation was accepted
+             * @example null
+             */
+            accepted_at: string | null;
+            /**
+             * Format: date-time
+             * @description When the invitation was created
+             * @example 2023-01-15T10:30:00Z
+             */
+            created_at: string;
+            /**
+             * Format: date-time
+             * @description When the invitation was last updated
+             * @example 2023-01-15T10:30:00Z
+             */
+            updated_at: string;
+            /**
+             * @description Links for navigation. Empty today because no public endpoint
+             *     addresses an invitation directly; reserved for future use.
+             */
+            _links: {
+                [key: string]: unknown;
+            };
+        };
+        /** @description Shareable invite code for joining a group */
+        GroupInvite: {
+            /**
+             * @description Unique identifier for the invite code
+             * @example 12345
+             */
+            id: number;
+            /**
+             * @example GroupInvite
+             * @enum {string}
+             */
+            type: "GroupInvite";
+            /**
+             * @description Invite code required to join the group
+             * @example abc123xyz
+             */
+            code: string;
+            /**
+             * Format: uri
+             * @description Public Are.na URL for accepting the group invite
+             * @example https://www.are.na/group/research-studio/invite/abc123xyz
+             */
+            url: string;
+            /**
+             * Format: date-time
+             * @description When the invite code was created
+             * @example 2023-01-15T10:30:00Z
+             */
+            created_at: string;
+            /**
+             * Format: date-time
+             * @description When the invite code was last updated
+             * @example 2023-01-15T10:30:00Z
+             */
+            updated_at: string;
+            /** @description HATEOAS links for navigation */
+            _links: components["schemas"]["Links"];
+        };
+        /** @description Group member entry, including the group owner and any collaborators */
+        GroupMember: components["schemas"]["EmbeddedUser"] & {
+            /**
+             * @description The user's role on the group. `owner` is the group's creator;
+             *     `member` is anyone else with a group membership.
+             * @example member
+             * @enum {string}
+             */
+            role: "owner" | "member";
+        };
+        /** @description Data payload containing an array of group members */
+        GroupMemberList: {
+            /** @description Array of group members (owner first on page 1) */
+            data: components["schemas"]["GroupMember"][];
+        };
+        /** @description Paginated list of group members with total count */
+        GroupMemberListResponse: components["schemas"]["GroupMemberList"] & components["schemas"]["PaginatedResponse"];
+        /** @description Data payload containing an array of membership invitations */
+        MembershipInvitationList: {
+            /** @description Array of pending membership invitations */
+            data: components["schemas"]["MembershipInvitation"][];
+        };
+        /** @description Paginated list of pending membership invitations */
+        MembershipInvitationListResponse: components["schemas"]["MembershipInvitationList"] & components["schemas"]["PaginatedResponse"];
+        /**
+         * @description Discriminator for the result of `POST /v3/groups/{id}/invitations`.
+         *
+         *     - `added`: A new group membership was created (the invitee already
+         *       follows the caller, so the invite/accept round trip was skipped).
+         *     - `invited`: A new pending invitation was created and an email was sent.
+         *     - `invitation_pending`: An open invitation for this user/email already
+         *       existed; that invitation is returned unchanged.
+         *     - `already_member`: The user is already a group member; no action was
+         *       taken.
+         * @enum {string}
+         */
+        GroupMemberInviteOutcome: "added" | "invited" | "invitation_pending" | "already_member";
+        /**
+         * @description Result of `POST /v3/groups/{id}/invitations`. Inspect `outcome` to
+         *     determine what happened; HTTP status mirrors it (`201` for created outcomes,
+         *     `200` for no-op outcomes).
+         */
+        GroupMemberInviteResponse: {
+            outcome: components["schemas"]["GroupMemberInviteOutcome"];
+            /**
+             * @description The user that this request resolved to, when known. Null only when
+             *     an invitation was issued by email and no matching user exists yet.
+             */
+            user: components["schemas"]["EmbeddedUser"] | null;
+            /**
+             * @description The invitation associated with this request, for `invited` and
+             *     `invitation_pending` outcomes.
+             */
+            invitation: components["schemas"]["MembershipInvitation"] | null;
         };
         /**
          * @description Denotes plan or other distinction:
@@ -1185,6 +1357,29 @@ export interface components {
              * @example false
              */
             manage_collaborators: boolean;
+        };
+        /** @description Actions the current user can perform on the group */
+        GroupAbilities: {
+            /**
+             * @description Whether the user can update this group
+             * @example false
+             */
+            update: boolean;
+            /**
+             * @description Whether the user can delete this group
+             * @example false
+             */
+            destroy: boolean;
+            /**
+             * @description Whether the user can add/remove group members
+             * @example false
+             */
+            manage_members: boolean;
+            /**
+             * @description Whether the user can create/revoke group invitations
+             * @example false
+             */
+            manage_invitations: boolean;
         };
         /** @description Counts of various items in the channel */
         ChannelCounts: {
