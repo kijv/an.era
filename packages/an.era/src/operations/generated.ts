@@ -62,6 +62,12 @@ export type OperationsMappedToPathParam = {
       method: Client['v3']['connections'][':id']['move']['$post'];
     };
   };
+  my: {
+    markNotificationRead: {
+      param: 'id';
+      method: Client['v3']['me']['notifications'][':id']['read']['$post'];
+    };
+  };
   user: {
     get: { param: 'id'; method: Client['v3']['users'][':id']['$get'] };
     getContents: {
@@ -83,6 +89,48 @@ export type OperationsMappedToPathParam = {
   };
   group: {
     get: { param: 'id'; method: Client['v3']['groups'][':id']['$get'] };
+    update: { param: 'id'; method: Client['v3']['groups'][':id']['$put'] };
+    delete: { param: 'id'; method: Client['v3']['groups'][':id']['$delete'] };
+    getMembers: {
+      param: 'id';
+      method: Client['v3']['groups'][':id']['members']['$get'];
+    };
+    join: {
+      param: 'id';
+      method: Client['v3']['groups'][':id']['members']['$post'];
+    };
+    leave: {
+      param: 'id';
+      method: Client['v3']['groups'][':id']['members']['me']['$delete'];
+    };
+    removeMember: {
+      param: 'id';
+      method: Client['v3']['groups'][':id']['members'][':user_id']['$delete'];
+    };
+    getInvitations: {
+      param: 'id';
+      method: Client['v3']['groups'][':id']['invitations']['$get'];
+    };
+    createInvitation: {
+      param: 'id';
+      method: Client['v3']['groups'][':id']['invitations']['$post'];
+    };
+    revokeInvitation: {
+      param: 'id';
+      method: Client['v3']['groups'][':id']['invitations'][':invitation_id']['$delete'];
+    };
+    getInvite: {
+      param: 'id';
+      method: Client['v3']['groups'][':id']['invite']['$get'];
+    };
+    createInvite: {
+      param: 'id';
+      method: Client['v3']['groups'][':id']['invite']['$post'];
+    };
+    deleteInvite: {
+      param: 'id';
+      method: Client['v3']['groups'][':id']['invite']['$delete'];
+    };
     getContents: {
       param: 'id';
       method: Client['v3']['groups'][':id']['contents']['$get'];
@@ -102,6 +150,10 @@ export type OperationsMappedToPathParam = {
   createChannel: Client['v3']['channels']['$post'];
   createConnection: Client['v3']['connections']['$post'];
   getCurrentUser: Client['v3']['me']['$get'];
+  getMyFeed: Client['v3']['me']['feed']['$get'];
+  getMyNotifications: Client['v3']['me']['notifications']['$get'];
+  markAllMyNotificationsRead: Client['v3']['me']['notifications']['read']['$post'];
+  createGroup: Client['v3']['groups']['$post'];
   search: Client['v3']['search']['$get'];
 };
 
@@ -133,12 +185,29 @@ export type Operations = {
   getChannelConnections: Client['v3']['channels'][':id']['connections']['$get'];
   getChannelFollowers: Client['v3']['channels'][':id']['followers']['$get'];
   getCurrentUser: Client['v3']['me']['$get'];
+  getMyFeed: Client['v3']['me']['feed']['$get'];
+  getMyNotifications: Client['v3']['me']['notifications']['$get'];
+  markAllMyNotificationsRead: Client['v3']['me']['notifications']['read']['$post'];
+  markMyNotificationRead: Client['v3']['me']['notifications'][':id']['read']['$post'];
   getUser: Client['v3']['users'][':id']['$get'];
   getUserContents: Client['v3']['users'][':id']['contents']['$get'];
   getUserFollowers: Client['v3']['users'][':id']['followers']['$get'];
   getUserFollowing: Client['v3']['users'][':id']['following']['$get'];
   getUserGroups: Client['v3']['users'][':id']['groups']['$get'];
+  createGroup: Client['v3']['groups']['$post'];
   getGroup: Client['v3']['groups'][':id']['$get'];
+  updateGroup: Client['v3']['groups'][':id']['$put'];
+  deleteGroup: Client['v3']['groups'][':id']['$delete'];
+  getGroupMembers: Client['v3']['groups'][':id']['members']['$get'];
+  joinGroup: Client['v3']['groups'][':id']['members']['$post'];
+  leaveGroup: Client['v3']['groups'][':id']['members']['me']['$delete'];
+  removeGroupMember: Client['v3']['groups'][':id']['members'][':user_id']['$delete'];
+  getGroupInvitations: Client['v3']['groups'][':id']['invitations']['$get'];
+  createGroupInvitation: Client['v3']['groups'][':id']['invitations']['$post'];
+  revokeGroupInvitation: Client['v3']['groups'][':id']['invitations'][':invitation_id']['$delete'];
+  getGroupInvite: Client['v3']['groups'][':id']['invite']['$get'];
+  createGroupInvite: Client['v3']['groups'][':id']['invite']['$post'];
+  deleteGroupInvite: Client['v3']['groups'][':id']['invite']['$delete'];
   getGroupContents: Client['v3']['groups'][':id']['contents']['$get'];
   getGroupFollowers: Client['v3']['groups'][':id']['followers']['$get'];
   search: Client['v3']['search']['$get'];
@@ -172,12 +241,41 @@ export const OPERATIONS: Map<string, readonly string[]> = new Map([
   ['getChannelConnections', ['v3', 'channels', ':id', 'connections', '$get']],
   ['getChannelFollowers', ['v3', 'channels', ':id', 'followers', '$get']],
   ['getCurrentUser', ['v3', 'me', '$get']],
+  ['getMyFeed', ['v3', 'me', 'feed', '$get']],
+  ['getMyNotifications', ['v3', 'me', 'notifications', '$get']],
+  [
+    'markAllMyNotificationsRead',
+    ['v3', 'me', 'notifications', 'read', '$post'],
+  ],
+  [
+    'markMyNotificationRead',
+    ['v3', 'me', 'notifications', ':id', 'read', '$post'],
+  ],
   ['getUser', ['v3', 'users', ':id', '$get']],
   ['getUserContents', ['v3', 'users', ':id', 'contents', '$get']],
   ['getUserFollowers', ['v3', 'users', ':id', 'followers', '$get']],
   ['getUserFollowing', ['v3', 'users', ':id', 'following', '$get']],
   ['getUserGroups', ['v3', 'users', ':id', 'groups', '$get']],
+  ['createGroup', ['v3', 'groups', '$post']],
   ['getGroup', ['v3', 'groups', ':id', '$get']],
+  ['updateGroup', ['v3', 'groups', ':id', '$put']],
+  ['deleteGroup', ['v3', 'groups', ':id', '$delete']],
+  ['getGroupMembers', ['v3', 'groups', ':id', 'members', '$get']],
+  ['joinGroup', ['v3', 'groups', ':id', 'members', '$post']],
+  ['leaveGroup', ['v3', 'groups', ':id', 'members', 'me', '$delete']],
+  [
+    'removeGroupMember',
+    ['v3', 'groups', ':id', 'members', ':user_id', '$delete'],
+  ],
+  ['getGroupInvitations', ['v3', 'groups', ':id', 'invitations', '$get']],
+  ['createGroupInvitation', ['v3', 'groups', ':id', 'invitations', '$post']],
+  [
+    'revokeGroupInvitation',
+    ['v3', 'groups', ':id', 'invitations', ':invitation_id', '$delete'],
+  ],
+  ['getGroupInvite', ['v3', 'groups', ':id', 'invite', '$get']],
+  ['createGroupInvite', ['v3', 'groups', ':id', 'invite', '$post']],
+  ['deleteGroupInvite', ['v3', 'groups', ':id', 'invite', '$delete']],
   ['getGroupContents', ['v3', 'groups', ':id', 'contents', '$get']],
   ['getGroupFollowers', ['v3', 'groups', ':id', 'followers', '$get']],
   ['search', ['v3', 'search', '$get']],
