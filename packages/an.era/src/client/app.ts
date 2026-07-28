@@ -1253,14 +1253,14 @@ type Endpoints = {
                * @example A collection of interesting links
                */
               description?: string;
-              /**
-               * @description Group ID to create the channel under. The authenticated user must be a member of the group.
-               *     If not provided, the channel is owned by the authenticated user.
-               * @example 12345
-               */
-              group_id?: number;
               /** @description Custom key-value metadata to set on the new channel. */
               metadata?: components['schemas']['Metadata'];
+              /**
+               * @description User or Group to own the channel. The authenticated user must be able to assign authorship
+               *     to the owner: themselves, or a group they belong to. If not provided, the channel is owned
+               *     by the authenticated user.
+               */
+              owner?: components['schemas']['ChannelOwnerInput'];
               /**
                * @description Channel title
                * @example My New Channel
@@ -1282,14 +1282,14 @@ type Endpoints = {
                * @example A collection of interesting links
                */
               description?: string;
-              /**
-               * @description Group ID to create the channel under. The authenticated user must be a member of the group.
-               *     If not provided, the channel is owned by the authenticated user.
-               * @example 12345
-               */
-              group_id?: number;
               /** @description Custom key-value metadata to set on the new channel. */
               metadata?: components['schemas']['Metadata'];
+              /**
+               * @description User or Group to own the channel. The authenticated user must be able to assign authorship
+               *     to the owner: themselves, or a group they belong to. If not provided, the channel is owned
+               *     by the authenticated user.
+               */
+              owner?: components['schemas']['ChannelOwnerInput'];
               /**
                * @description Channel title
                * @example My New Channel
@@ -1311,14 +1311,14 @@ type Endpoints = {
                * @example A collection of interesting links
                */
               description?: string;
-              /**
-               * @description Group ID to create the channel under. The authenticated user must be a member of the group.
-               *     If not provided, the channel is owned by the authenticated user.
-               * @example 12345
-               */
-              group_id?: number;
               /** @description Custom key-value metadata to set on the new channel. */
               metadata?: components['schemas']['Metadata'];
+              /**
+               * @description User or Group to own the channel. The authenticated user must be able to assign authorship
+               *     to the owner: themselves, or a group they belong to. If not provided, the channel is owned
+               *     by the authenticated user.
+               */
+              owner?: components['schemas']['ChannelOwnerInput'];
               /**
                * @description Channel title
                * @example My New Channel
@@ -1340,14 +1340,14 @@ type Endpoints = {
                * @example A collection of interesting links
                */
               description?: string;
-              /**
-               * @description Group ID to create the channel under. The authenticated user must be a member of the group.
-               *     If not provided, the channel is owned by the authenticated user.
-               * @example 12345
-               */
-              group_id?: number;
               /** @description Custom key-value metadata to set on the new channel. */
               metadata?: components['schemas']['Metadata'];
+              /**
+               * @description User or Group to own the channel. The authenticated user must be able to assign authorship
+               *     to the owner: themselves, or a group they belong to. If not provided, the channel is owned
+               *     by the authenticated user.
+               */
+              owner?: components['schemas']['ChannelOwnerInput'];
               /**
                * @description Channel title
                * @example My New Channel
@@ -1369,14 +1369,14 @@ type Endpoints = {
                * @example A collection of interesting links
                */
               description?: string;
-              /**
-               * @description Group ID to create the channel under. The authenticated user must be a member of the group.
-               *     If not provided, the channel is owned by the authenticated user.
-               * @example 12345
-               */
-              group_id?: number;
               /** @description Custom key-value metadata to set on the new channel. */
               metadata?: components['schemas']['Metadata'];
+              /**
+               * @description User or Group to own the channel. The authenticated user must be able to assign authorship
+               *     to the owner: themselves, or a group they belong to. If not provided, the channel is owned
+               *     by the authenticated user.
+               */
+              owner?: components['schemas']['ChannelOwnerInput'];
               /**
                * @description Channel title
                * @example My New Channel
@@ -1398,14 +1398,14 @@ type Endpoints = {
                * @example A collection of interesting links
                */
               description?: string;
-              /**
-               * @description Group ID to create the channel under. The authenticated user must be a member of the group.
-               *     If not provided, the channel is owned by the authenticated user.
-               * @example 12345
-               */
-              group_id?: number;
               /** @description Custom key-value metadata to set on the new channel. */
               metadata?: components['schemas']['Metadata'];
+              /**
+               * @description User or Group to own the channel. The authenticated user must be able to assign authorship
+               *     to the owner: themselves, or a group they belong to. If not provided, the channel is owned
+               *     by the authenticated user.
+               */
+              owner?: components['schemas']['ChannelOwnerInput'];
               /**
                * @description Channel title
                * @example My New Channel
@@ -1427,14 +1427,14 @@ type Endpoints = {
                * @example A collection of interesting links
                */
               description?: string;
-              /**
-               * @description Group ID to create the channel under. The authenticated user must be a member of the group.
-               *     If not provided, the channel is owned by the authenticated user.
-               * @example 12345
-               */
-              group_id?: number;
               /** @description Custom key-value metadata to set on the new channel. */
               metadata?: components['schemas']['Metadata'];
+              /**
+               * @description User or Group to own the channel. The authenticated user must be able to assign authorship
+               *     to the owner: themselves, or a group they belong to. If not provided, the channel is owned
+               *     by the authenticated user.
+               */
+              owner?: components['schemas']['ChannelOwnerInput'];
               /**
                * @description Channel title
                * @example My New Channel
@@ -1503,6 +1503,11 @@ type Endpoints = {
                */
               metadata?: components['schemas']['MetadataInput'];
               /**
+               * @description User or Group to own the channel. The authenticated user must be able to assign authorship
+               *     to the owner: themselves, or a group they belong to.
+               */
+              owner?: components['schemas']['ChannelOwnerInput'];
+              /**
                * @description Channel title
                * @example Updated Channel Title
                */
@@ -1528,6 +1533,11 @@ type Endpoints = {
                *     existing keys are updated, keys set to null are removed.
                */
               metadata?: components['schemas']['MetadataInput'];
+              /**
+               * @description User or Group to own the channel. The authenticated user must be able to assign authorship
+               *     to the owner: themselves, or a group they belong to.
+               */
+              owner?: components['schemas']['ChannelOwnerInput'];
               /**
                * @description Channel title
                * @example Updated Channel Title
@@ -1555,6 +1565,11 @@ type Endpoints = {
                */
               metadata?: components['schemas']['MetadataInput'];
               /**
+               * @description User or Group to own the channel. The authenticated user must be able to assign authorship
+               *     to the owner: themselves, or a group they belong to.
+               */
+              owner?: components['schemas']['ChannelOwnerInput'];
+              /**
                * @description Channel title
                * @example Updated Channel Title
                */
@@ -1580,6 +1595,11 @@ type Endpoints = {
                *     existing keys are updated, keys set to null are removed.
                */
               metadata?: components['schemas']['MetadataInput'];
+              /**
+               * @description User or Group to own the channel. The authenticated user must be able to assign authorship
+               *     to the owner: themselves, or a group they belong to.
+               */
+              owner?: components['schemas']['ChannelOwnerInput'];
               /**
                * @description Channel title
                * @example Updated Channel Title
@@ -1607,6 +1627,11 @@ type Endpoints = {
                */
               metadata?: components['schemas']['MetadataInput'];
               /**
+               * @description User or Group to own the channel. The authenticated user must be able to assign authorship
+               *     to the owner: themselves, or a group they belong to.
+               */
+              owner?: components['schemas']['ChannelOwnerInput'];
+              /**
                * @description Channel title
                * @example Updated Channel Title
                */
@@ -1632,6 +1657,11 @@ type Endpoints = {
                *     existing keys are updated, keys set to null are removed.
                */
               metadata?: components['schemas']['MetadataInput'];
+              /**
+               * @description User or Group to own the channel. The authenticated user must be able to assign authorship
+               *     to the owner: themselves, or a group they belong to.
+               */
+              owner?: components['schemas']['ChannelOwnerInput'];
               /**
                * @description Channel title
                * @example Updated Channel Title
@@ -1659,6 +1689,11 @@ type Endpoints = {
                */
               metadata?: components['schemas']['MetadataInput'];
               /**
+               * @description User or Group to own the channel. The authenticated user must be able to assign authorship
+               *     to the owner: themselves, or a group they belong to.
+               */
+              owner?: components['schemas']['ChannelOwnerInput'];
+              /**
                * @description Channel title
                * @example Updated Channel Title
                */
@@ -1684,6 +1719,11 @@ type Endpoints = {
                *     existing keys are updated, keys set to null are removed.
                */
               metadata?: components['schemas']['MetadataInput'];
+              /**
+               * @description User or Group to own the channel. The authenticated user must be able to assign authorship
+               *     to the owner: themselves, or a group they belong to.
+               */
+              owner?: components['schemas']['ChannelOwnerInput'];
               /**
                * @description Channel title
                * @example Updated Channel Title
@@ -2512,7 +2552,7 @@ type Endpoints = {
     $get:
       | {
           input: {};
-          output: components['schemas']['User'];
+          output: components['schemas']['Me'];
           outputFormat: 'json';
           status: 200;
         }
@@ -2530,6 +2570,160 @@ type Endpoints = {
         }
       | {
           input: {};
+          output: components['schemas']['RateLimitError'];
+          outputFormat: 'json';
+          status: 429;
+        };
+  };
+  '/v3/me/feed': {
+    $get:
+      | {
+          input: { query: { limit?: number; next?: string; prev?: string } };
+          output: components['schemas']['FeedListResponse'];
+          outputFormat: 'json';
+          status: 200;
+        }
+      | {
+          input: { query: { limit?: number; next?: string; prev?: string } };
+          output: components['schemas']['Error'];
+          outputFormat: 'json';
+          status: 401;
+        }
+      | {
+          input: { query: { limit?: number; next?: string; prev?: string } };
+          output: components['schemas']['Error'];
+          outputFormat: 'json';
+          status: 408;
+        }
+      | {
+          input: { query: { limit?: number; next?: string; prev?: string } };
+          output: components['schemas']['RateLimitError'];
+          outputFormat: 'json';
+          status: 429;
+        };
+  };
+  '/v3/me/notifications': {
+    $get:
+      | {
+          input: {
+            query: {
+              limit?: number;
+              next?: string;
+              prev?: string;
+              unread?: boolean;
+            };
+          };
+          output: components['schemas']['NotificationListResponse'];
+          outputFormat: 'json';
+          status: 200;
+        }
+      | {
+          input: {
+            query: {
+              limit?: number;
+              next?: string;
+              prev?: string;
+              unread?: boolean;
+            };
+          };
+          output: components['schemas']['Error'];
+          outputFormat: 'json';
+          status: 401;
+        }
+      | {
+          input: {
+            query: {
+              limit?: number;
+              next?: string;
+              prev?: string;
+              unread?: boolean;
+            };
+          };
+          output: components['schemas']['Error'];
+          outputFormat: 'json';
+          status: 408;
+        }
+      | {
+          input: {
+            query: {
+              limit?: number;
+              next?: string;
+              prev?: string;
+              unread?: boolean;
+            };
+          };
+          output: components['schemas']['RateLimitError'];
+          outputFormat: 'json';
+          status: 429;
+        };
+  };
+  '/v3/me/notifications/read': {
+    $post:
+      | {
+          input: {};
+          output: components['schemas']['NotificationsReadAllResponse'];
+          outputFormat: 'json';
+          status: 200;
+        }
+      | {
+          input: {};
+          output: components['schemas']['Error'];
+          outputFormat: 'json';
+          status: 401;
+        }
+      | {
+          input: {};
+          output: components['schemas']['Error'];
+          outputFormat: 'json';
+          status: 403;
+        }
+      | {
+          input: {};
+          output: components['schemas']['Error'];
+          outputFormat: 'json';
+          status: 408;
+        }
+      | {
+          input: {};
+          output: components['schemas']['RateLimitError'];
+          outputFormat: 'json';
+          status: 429;
+        };
+  };
+  '/v3/me/notifications/:id/read': {
+    $post:
+      | {
+          input: { param: { id: number } };
+          output: components['schemas']['NotificationReadResponse'];
+          outputFormat: 'json';
+          status: 200;
+        }
+      | {
+          input: { param: { id: number } };
+          output: components['schemas']['Error'];
+          outputFormat: 'json';
+          status: 401;
+        }
+      | {
+          input: { param: { id: number } };
+          output: components['schemas']['Error'];
+          outputFormat: 'json';
+          status: 403;
+        }
+      | {
+          input: { param: { id: number } };
+          output: components['schemas']['Error'];
+          outputFormat: 'json';
+          status: 404;
+        }
+      | {
+          input: { param: { id: number } };
+          output: components['schemas']['Error'];
+          outputFormat: 'json';
+          status: 408;
+        }
+      | {
+          input: { param: { id: number } };
           output: components['schemas']['RateLimitError'];
           outputFormat: 'json';
           status: 429;
@@ -2910,6 +3104,184 @@ type Endpoints = {
           status: 429;
         };
   };
+  '/v3/groups': {
+    $post:
+      | {
+          input: {
+            json: {
+              /**
+               * Format: uri
+               * @description URL of an avatar image to fetch asynchronously.
+               * @example https://example.com/avatar.jpg
+               */
+              avatar_url?: string;
+              /**
+               * @description Group description (supports markdown)
+               * @example Shared research notes and channels
+               */
+              description?: string;
+              /**
+               * @description Group name
+               * @example Research Studio
+               */
+              name: string;
+            };
+          };
+          output: components['schemas']['Group'];
+          outputFormat: 'json';
+          status: 201;
+        }
+      | {
+          input: {
+            json: {
+              /**
+               * Format: uri
+               * @description URL of an avatar image to fetch asynchronously.
+               * @example https://example.com/avatar.jpg
+               */
+              avatar_url?: string;
+              /**
+               * @description Group description (supports markdown)
+               * @example Shared research notes and channels
+               */
+              description?: string;
+              /**
+               * @description Group name
+               * @example Research Studio
+               */
+              name: string;
+            };
+          };
+          output: components['schemas']['Error'];
+          outputFormat: 'json';
+          status: 400;
+        }
+      | {
+          input: {
+            json: {
+              /**
+               * Format: uri
+               * @description URL of an avatar image to fetch asynchronously.
+               * @example https://example.com/avatar.jpg
+               */
+              avatar_url?: string;
+              /**
+               * @description Group description (supports markdown)
+               * @example Shared research notes and channels
+               */
+              description?: string;
+              /**
+               * @description Group name
+               * @example Research Studio
+               */
+              name: string;
+            };
+          };
+          output: components['schemas']['Error'];
+          outputFormat: 'json';
+          status: 401;
+        }
+      | {
+          input: {
+            json: {
+              /**
+               * Format: uri
+               * @description URL of an avatar image to fetch asynchronously.
+               * @example https://example.com/avatar.jpg
+               */
+              avatar_url?: string;
+              /**
+               * @description Group description (supports markdown)
+               * @example Shared research notes and channels
+               */
+              description?: string;
+              /**
+               * @description Group name
+               * @example Research Studio
+               */
+              name: string;
+            };
+          };
+          output: components['schemas']['Error'];
+          outputFormat: 'json';
+          status: 403;
+        }
+      | {
+          input: {
+            json: {
+              /**
+               * Format: uri
+               * @description URL of an avatar image to fetch asynchronously.
+               * @example https://example.com/avatar.jpg
+               */
+              avatar_url?: string;
+              /**
+               * @description Group description (supports markdown)
+               * @example Shared research notes and channels
+               */
+              description?: string;
+              /**
+               * @description Group name
+               * @example Research Studio
+               */
+              name: string;
+            };
+          };
+          output: components['schemas']['Error'];
+          outputFormat: 'json';
+          status: 408;
+        }
+      | {
+          input: {
+            json: {
+              /**
+               * Format: uri
+               * @description URL of an avatar image to fetch asynchronously.
+               * @example https://example.com/avatar.jpg
+               */
+              avatar_url?: string;
+              /**
+               * @description Group description (supports markdown)
+               * @example Shared research notes and channels
+               */
+              description?: string;
+              /**
+               * @description Group name
+               * @example Research Studio
+               */
+              name: string;
+            };
+          };
+          output: components['schemas']['Error'];
+          outputFormat: 'json';
+          status: 422;
+        }
+      | {
+          input: {
+            json: {
+              /**
+               * Format: uri
+               * @description URL of an avatar image to fetch asynchronously.
+               * @example https://example.com/avatar.jpg
+               */
+              avatar_url?: string;
+              /**
+               * @description Group description (supports markdown)
+               * @example Shared research notes and channels
+               */
+              description?: string;
+              /**
+               * @description Group name
+               * @example Research Studio
+               */
+              name: string;
+            };
+          };
+          output: components['schemas']['RateLimitError'];
+          outputFormat: 'json';
+          status: 429;
+        };
+  };
   '/v3/groups/:id': {
     $get:
       | {
@@ -2917,6 +3289,931 @@ type Endpoints = {
           output: components['schemas']['Group'];
           outputFormat: 'json';
           status: 200;
+        }
+      | {
+          input: { param: { id: string } };
+          output: components['schemas']['Error'];
+          outputFormat: 'json';
+          status: 401;
+        }
+      | {
+          input: { param: { id: string } };
+          output: components['schemas']['Error'];
+          outputFormat: 'json';
+          status: 403;
+        }
+      | {
+          input: { param: { id: string } };
+          output: components['schemas']['Error'];
+          outputFormat: 'json';
+          status: 404;
+        }
+      | {
+          input: { param: { id: string } };
+          output: components['schemas']['Error'];
+          outputFormat: 'json';
+          status: 408;
+        }
+      | {
+          input: { param: { id: string } };
+          output: components['schemas']['RateLimitError'];
+          outputFormat: 'json';
+          status: 429;
+        };
+    $put:
+      | {
+          input: {
+            param: { id: string };
+            json: {
+              /**
+               * Format: uri
+               * @description URL of an avatar image to fetch asynchronously.
+               * @example https://example.com/avatar.jpg
+               */
+              avatar_url?: string;
+              /**
+               * @description Group description (supports markdown). Pass null to clear.
+               * @example Updated shared research notes
+               */
+              description?: string | null;
+              /**
+               * @description Group name
+               * @example Updated Research Studio
+               */
+              name?: string;
+            };
+          };
+          output: components['schemas']['Group'];
+          outputFormat: 'json';
+          status: 200;
+        }
+      | {
+          input: {
+            param: { id: string };
+            json: {
+              /**
+               * Format: uri
+               * @description URL of an avatar image to fetch asynchronously.
+               * @example https://example.com/avatar.jpg
+               */
+              avatar_url?: string;
+              /**
+               * @description Group description (supports markdown). Pass null to clear.
+               * @example Updated shared research notes
+               */
+              description?: string | null;
+              /**
+               * @description Group name
+               * @example Updated Research Studio
+               */
+              name?: string;
+            };
+          };
+          output: components['schemas']['Error'];
+          outputFormat: 'json';
+          status: 400;
+        }
+      | {
+          input: {
+            param: { id: string };
+            json: {
+              /**
+               * Format: uri
+               * @description URL of an avatar image to fetch asynchronously.
+               * @example https://example.com/avatar.jpg
+               */
+              avatar_url?: string;
+              /**
+               * @description Group description (supports markdown). Pass null to clear.
+               * @example Updated shared research notes
+               */
+              description?: string | null;
+              /**
+               * @description Group name
+               * @example Updated Research Studio
+               */
+              name?: string;
+            };
+          };
+          output: components['schemas']['Error'];
+          outputFormat: 'json';
+          status: 401;
+        }
+      | {
+          input: {
+            param: { id: string };
+            json: {
+              /**
+               * Format: uri
+               * @description URL of an avatar image to fetch asynchronously.
+               * @example https://example.com/avatar.jpg
+               */
+              avatar_url?: string;
+              /**
+               * @description Group description (supports markdown). Pass null to clear.
+               * @example Updated shared research notes
+               */
+              description?: string | null;
+              /**
+               * @description Group name
+               * @example Updated Research Studio
+               */
+              name?: string;
+            };
+          };
+          output: components['schemas']['Error'];
+          outputFormat: 'json';
+          status: 403;
+        }
+      | {
+          input: {
+            param: { id: string };
+            json: {
+              /**
+               * Format: uri
+               * @description URL of an avatar image to fetch asynchronously.
+               * @example https://example.com/avatar.jpg
+               */
+              avatar_url?: string;
+              /**
+               * @description Group description (supports markdown). Pass null to clear.
+               * @example Updated shared research notes
+               */
+              description?: string | null;
+              /**
+               * @description Group name
+               * @example Updated Research Studio
+               */
+              name?: string;
+            };
+          };
+          output: components['schemas']['Error'];
+          outputFormat: 'json';
+          status: 404;
+        }
+      | {
+          input: {
+            param: { id: string };
+            json: {
+              /**
+               * Format: uri
+               * @description URL of an avatar image to fetch asynchronously.
+               * @example https://example.com/avatar.jpg
+               */
+              avatar_url?: string;
+              /**
+               * @description Group description (supports markdown). Pass null to clear.
+               * @example Updated shared research notes
+               */
+              description?: string | null;
+              /**
+               * @description Group name
+               * @example Updated Research Studio
+               */
+              name?: string;
+            };
+          };
+          output: components['schemas']['Error'];
+          outputFormat: 'json';
+          status: 408;
+        }
+      | {
+          input: {
+            param: { id: string };
+            json: {
+              /**
+               * Format: uri
+               * @description URL of an avatar image to fetch asynchronously.
+               * @example https://example.com/avatar.jpg
+               */
+              avatar_url?: string;
+              /**
+               * @description Group description (supports markdown). Pass null to clear.
+               * @example Updated shared research notes
+               */
+              description?: string | null;
+              /**
+               * @description Group name
+               * @example Updated Research Studio
+               */
+              name?: string;
+            };
+          };
+          output: components['schemas']['Error'];
+          outputFormat: 'json';
+          status: 422;
+        }
+      | {
+          input: {
+            param: { id: string };
+            json: {
+              /**
+               * Format: uri
+               * @description URL of an avatar image to fetch asynchronously.
+               * @example https://example.com/avatar.jpg
+               */
+              avatar_url?: string;
+              /**
+               * @description Group description (supports markdown). Pass null to clear.
+               * @example Updated shared research notes
+               */
+              description?: string | null;
+              /**
+               * @description Group name
+               * @example Updated Research Studio
+               */
+              name?: string;
+            };
+          };
+          output: components['schemas']['RateLimitError'];
+          outputFormat: 'json';
+          status: 429;
+        };
+    $delete:
+      | {
+          input: { param: { id: string } };
+          output: {};
+          outputFormat: 'json';
+          status: 204;
+        }
+      | {
+          input: { param: { id: string } };
+          output: components['schemas']['Error'];
+          outputFormat: 'json';
+          status: 401;
+        }
+      | {
+          input: { param: { id: string } };
+          output: components['schemas']['Error'];
+          outputFormat: 'json';
+          status: 403;
+        }
+      | {
+          input: { param: { id: string } };
+          output: components['schemas']['Error'];
+          outputFormat: 'json';
+          status: 404;
+        }
+      | {
+          input: { param: { id: string } };
+          output: components['schemas']['Error'];
+          outputFormat: 'json';
+          status: 408;
+        }
+      | {
+          input: { param: { id: string } };
+          output: components['schemas']['RateLimitError'];
+          outputFormat: 'json';
+          status: 429;
+        };
+  };
+  '/v3/groups/:id/members': {
+    $get:
+      | {
+          input: {
+            param: { id: string };
+            query: { page?: number; per?: number };
+          };
+          output: components['schemas']['GroupMemberListResponse'];
+          outputFormat: 'json';
+          status: 200;
+        }
+      | {
+          input: {
+            param: { id: string };
+            query: { page?: number; per?: number };
+          };
+          output: components['schemas']['Error'];
+          outputFormat: 'json';
+          status: 401;
+        }
+      | {
+          input: {
+            param: { id: string };
+            query: { page?: number; per?: number };
+          };
+          output: components['schemas']['Error'];
+          outputFormat: 'json';
+          status: 403;
+        }
+      | {
+          input: {
+            param: { id: string };
+            query: { page?: number; per?: number };
+          };
+          output: components['schemas']['Error'];
+          outputFormat: 'json';
+          status: 404;
+        }
+      | {
+          input: {
+            param: { id: string };
+            query: { page?: number; per?: number };
+          };
+          output: components['schemas']['Error'];
+          outputFormat: 'json';
+          status: 408;
+        }
+      | {
+          input: {
+            param: { id: string };
+            query: { page?: number; per?: number };
+          };
+          output: components['schemas']['RateLimitError'];
+          outputFormat: 'json';
+          status: 429;
+        };
+    $post:
+      | {
+          input: {
+            param: { id: string };
+            json: {
+              /**
+               * @description The group's invite code, authorizing the authenticated user to join
+               * @example abc123xyz
+               */
+              invite_token?: string;
+            };
+          };
+          output: components['schemas']['GroupMember'];
+          outputFormat: 'json';
+          status: 200;
+        }
+      | {
+          input: {
+            param: { id: string };
+            json: {
+              /**
+               * @description The group's invite code, authorizing the authenticated user to join
+               * @example abc123xyz
+               */
+              invite_token?: string;
+            };
+          };
+          output: components['schemas']['GroupMember'];
+          outputFormat: 'json';
+          status: 201;
+        }
+      | {
+          input: {
+            param: { id: string };
+            json: {
+              /**
+               * @description The group's invite code, authorizing the authenticated user to join
+               * @example abc123xyz
+               */
+              invite_token?: string;
+            };
+          };
+          output: components['schemas']['Error'];
+          outputFormat: 'json';
+          status: 401;
+        }
+      | {
+          input: {
+            param: { id: string };
+            json: {
+              /**
+               * @description The group's invite code, authorizing the authenticated user to join
+               * @example abc123xyz
+               */
+              invite_token?: string;
+            };
+          };
+          output: components['schemas']['Error'];
+          outputFormat: 'json';
+          status: 403;
+        }
+      | {
+          input: {
+            param: { id: string };
+            json: {
+              /**
+               * @description The group's invite code, authorizing the authenticated user to join
+               * @example abc123xyz
+               */
+              invite_token?: string;
+            };
+          };
+          output: components['schemas']['Error'];
+          outputFormat: 'json';
+          status: 404;
+        }
+      | {
+          input: {
+            param: { id: string };
+            json: {
+              /**
+               * @description The group's invite code, authorizing the authenticated user to join
+               * @example abc123xyz
+               */
+              invite_token?: string;
+            };
+          };
+          output: components['schemas']['Error'];
+          outputFormat: 'json';
+          status: 408;
+        }
+      | {
+          input: {
+            param: { id: string };
+            json: {
+              /**
+               * @description The group's invite code, authorizing the authenticated user to join
+               * @example abc123xyz
+               */
+              invite_token?: string;
+            };
+          };
+          output: components['schemas']['RateLimitError'];
+          outputFormat: 'json';
+          status: 429;
+        };
+  };
+  '/v3/groups/:id/members/me': {
+    $delete:
+      | {
+          input: { param: { id: string } };
+          output: {};
+          outputFormat: 'json';
+          status: 204;
+        }
+      | {
+          input: { param: { id: string } };
+          output: components['schemas']['Error'];
+          outputFormat: 'json';
+          status: 401;
+        }
+      | {
+          input: { param: { id: string } };
+          output: components['schemas']['Error'];
+          outputFormat: 'json';
+          status: 403;
+        }
+      | {
+          input: { param: { id: string } };
+          output: components['schemas']['Error'];
+          outputFormat: 'json';
+          status: 404;
+        }
+      | {
+          input: { param: { id: string } };
+          output: components['schemas']['Error'];
+          outputFormat: 'json';
+          status: 408;
+        }
+      | {
+          input: { param: { id: string } };
+          output: components['schemas']['RateLimitError'];
+          outputFormat: 'json';
+          status: 429;
+        };
+  };
+  '/v3/groups/:id/members/:user_id': {
+    $delete:
+      | {
+          input: { param: { id: string; user_id: number } };
+          output: {};
+          outputFormat: 'json';
+          status: 204;
+        }
+      | {
+          input: { param: { id: string; user_id: number } };
+          output: components['schemas']['Error'];
+          outputFormat: 'json';
+          status: 401;
+        }
+      | {
+          input: { param: { id: string; user_id: number } };
+          output: components['schemas']['Error'];
+          outputFormat: 'json';
+          status: 403;
+        }
+      | {
+          input: { param: { id: string; user_id: number } };
+          output: components['schemas']['Error'];
+          outputFormat: 'json';
+          status: 404;
+        }
+      | {
+          input: { param: { id: string; user_id: number } };
+          output: components['schemas']['Error'];
+          outputFormat: 'json';
+          status: 408;
+        }
+      | {
+          input: { param: { id: string; user_id: number } };
+          output: components['schemas']['RateLimitError'];
+          outputFormat: 'json';
+          status: 429;
+        };
+  };
+  '/v3/groups/:id/invitations': {
+    $get:
+      | {
+          input: {
+            param: { id: string };
+            query: { page?: number; per?: number };
+          };
+          output: components['schemas']['MembershipInvitationListResponse'];
+          outputFormat: 'json';
+          status: 200;
+        }
+      | {
+          input: {
+            param: { id: string };
+            query: { page?: number; per?: number };
+          };
+          output: components['schemas']['Error'];
+          outputFormat: 'json';
+          status: 401;
+        }
+      | {
+          input: {
+            param: { id: string };
+            query: { page?: number; per?: number };
+          };
+          output: components['schemas']['Error'];
+          outputFormat: 'json';
+          status: 403;
+        }
+      | {
+          input: {
+            param: { id: string };
+            query: { page?: number; per?: number };
+          };
+          output: components['schemas']['Error'];
+          outputFormat: 'json';
+          status: 404;
+        }
+      | {
+          input: {
+            param: { id: string };
+            query: { page?: number; per?: number };
+          };
+          output: components['schemas']['Error'];
+          outputFormat: 'json';
+          status: 408;
+        }
+      | {
+          input: {
+            param: { id: string };
+            query: { page?: number; per?: number };
+          };
+          output: components['schemas']['RateLimitError'];
+          outputFormat: 'json';
+          status: 429;
+        };
+    $post:
+      | {
+          input: {
+            param: { id: string };
+            json:
+              | {
+                  /**
+                   * @description User ID to add or invite
+                   * @example 12345
+                   */
+                  user_id: number;
+                }
+              | {
+                  /**
+                   * Format: email
+                   * @description Email address to invite
+                   * @example invitee@example.com
+                   */
+                  email: string;
+                };
+          };
+          output: components['schemas']['GroupMemberInviteResponse'];
+          outputFormat: 'json';
+          status: 200;
+        }
+      | {
+          input: {
+            param: { id: string };
+            json:
+              | {
+                  /**
+                   * @description User ID to add or invite
+                   * @example 12345
+                   */
+                  user_id: number;
+                }
+              | {
+                  /**
+                   * Format: email
+                   * @description Email address to invite
+                   * @example invitee@example.com
+                   */
+                  email: string;
+                };
+          };
+          output: components['schemas']['GroupMemberInviteResponse'];
+          outputFormat: 'json';
+          status: 201;
+        }
+      | {
+          input: {
+            param: { id: string };
+            json:
+              | {
+                  /**
+                   * @description User ID to add or invite
+                   * @example 12345
+                   */
+                  user_id: number;
+                }
+              | {
+                  /**
+                   * Format: email
+                   * @description Email address to invite
+                   * @example invitee@example.com
+                   */
+                  email: string;
+                };
+          };
+          output: components['schemas']['Error'];
+          outputFormat: 'json';
+          status: 400;
+        }
+      | {
+          input: {
+            param: { id: string };
+            json:
+              | {
+                  /**
+                   * @description User ID to add or invite
+                   * @example 12345
+                   */
+                  user_id: number;
+                }
+              | {
+                  /**
+                   * Format: email
+                   * @description Email address to invite
+                   * @example invitee@example.com
+                   */
+                  email: string;
+                };
+          };
+          output: components['schemas']['Error'];
+          outputFormat: 'json';
+          status: 401;
+        }
+      | {
+          input: {
+            param: { id: string };
+            json:
+              | {
+                  /**
+                   * @description User ID to add or invite
+                   * @example 12345
+                   */
+                  user_id: number;
+                }
+              | {
+                  /**
+                   * Format: email
+                   * @description Email address to invite
+                   * @example invitee@example.com
+                   */
+                  email: string;
+                };
+          };
+          output: components['schemas']['Error'];
+          outputFormat: 'json';
+          status: 403;
+        }
+      | {
+          input: {
+            param: { id: string };
+            json:
+              | {
+                  /**
+                   * @description User ID to add or invite
+                   * @example 12345
+                   */
+                  user_id: number;
+                }
+              | {
+                  /**
+                   * Format: email
+                   * @description Email address to invite
+                   * @example invitee@example.com
+                   */
+                  email: string;
+                };
+          };
+          output: components['schemas']['Error'];
+          outputFormat: 'json';
+          status: 404;
+        }
+      | {
+          input: {
+            param: { id: string };
+            json:
+              | {
+                  /**
+                   * @description User ID to add or invite
+                   * @example 12345
+                   */
+                  user_id: number;
+                }
+              | {
+                  /**
+                   * Format: email
+                   * @description Email address to invite
+                   * @example invitee@example.com
+                   */
+                  email: string;
+                };
+          };
+          output: components['schemas']['Error'];
+          outputFormat: 'json';
+          status: 408;
+        }
+      | {
+          input: {
+            param: { id: string };
+            json:
+              | {
+                  /**
+                   * @description User ID to add or invite
+                   * @example 12345
+                   */
+                  user_id: number;
+                }
+              | {
+                  /**
+                   * Format: email
+                   * @description Email address to invite
+                   * @example invitee@example.com
+                   */
+                  email: string;
+                };
+          };
+          output: components['schemas']['Error'];
+          outputFormat: 'json';
+          status: 422;
+        }
+      | {
+          input: {
+            param: { id: string };
+            json:
+              | {
+                  /**
+                   * @description User ID to add or invite
+                   * @example 12345
+                   */
+                  user_id: number;
+                }
+              | {
+                  /**
+                   * Format: email
+                   * @description Email address to invite
+                   * @example invitee@example.com
+                   */
+                  email: string;
+                };
+          };
+          output: components['schemas']['RateLimitError'];
+          outputFormat: 'json';
+          status: 429;
+        };
+  };
+  '/v3/groups/:id/invitations/:invitation_id': {
+    $delete:
+      | {
+          input: { param: { id: string; invitation_id: number } };
+          output: {};
+          outputFormat: 'json';
+          status: 204;
+        }
+      | {
+          input: { param: { id: string; invitation_id: number } };
+          output: components['schemas']['Error'];
+          outputFormat: 'json';
+          status: 401;
+        }
+      | {
+          input: { param: { id: string; invitation_id: number } };
+          output: components['schemas']['Error'];
+          outputFormat: 'json';
+          status: 403;
+        }
+      | {
+          input: { param: { id: string; invitation_id: number } };
+          output: components['schemas']['Error'];
+          outputFormat: 'json';
+          status: 404;
+        }
+      | {
+          input: { param: { id: string; invitation_id: number } };
+          output: components['schemas']['Error'];
+          outputFormat: 'json';
+          status: 408;
+        }
+      | {
+          input: { param: { id: string; invitation_id: number } };
+          output: components['schemas']['Error'];
+          outputFormat: 'json';
+          status: 422;
+        }
+      | {
+          input: { param: { id: string; invitation_id: number } };
+          output: components['schemas']['RateLimitError'];
+          outputFormat: 'json';
+          status: 429;
+        };
+  };
+  '/v3/groups/:id/invite': {
+    $get:
+      | {
+          input: { param: { id: string } };
+          output: components['schemas']['GroupInvite'];
+          outputFormat: 'json';
+          status: 200;
+        }
+      | {
+          input: { param: { id: string } };
+          output: components['schemas']['Error'];
+          outputFormat: 'json';
+          status: 401;
+        }
+      | {
+          input: { param: { id: string } };
+          output: components['schemas']['Error'];
+          outputFormat: 'json';
+          status: 403;
+        }
+      | {
+          input: { param: { id: string } };
+          output: components['schemas']['Error'];
+          outputFormat: 'json';
+          status: 404;
+        }
+      | {
+          input: { param: { id: string } };
+          output: components['schemas']['Error'];
+          outputFormat: 'json';
+          status: 408;
+        }
+      | {
+          input: { param: { id: string } };
+          output: components['schemas']['RateLimitError'];
+          outputFormat: 'json';
+          status: 429;
+        };
+    $post:
+      | {
+          input: { param: { id: string } };
+          output: components['schemas']['GroupInvite'];
+          outputFormat: 'json';
+          status: 200;
+        }
+      | {
+          input: { param: { id: string } };
+          output: components['schemas']['GroupInvite'];
+          outputFormat: 'json';
+          status: 201;
+        }
+      | {
+          input: { param: { id: string } };
+          output: components['schemas']['Error'];
+          outputFormat: 'json';
+          status: 401;
+        }
+      | {
+          input: { param: { id: string } };
+          output: components['schemas']['Error'];
+          outputFormat: 'json';
+          status: 403;
+        }
+      | {
+          input: { param: { id: string } };
+          output: components['schemas']['Error'];
+          outputFormat: 'json';
+          status: 404;
+        }
+      | {
+          input: { param: { id: string } };
+          output: components['schemas']['Error'];
+          outputFormat: 'json';
+          status: 408;
+        }
+      | {
+          input: { param: { id: string } };
+          output: components['schemas']['RateLimitError'];
+          outputFormat: 'json';
+          status: 429;
+        };
+    $delete:
+      | {
+          input: { param: { id: string } };
+          output: {};
+          outputFormat: 'json';
+          status: 204;
         }
       | {
           input: { param: { id: string } };
