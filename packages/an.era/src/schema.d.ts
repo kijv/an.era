@@ -303,6 +303,21 @@ export interface components {
             /** @description HATEOAS links for navigation */
             _links: components["schemas"]["Links"];
         };
+        /**
+         * @description The authenticated user's own profile, returned by `GET /v3/me`.
+         *     Extends `User` with the token holder's email address. This field is
+         *     intentionally not present on `/v3/users/{id}` or on embedded `User`
+         *     references nested in other resources.
+         */
+        Me: components["schemas"]["User"] & {
+            counts?: components["schemas"]["MeCounts"];
+            /**
+             * Format: email
+             * @description The authenticated user's email address.
+             * @example jane@example.com
+             */
+            email: string;
+        };
         /** @description Counts of various items for the user */
         UserCounts: {
             /**
@@ -321,10 +336,20 @@ export interface components {
              */
             following: number;
         };
+        /** @description Counts for the authenticated user, including private notification state. */
+        MeCounts: components["schemas"]["UserCounts"] & {
+            /**
+             * @description Number of unread notifications for the authenticated user
+             * @example 3
+             */
+            notifications: number;
+        };
         /** @description Full group representation */
         Group: components["schemas"]["EmbeddedGroup"] & {
-            /** @description Group biography with markdown, HTML, and plain text renderings */
-            bio?: components["schemas"]["MarkdownContent"] | null;
+            /** @description Group description with markdown, HTML, and plain text renderings */
+            description?: components["schemas"]["MarkdownContent"] | null;
+            /** @description Role assigned to new members joining the group */
+            default_role: components["schemas"]["GroupMembershipRole"];
             /**
              * Format: date-time
              * @description When the group was created
@@ -340,6 +365,8 @@ export interface components {
             /** @description User who owns/created the group */
             user: components["schemas"]["EmbeddedUser"];
             counts: components["schemas"]["GroupCounts"];
+            /** @description Actions the current user can perform on the group */
+            can: components["schemas"]["GroupAbilities"];
             /** @description HATEOAS links for navigation */
             _links: components["schemas"]["Links"];
         };
@@ -355,6 +382,172 @@ export interface components {
              * @example 5
              */
             users: number;
+        };
+        /**
+         * @description Pending invitation for a user to join a group.
+         *
+         *     Invitee acceptance and decline currently happen through the Are.na web
+         *     UI using tokenized invitation links sent by email. The web UI uses the
+         *     GraphQL `acceptMembershipInvitation` and `declineMembershipInvitation`
+         *     mutations; this REST surface only exposes group-manager list and revoke
+         *     operations.
+         */
+        MembershipInvitation: {
+            /**
+             * @description Unique identifier for the invitation
+             * @example 12345
+             */
+            id: number;
+            /**
+             * @example MembershipInvitation
+             * @enum {string}
+             */
+            type: "MembershipInvitation";
+            /** @description Group the invitee is invited to join */
+            target: components["schemas"]["EmbeddedGroup"];
+            /** @description User being invited, when available */
+            invitee: components["schemas"]["EmbeddedUser"] | null;
+            /**
+             * Format: email
+             * @description Email address being invited, visible to users who can manage invitations
+             * @example invitee@example.com
+             */
+            invitee_email: string | null;
+            /** @description User who created the invitation */
+            invited_by: components["schemas"]["EmbeddedUser"];
+            /**
+             * @example pending
+             * @enum {string}
+             */
+            state: "pending" | "accepted" | "declined" | "revoked";
+            /**
+             * Format: date-time
+             * @description When the invitation was accepted
+             * @example null
+             */
+            accepted_at: string | null;
+            /**
+             * Format: date-time
+             * @description When the invitation was created
+             * @example 2023-01-15T10:30:00Z
+             */
+            created_at: string;
+            /**
+             * Format: date-time
+             * @description When the invitation was last updated
+             * @example 2023-01-15T10:30:00Z
+             */
+            updated_at: string;
+            /**
+             * @description Links for navigation. Empty today because no public endpoint
+             *     addresses an invitation directly; reserved for future use.
+             */
+            _links: {
+                [key: string]: unknown;
+            };
+        };
+        /** @description Shareable invite code for joining a group */
+        GroupInvite: {
+            /**
+             * @description Unique identifier for the invite code
+             * @example 12345
+             */
+            id: number;
+            /**
+             * @example GroupInvite
+             * @enum {string}
+             */
+            type: "GroupInvite";
+            /**
+             * @description Invite code required to join the group
+             * @example abc123xyz
+             */
+            code: string;
+            /**
+             * Format: uri
+             * @description Public Are.na URL for accepting the group invite
+             * @example https://www.are.na/group/research-studio/invite/abc123xyz
+             */
+            url: string;
+            /**
+             * Format: date-time
+             * @description When the invite code was created
+             * @example 2023-01-15T10:30:00Z
+             */
+            created_at: string;
+            /**
+             * Format: date-time
+             * @description When the invite code was last updated
+             * @example 2023-01-15T10:30:00Z
+             */
+            updated_at: string;
+            /** @description HATEOAS links for navigation */
+            _links: components["schemas"]["Links"];
+        };
+        /**
+         * @description The role a member has within a group. `viewer` can see the group's
+         *     channels (including private ones) but not add to or edit them;
+         *     `member` has full write access to the group's channels and can invite
+         *     new members; `admin` can additionally manage the group and its members.
+         * @example member
+         * @enum {string}
+         */
+        GroupMembershipRole: "viewer" | "member" | "admin";
+        /** @description Group member entry, including the group owner and any collaborators */
+        GroupMember: components["schemas"]["EmbeddedUser"] & {
+            /**
+             * @description The user's role on the group. `owner` is the group's creator;
+             *     everyone else with a group membership has a `viewer`, `member`,
+             *     or `admin` role.
+             * @example member
+             * @enum {string}
+             */
+            role: "owner" | "viewer" | "member" | "admin";
+        };
+        /** @description Data payload containing an array of group members */
+        GroupMemberList: {
+            /** @description Array of group members (owner first on page 1) */
+            data: components["schemas"]["GroupMember"][];
+        };
+        /** @description Paginated list of group members with total count */
+        GroupMemberListResponse: components["schemas"]["GroupMemberList"] & components["schemas"]["PaginatedResponse"];
+        /** @description Data payload containing an array of membership invitations */
+        MembershipInvitationList: {
+            /** @description Array of pending membership invitations */
+            data: components["schemas"]["MembershipInvitation"][];
+        };
+        /** @description Paginated list of pending membership invitations */
+        MembershipInvitationListResponse: components["schemas"]["MembershipInvitationList"] & components["schemas"]["PaginatedResponse"];
+        /**
+         * @description Discriminator for the result of `POST /v3/groups/{id}/invitations`.
+         *
+         *     - `added`: A new group membership was created (the invitee already
+         *       follows the caller, so the invite/accept round trip was skipped).
+         *     - `invited`: A new pending invitation was created and an email was sent.
+         *     - `invitation_pending`: An open invitation for this user/email already
+         *       existed; that invitation is returned unchanged.
+         *     - `already_member`: The user is already a group member; no action was
+         *       taken.
+         * @enum {string}
+         */
+        GroupMemberInviteOutcome: "added" | "invited" | "invitation_pending" | "already_member";
+        /**
+         * @description Result of `POST /v3/groups/{id}/invitations`. Inspect `outcome` to
+         *     determine what happened; HTTP status mirrors it (`201` for created outcomes,
+         *     `200` for no-op outcomes).
+         */
+        GroupMemberInviteResponse: {
+            outcome: components["schemas"]["GroupMemberInviteOutcome"];
+            /**
+             * @description The user that this request resolved to, when known. Null only when
+             *     an invitation was issued by email and no matching user exists yet.
+             */
+            user: components["schemas"]["EmbeddedUser"] | null;
+            /**
+             * @description The invitation associated with this request, for `invited` and
+             *     `invitation_pending` outcomes.
+             */
+            invitation: components["schemas"]["MembershipInvitation"] | null;
         };
         /**
          * @description Denotes plan or other distinction:
@@ -612,6 +805,12 @@ export interface components {
              * @example Beige flags
              */
             alt_text?: string;
+            /**
+             * Format: uri
+             * @description Optional cover image URL to use as the visual preview for Link, Attachment, and Embed blocks (overrides the auto-generated screenshot/thumbnail). Ignored for Image and Text blocks.
+             * @example https://example.com/cover.jpg
+             */
+            cover_url?: string;
             /** @description Custom key-value metadata to set on the new block. */
             metadata?: components["schemas"]["Metadata"];
         };
@@ -1077,8 +1276,7 @@ export interface components {
              */
             id: number;
             /**
-             * @description Comment type
-             * @example Comment
+             * @description Comment type (enum property replaced by openapi-typescript)
              * @enum {string}
              */
             type: "Comment";
@@ -1106,8 +1304,7 @@ export interface components {
              */
             id: number;
             /**
-             * @description Channel type
-             * @example Channel
+             * @description Channel type (enum property replaced by openapi-typescript)
              * @enum {string}
              */
             type: "Channel";
@@ -1161,6 +1358,20 @@ export interface components {
         };
         /** @description Channel owner (User or Group) */
         ChannelOwner: components["schemas"]["EmbeddedUser"] | components["schemas"]["EmbeddedGroup"];
+        /** @description User or Group that should own the channel. */
+        ChannelOwnerInput: {
+            /**
+             * @description ID of the User or Group to own the channel.
+             * @example 12345
+             */
+            id: number;
+            /**
+             * @description Owner type. Defaults to User when omitted.
+             * @default User
+             * @enum {string}
+             */
+            type: "User" | "Group";
+        };
         /** @description Channel collaborator (User or Group) */
         ChannelCollaborator: components["schemas"]["EmbeddedUser"] | components["schemas"]["EmbeddedGroup"];
         /** @description Actions the current user can perform on the channel */
@@ -1186,6 +1397,29 @@ export interface components {
              */
             manage_collaborators: boolean;
         };
+        /** @description Actions the current user can perform on the group */
+        GroupAbilities: {
+            /**
+             * @description Whether the user can update this group
+             * @example false
+             */
+            update: boolean;
+            /**
+             * @description Whether the user can delete this group
+             * @example false
+             */
+            destroy: boolean;
+            /**
+             * @description Whether the user can add/remove group members
+             * @example false
+             */
+            manage_members: boolean;
+            /**
+             * @description Whether the user can create/revoke group invitations
+             * @example false
+             */
+            manage_invitations: boolean;
+        };
         /** @description Counts of various items in the channel */
         ChannelCounts: {
             /**
@@ -1208,6 +1442,134 @@ export interface components {
              * @example 3
              */
             collaborators: number;
+        };
+        /**
+         * @description The normalized activity kind. Encodes the actor's action and the item /
+         *     target involved, so clients can render and switch on a single value
+         *     rather than stitching together separate action and connector phrases.
+         *
+         *     Kind determines the expected subject types:
+         *     - `followed_user`: item=User, target=null, parent=null
+         *     - `followed_channel`: item=Channel, target=null, parent=null
+         *     - `followed_group`: item=Group, target=null, parent=null
+         *     - `added_block_to_channel`: item=Block (Text/Image/Link/Attachment/Embed), target=Channel, parent=null
+         *     - `added_channel_to_channel`: item=Channel, target=Channel, parent=null
+         *     - `created_channel`: item=Channel, target=null, parent=null
+         *     - `collaborating_with_user_on_channel`: item=User, target=Channel, parent=null
+         *     - `collaborating_with_group_on_channel`: item=Group, target=Channel, parent=null
+         *     - `commented_on_block`: item=Comment, target=Block, parent=Channel
+         *     - `mentioned_you`: item=Comment, target=User, parent=Block
+         *     - `added_user_to_group`: item=User, target=Group, parent=null
+         * @example added_block_to_channel
+         * @enum {string}
+         */
+        ActivityKind: "followed_user" | "followed_channel" | "followed_group" | "added_block_to_channel" | "added_channel_to_channel" | "created_channel" | "collaborating_with_user_on_channel" | "collaborating_with_group_on_channel" | "commented_on_block" | "mentioned_you" | "added_user_to_group";
+        /** @description User or group who performed the activity. */
+        ActivityActor: components["schemas"]["EmbeddedUser"] | components["schemas"]["EmbeddedGroup"];
+        /** @description Resource involved in a feed activity. */
+        ActivitySubject: components["schemas"]["EmbeddedUser"] | components["schemas"]["EmbeddedGroup"] | components["schemas"]["Channel"] | components["schemas"]["TextBlock"] | components["schemas"]["ImageBlock"] | components["schemas"]["LinkBlock"] | components["schemas"]["AttachmentBlock"] | components["schemas"]["EmbedBlock"] | components["schemas"]["Comment"];
+        /** @description Common fields for feed activities and notifications. */
+        ActivityBase: {
+            /**
+             * @description Unique identifier for the underlying activity.
+             * @example 12345
+             */
+            id: number;
+            /**
+             * Format: date-time
+             * @description When the activity occurred.
+             * @example 2024-06-05T12:00:00Z
+             */
+            created_at: string;
+            kind: components["schemas"]["ActivityKind"];
+            actor: components["schemas"]["ActivityActor"];
+            item: components["schemas"]["ActivitySubject"] | null;
+            target: components["schemas"]["ActivitySubject"] | null;
+            parent: components["schemas"]["ActivitySubject"] | null;
+        };
+        /** @description A single feed activity. */
+        Activity: components["schemas"]["ActivityBase"] & {
+            /**
+             * @example Activity
+             * @enum {string}
+             */
+            type: "Activity";
+        };
+        /** @description A notification feed activity with read state. */
+        Notification: components["schemas"]["ActivityBase"] & {
+            /**
+             * @example Notification
+             * @enum {string}
+             */
+            type: "Notification";
+            /**
+             * @description Whether the authenticated user has read this notification.
+             * @example false
+             */
+            is_read: boolean;
+        };
+        /**
+         * @description Cursor pagination metadata for the newest-first feeds. `next_cursor`
+         *     pages toward older items (the "load more" direction); `prev_cursor`
+         *     pages back toward newer items.
+         */
+        CursorMeta: {
+            /**
+             * @description Maximum number of items requested.
+             * @example 24
+             */
+            limit: number;
+            /**
+             * @description Cursor for the next (older) page. Pass it back as the `next`
+             *     parameter to continue paging toward older items. Null when no
+             *     older items remain.
+             * @example eyJzIjoxNzE3NjEyMzQ1LCJtIjo0MjB9
+             */
+            next_cursor: string | null;
+            /**
+             * @description Cursor for the previous (newer) page. Pass it back as the `prev`
+             *     parameter to page toward newer items. Null when this page is
+             *     empty.
+             * @example eyJzIjoxNzE3NjEyMzQ1LCJtIjo0MjB9
+             */
+            prev_cursor: string | null;
+            /**
+             * @description Whether more (older) items exist beyond this page, reachable via
+             *     `next_cursor`.
+             * @example true
+             */
+            has_more: boolean;
+        };
+        /** @description Cursor-paginated feed response. */
+        FeedListResponse: {
+            meta: components["schemas"]["CursorMeta"];
+            data: components["schemas"]["Activity"][];
+        };
+        /** @description Cursor-paginated notification feed response. */
+        NotificationListResponse: {
+            meta: components["schemas"]["CursorMeta"];
+            data: components["schemas"]["Notification"][];
+        };
+        /** @description The authenticated user's unread notification state after a mutation. */
+        NotificationReadMeta: {
+            /**
+             * @description Number of unread notifications remaining.
+             * @example 2
+             */
+            notifications: number;
+        };
+        /**
+         * @description Response to marking a single notification as read. Returns the updated
+         *     notification alongside the new unread count, so clients can refresh
+         *     both list state and badge without a follow-up request.
+         */
+        NotificationReadResponse: {
+            meta: components["schemas"]["NotificationReadMeta"];
+            data: components["schemas"]["Notification"];
+        };
+        /** @description Response to marking all notifications as read. */
+        NotificationsReadAllResponse: {
+            meta: components["schemas"]["NotificationReadMeta"];
         };
         /** @description Pagination metadata */
         PaginationMeta: {
@@ -1477,6 +1839,24 @@ export interface components {
          * @example Image
          */
         ContentTypeFilterParam: components["schemas"]["ContentTypeFilter"];
+        /**
+         * @description Number of feed items to return (max 100)
+         * @example 24
+         */
+        LimitParam: number;
+        /**
+         * @description Load the **next** page (toward older items — the "load more"
+         *     direction, since feeds are ordered newest-first). Pass back the
+         *     `meta.next_cursor` from a previous response.
+         * @example eyJzIjoxNzE3NjEyMzQ1LCJtIjo0MjB9
+         */
+        CursorNextParam: string;
+        /**
+         * @description Load the **previous** page (toward newer items). Pass back the
+         *     `meta.prev_cursor` from a previous response.
+         * @example eyJzIjoxNzE3NjEyMzQ1LCJtIjo0MjB9
+         */
+        CursorPrevParam: string;
     };
     requestBodies: never;
     headers: never;
